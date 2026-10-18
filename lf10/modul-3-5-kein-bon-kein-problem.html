@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kein Bon, kein Problem?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: eine schmale Handy-Spalte; Kunde oben als Sprechblase, Antworten als Kassenbon-Zettel darunter */
+:root{
+  --bg:#E9EEF2; --paper:#FFFFFF; --paper2:#F6F8FA; --ink:#1B2631; --muted:#5A6977;
+  --line:#CBD5DD; --accent:#0E7C6B; --accent-ink:#FFFFFF; --accent-soft:#D5EFEA;
+  --bad:#B4321F; --bad-soft:#F8DDD8; --mid:#B7791F; --mid-soft:#F6EBD3; --good:#1F7A3A; --good-soft:#D8F0DF;
+  --shadow:0 1px 2px rgba(27,38,49,.08),0 6px 18px rgba(27,38,49,.07);
+  --display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11181F; --paper:#1A232C; --paper2:#212C36; --ink:#E6EDF2; --muted:#9AAAB7;
+  --line:#33424F; --accent:#3CC2AA; --accent-ink:#06211C; --accent-soft:#163C36;
+  --bad:#F08A78; --bad-soft:#3E211C; --mid:#E5B45E; --mid-soft:#3A2E17; --good:#6FD08E; --good-soft:#18361F;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11181F; --paper:#1A232C; --paper2:#212C36; --ink:#E6EDF2; --muted:#9AAAB7;
+  --line:#33424F; --accent:#3CC2AA; --accent-ink:#06211C; --accent-soft:#163C36;
+  --bad:#F08A78; --bad-soft:#3E211C; --mid:#E5B45E; --mid-soft:#3A2E17; --good:#6FD08E; --good-soft:#18361F;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:2.1rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:800}
+h3{font-size:1.08rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:0;border-radius:12px;padding:14px 18px;font-weight:700;background:var(--accent);color:var(--accent-ink);font-size:1rem}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row > .btn{flex:1 1 200px}
+
+/* Kassenbon-Optik */
+.bon{background:var(--paper);box-shadow:var(--shadow);padding:20px 20px 26px;position:relative;
+  --zz:radial-gradient(circle at 8px 0,transparent 7px,var(--paper) 7.5px);}
+.bon::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:8px;background:var(--zz);background-size:16px 8px;background-repeat:repeat-x}
+.bon .mono{font-family:var(--mono);font-size:.86rem}
+.dash{border:0;border-top:2px dashed var(--line);margin:12px 0}
+.bonline{display:flex;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:.9rem}
+.stamp{display:inline-block;font-family:var(--mono);font-weight:600;font-size:.8rem;letter-spacing:.08em;border:2px solid var(--bad);color:var(--bad);padding:2px 8px;border-radius:4px;transform:rotate(-4deg)}
+
+.card{background:var(--paper);border-radius:16px;box-shadow:var(--shadow);padding:18px}
+.modes{display:grid;gap:12px}
+.mode{display:flex;flex-direction:column;gap:8px;text-align:left;border:2px solid var(--line);background:var(--paper);border-radius:16px;padding:16px}
+.mode:hover:not(:disabled){border-color:var(--accent)}
+.mode:disabled{opacity:.6;cursor:default}
+.mode .tag{font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.mode .t{font-family:var(--display);font-size:1.25rem;font-weight:800}
+.lvl{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:2px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--paper);font-size:.92rem}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:700}
+
+/* Kunde + Laune */
+.hud{display:flex;align-items:center;gap:14px}
+.face{width:64px;height:64px;flex:0 0 64px}
+.meter{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.meter .bar{height:12px;border-radius:999px;background:var(--paper2);border:1px solid var(--line);overflow:hidden}
+.meter .fill{height:100%;width:20%;border-radius:999px;transition:width .5s ease,background-color .5s}
+.meter .lbl{display:flex;justify-content:space-between;font-size:.86rem;color:var(--muted)}
+.meter .lbl b{color:var(--ink)}
+.progress{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.bubble{background:var(--paper);border-radius:18px 18px 18px 4px;box-shadow:var(--shadow);padding:16px 18px;font-size:1.12rem;font-weight:700}
+.bubble .who{display:block;font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:400;margin-bottom:4px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:1rem;display:flex;gap:12px;align-items:flex-start}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--mono);font-weight:600;color:var(--accent);flex:0 0 auto}
+.opt.picked.good{border-color:var(--good);background:var(--good-soft)}
+.opt.picked.mid{border-color:var(--mid);background:var(--mid-soft)}
+.opt.picked.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled:not(.picked){opacity:.45}
+.fb{border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;border-left:6px solid}
+.fb.good{background:var(--good-soft);border-color:var(--good)}
+.fb.mid{background:var(--mid-soft);border-color:var(--mid)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb .head{font-family:var(--display);font-weight:800;font-size:1.1rem}
+.fb .re{font-style:italic}
+
+/* Ergebnis */
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .n{font-family:var(--display);font-size:3.2rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.check{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.check li{display:flex;gap:10px;align-items:flex-start}
+.check .ic{flex:0 0 26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.check .ok{background:var(--good-soft);color:var(--good)}
+.check .no{background:var(--bad-soft);color:var(--bad)}
+.facts{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.facts li{background:var(--paper2);border-radius:12px;padding:12px 14px}
+.facts b{font-family:var(--display)}
+.pair{display:grid;gap:4px;background:var(--paper2);border-radius:12px;padding:12px 14px}
+.pair .du{color:var(--bad)}
+.pair .bs{color:var(--good);font-weight:700}
+
+/* Chat */
+.chat{display:flex;flex-direction:column;gap:10px;min-height:120px}
+.msg{max-width:86%;padding:12px 14px;border-radius:16px;box-shadow:var(--shadow);white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.k{background:var(--paper);align-self:flex-start;border-bottom-left-radius:4px;font-weight:700}
+.msg.a{background:var(--accent);color:var(--accent-ink);align-self:flex-end;border-bottom-right-radius:4px}
+.msg.sys{align-self:center;background:transparent;box-shadow:none;color:var(--muted);font-size:.9rem;text-align:center}
+.compose{display:flex;flex-direction:column;gap:8px;position:sticky;bottom:0;background:var(--bg);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px))}
+textarea{width:100%;min-height:80px;resize:vertical;border:2px solid var(--line);border-radius:14px;padding:12px;font:inherit;background:var(--paper);color:var(--ink)}
+.hint{font-size:.9rem;color:var(--muted)}
+.starter{display:flex;gap:8px;flex-wrap:wrap}
+.starter button{border:1px dashed var(--line);background:var(--paper2);border-radius:10px;padding:6px 10px;font-size:.88rem;text-align:left}
+.dots::after{content:"…";animation:dots 1.2s steps(3) infinite}
+@keyframes dots{0%{content:"."}33%{content:".."}66%{content:"..."}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap" id="app"></div>
+
+<script>
+(() => {
+"use strict";
+const $app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const clamp = v => Math.max(0, Math.min(100, v));
+
+/* ---------- Spiel 1: Antworten wählen ---------- */
+const CHECK = {
+  gefuehl:"Ärger ernst genommen und freundlich geblieben",
+  fehler:"Nach dem Fehler gefragt",
+  datum:"Nach dem Kaufdatum gefragt",
+  ursache:"Nach Sturz oder Wasser gefragt, ohne etwas zu unterstellen",
+  nachweis:"Erkannt: Ohne Kassenbon geht es trotzdem",
+  beleg:"Anderen Kaufnachweis genannt (Kontoauszug, Banking-App, Seriennummer)",
+  reihenfolge:"Richtige Reihenfolge: erst Reparatur oder neues Gerät, dann Geld",
+  loesung:"Schnelle Lösung angeboten, die zum Kunden passt"
+};
+const ROUNDS = [
+ { say:"Guten Tag, ich will das Ding hier zurückgeben, das ist Schrott!", opts:[
+   {t:"Guten Tag! Das klingt ärgerlich. Erzählen Sie mir bitte, was mit dem Handy los ist?", m:+20, p:2, c:"gefuehl",
+    fb:"Sehr gut. Du nimmst den Ärger ernst und lädst den Kunden ein, zu erzählen.", re:"Na endlich hört mal jemand zu."},
+   {t:"Schrott verkaufen wir hier nicht. Was ist denn kaputt?", m:-15, p:0,
+    fb:"Du verteidigst den Laden. Der Kunde fühlt sich angegriffen und wird lauter.", re:"Ach so? Dann gucken Sie sich das mal an!"},
+   {t:"Moment bitte, ich räume gerade das Regal ein. Da müssen Sie kurz warten.", m:-25, p:0,
+    fb:"Ein wütender Kunde geht immer vor. Wer warten muss, wird noch wütender.", re:"Wie bitte? Ich steh doch schon hier!"} ]},
+ { say:"Der Akku ist nach zwei Stunden leer, und dauernd startet das Ding neu. Für 349 Euro! Ich will mein Geld zurück, und zwar sofort!", opts:[
+   {t:"Das darf bei einem neuen Gerät nicht passieren. Ich schaue mir das mit Ihnen an. Seit wann haben Sie das Problem?", m:+15, p:2, c:"fehler",
+    fb:"Gut. Du zeigst Verständnis und fragst gezielt nach dem Fehler.", re:"Hm. Okay."},
+   {t:"Geld zurück gibt es bei uns grundsätzlich nicht.", m:-20, p:0,
+    fb:"Das stimmt so nicht. Bei einem Mangel kann der Kunde am Ende auch Geld zurückbekommen. Außerdem provoziert der Satz.", re:"Das werden wir ja sehen!"},
+   {t:"Okay, kein Problem, dann bekommen Sie sofort Ihr Geld.", m:+10, p:0,
+    fb:"Der Kunde freut sich. Aber du hast noch nichts geprüft und etwas versprochen, das du als Azubi nicht entscheiden solltest. Laut Gesetz kommt zuerst Reparatur oder ein neues Gerät.", re:"Na also, geht doch."} ]},
+ { say:"Seit letzter Woche. Ist doch egal, es ist kaputt!", opts:[
+   {t:"Ich frage, weil es wichtig ist: Wann haben Sie das Handy denn gekauft?", m:+5, p:2, c:"datum",
+    fb:"Richtig. Das Kaufdatum entscheidet: Die Gewährleistung gilt 2 Jahre. Im 1. Jahr muss das Geschäft beweisen, dass der Fehler nicht schon beim Kauf da war.", re:"Hmpf. Warten Sie …"},
+   {t:"Na ja, Akkus halten halt nicht ewig.", m:-15, p:0,
+    fb:"Nach wenigen Monaten darf ein Akku nicht so schwach sein. Du nimmst den Kunden nicht ernst.", re:"Nach ein paar Monaten? Wollen Sie mich veräppeln?"},
+   {t:"Haben Sie es vielleicht falsch aufgeladen?", m:-10, p:0,
+    fb:"Das klingt wie ein Vorwurf. Frag lieber neutral nach Daten und Fakten.", re:"Ich bin doch nicht blöd!"} ]},
+ { say:"Im Sommer irgendwann. Hier bei Ihnen!", opts:[
+   {t:"Danke. Eine Frage stelle ich bei jeder Reklamation: Ist das Handy einmal heruntergefallen oder nass geworden?", m:+5, p:2, c:"ursache",
+    fb:"Gut. Die Frage muss sein, denn bei einem Sturzschaden gibt es keine Gewährleistung. Mit „bei jeder Reklamation“ klingt sie nicht wie ein Vorwurf.", re:"Nein! Wollen Sie mir jetzt was unterstellen?"},
+   {t:"Sie haben das bestimmt mal fallen lassen, oder?", m:-25, p:0,
+    fb:"Das ist eine Unterstellung. Der Kunde fühlt sich beschuldigt.", re:"Unverschämt! Ich lass doch nichts fallen!"},
+   {t:"Im Sommer? Dann ist das ein Fall für die Garantie. Da müssen Sie sich an den Hersteller wenden.", m:-10, p:0,
+    fb:"Falsch. Die Gewährleistung ist Sache des Geschäfts. Du darfst den Kunden nicht einfach zum Hersteller schicken.", re:"Ich hab's doch bei Ihnen gekauft, nicht beim Hersteller!"} ]},
+ { say:"Nein! Wollen Sie mir jetzt was unterstellen?", opts:[
+   {t:"Nein, gar nicht. Das frage ich jeden Kunden, damit ich die Reklamation richtig aufnehmen kann.", m:+10, p:2,
+    fb:"Sehr gut. Du bleibst ruhig und erklärst, warum du fragst.", re:"Na gut. Nein, ist nie runtergefallen."},
+   {t:"Ich muss das halt fragen. Regen Sie sich doch nicht so auf.", m:-15, p:0,
+    fb:"„Regen Sie sich nicht auf“ macht Kunden fast immer wütender.", re:"Ich reg mich auf, so viel ich will!"},
+   {t:"Haben Sie den Kassenbon dabei?", m:-5, p:1,
+    fb:"Die Frage ist wichtig, aber du gehst über den Ärger hinweg. Erst kurz beruhigen, dann weiterfragen.", re:"Sie hören mir gar nicht zu, oder?"} ]},
+ { say:"Und den Kassenbon hab ich übrigens nicht mehr. Wer hebt so was auf? Heißt das jetzt, Sie machen gar nichts?", opts:[
+   {t:"Doch. Der Kassenbon ist nur ein möglicher Nachweis. Wie haben Sie denn bezahlt?", m:+20, p:2, c:"nachweis",
+    fb:"Genau richtig. Für die Gewährleistung braucht man keinen Kassenbon. Jeder andere Kaufnachweis zählt auch.", re:"Ach so? Mit Karte, glaube ich."},
+   {t:"Ohne Kassenbon kann ich leider gar nichts für Sie tun.", m:-30, p:0,
+    fb:"Falsch! Das ist eine häufige Prüfungsfalle. Der Bon ist keine Bedingung. Der Kunde kann den Kauf auch anders nachweisen.", re:"Das ist ja wohl das Letzte!"},
+   {t:"Kein Problem, dann tauschen wir es einfach so um.", m:+10, p:0,
+    fb:"Nett, aber du weißt noch gar nicht, ob das Handy bei euch gekauft wurde. Erst den Kauf nachweisen lassen.", re:"Na, das ist ja mal was."} ]},
+ { say:"Mit Karte, glaub ich. Und jetzt?", opts:[
+   {t:"Dann reicht die Abbuchung in Ihrer Banking-App oder ein Kontoauszug. Ich kann außerdem die Seriennummer in unserem System prüfen.", m:+15, p:2, c:"beleg",
+    fb:"Perfekt. Du nennst gleich zwei Wege. Mit der Seriennummer findest du den Verkauf oft auch ohne Beleg.", re:"Moment, ich guck mal in die App …"},
+   {t:"Dann bringen Sie bitte einen Kontoauszug vorbei, dann sehen wir weiter.", m:0, p:1,
+    fb:"Richtig, aber umständlich. Der Kunde muss wiederkommen. Die Banking-App oder die Seriennummer geht sofort.", re:"Ich soll extra noch mal herkommen?"},
+   {t:"Eine Kartenzahlung zählt leider nicht. Wir brauchen den Bon.", m:-25, p:0,
+    fb:"Falsch. Eine Kartenzahlung ist ein guter Kaufnachweis.", re:"So ein Quatsch!"} ]},
+ { say:"Hier, die Abbuchung, 349 Euro, Juli. Krieg ich jetzt mein Geld?", opts:[
+   {t:"Bei einem Mangel wird zuerst repariert oder Sie bekommen ein neues Gerät. Sie dürfen wählen. Klappt das nicht, gibt es Geld zurück oder einen Preisnachlass.", m:+15, p:2, c:"reihenfolge",
+    fb:"Fachlich genau richtig: Erst Nacherfüllung (Reparatur oder neue Ware), der Kunde wählt. Rücktritt oder Minderung kommen erst danach.", re:"Hm. Reparatur dauert doch ewig."},
+   {t:"Ja klar, hier sind Ihre 349 Euro.", m:+10, p:0,
+    fb:"Das kann der Chef als Kulanz entscheiden. Laut Gesetz kommt aber zuerst die Nacherfüllung. Als Azubi versprichst du das nicht einfach.", re:"Na bitte."},
+   {t:"Nein. Wir schicken es zum Hersteller, das dauert vier bis sechs Wochen.", m:-20, p:0,
+    fb:"Der Kunde darf zwischen Reparatur und neuem Gerät wählen. Wer einfach bestimmt, macht Ärger.", re:"Sechs Wochen ohne Handy? Niemals!"} ]},
+ { say:"Reparatur dauert doch ewig. Ich brauch mein Handy für die Arbeit!", opts:[
+   {t:"Dann nehmen wir den Austausch. Ich schaue kurz nach, ob das Gerät auf Lager ist, dann haben Sie es heute noch.", m:+20, p:2, c:"loesung",
+    fb:"Super. Du nutzt das Wahlrecht des Kunden und bietest eine schnelle Lösung an.", re:"Heute noch? Okay …"},
+   {t:"Da kann ich nichts machen, so ist nun mal das Gesetz.", m:-20, p:0,
+    fb:"Du versteckst dich hinter dem Gesetz. Dabei erlaubt es gerade den Austausch.", re:"Toll. Ganz toll."},
+   {t:"Na gut, dann schicken wir es trotzdem zur Reparatur ein.", m:-15, p:0,
+    fb:"Der Kunde will keine Reparatur. Er darf wählen, also nimm seinen Wunsch auf.", re:"Haben Sie mir überhaupt zugehört?"} ]},
+ { say:"… Na gut. Hätten Sie ja gleich sagen können.", opts:[
+   {t:"Danke für Ihre Geduld. Ich nehme die Reklamation jetzt auf, gleich haben Sie Ihr neues Gerät.", m:+10, p:2,
+    fb:"Ein freundlicher Abschluss. Der Kunde geht zufrieden und kommt wieder.", re:"Danke. War dann doch nett hier."},
+   {t:"Hab ich doch.", m:-10, p:0,
+    fb:"Recht haben ist hier unwichtig. Der letzte Eindruck bleibt hängen.", re:"Ja, ja."},
+   {t:"So. Unterschreiben Sie hier.", m:0, p:1,
+    fb:"Korrekt, aber kühl. Ein Dank zum Schluss kostet nichts.", re:"Mhm."} ]}
+];
+const MAXP = ROUNDS.length * 2;
+
+const FACTS = [
+  ["Gewährleistung: 2 Jahre", "Das Geschäft haftet 2 Jahre lang für Mängel, die beim Kauf schon da waren (§ 437 BGB)."],
+  ["Kein Bon? Kein Problem!", "Der Kassenbon ist keine Bedingung. Kontoauszug, Kartenbeleg, Banking-App, Seriennummer oder Zeugen gehen auch."],
+  ["Beweislastumkehr: 1. Jahr", "Zeigt sich der Mangel im 1. Jahr, gilt: Er war schon beim Kauf da. Das Geschäft müsste das Gegenteil beweisen (§ 477 BGB)."],
+  ["Erst reparieren oder neu liefern", "Zuerst kommt die Nacherfüllung, der Kunde wählt (§ 439 BGB). Erst wenn das scheitert: Geld zurück (Rücktritt) oder Preisnachlass (Minderung)."],
+  ["Nicht verwechseln", "Reklamation = Mangel, gesetzliches Recht. Umtausch = gefällt nicht, freiwillig (Kulanz). Garantie = freiwilliges Versprechen, meist vom Hersteller."]
+];
+
+/* ---------- Spiel 2: KI-Kunde ---------- */
+const CASES = {
+  basis:{ name:"Basis-Fall", short:"Wie im Spiel: Herr Brandt, Handy vor 3 Monaten gekauft, Akku schwach, kein Bon.",
+    facts:`Du bist Herr Brandt, etwa 45 Jahre alt. Vor ungefähr drei Monaten (im Juli) hast du in diesem Elektronikmarkt das Smartphone "Novaphone X5" für 349 Euro gekauft. Seit letzter Woche ist der Akku nach etwa zwei Stunden leer und das Handy startet manchmal von selbst neu. Es ist nie heruntergefallen und nie nass geworden. Den Kassenbon hast du weggeworfen. Bezahlt hast du mit EC-Karte; die Abbuchung siehst du in deiner Banking-App, das sagst du aber nur, wenn man nach der Zahlungsart oder einem anderen Nachweis fragt. Den Originalkarton hast du zu Hause. Am Anfang willst du sofort dein Geld zurück. Wenn man dir freundlich erklärt, dass zuerst repariert oder ein neues Gerät geliefert wird und du wählen darfst, nimmst du am liebsten ein neues Gerät, weil du das Handy für die Arbeit brauchst.`,
+    checks:["Ärger ernst genommen und freundlich geblieben","Nach Fehler und Kaufdatum gefragt","Nach Sturz oder Wasser gefragt, ohne etwas zu unterstellen","Erkannt, dass es ohne Kassenbon geht, und einen anderen Kaufnachweis genannt","Richtige Reihenfolge erklärt: erst Reparatur oder neues Gerät (Kunde wählt), dann Geld oder Preisnachlass","Passende Lösung angeboten und freundlich abgeschlossen"],
+    legal:`Richtig wäre: Gewährleistung 2 Jahre; Kassenbon nicht nötig, Kartenzahlung/Banking-App/Seriennummer reichen als Kaufnachweis; der Mangel zeigt sich im ersten Jahr, deshalb wird vermutet, dass er schon beim Kauf da war; zuerst Nacherfüllung (Reparatur oder neues Gerät, Kunde wählt), erst danach Rücktritt oder Minderung.` },
+  plus:{ name:"Plus-Fall (schwer)", short:"Handy vor 14 Monaten gekauft, Akku schwach und ein kleiner Sprung im Display. Der Kunde sagt, der war schon immer da.",
+    facts:`Du bist Herr Brandt, etwa 45 Jahre alt. Vor 14 Monaten (im August letzten Jahres) hast du in diesem Elektronikmarkt das Smartphone "Novaphone X5" für 349 Euro gekauft. Seit ein paar Wochen ist der Akku nach etwa zwei Stunden leer. Außerdem hat das Display unten links einen kleinen Sprung. Du behauptest, der Sprung sei "schon immer da gewesen" (in Wahrheit ist dir das Handy im Frühjahr einmal aus der Jackentasche gefallen; das gibst du nur zu, wenn man sehr freundlich und geschickt nachfragt, und dann nur zögernd). Den Kassenbon hast du nicht mehr. Bezahlt hast du mit EC-Karte; das sagst du nur auf Nachfrage. Du willst dein Geld zurück und findest, dass man nach 14 Monaten doch nicht so ein kaputtes Handy haben darf. Du bist schwieriger als ein normaler Kunde. Wenn man dir die Rechtslage freundlich und verständlich erklärt und dir Alternativen anbietet (zum Beispiel Herstellergarantie prüfen, Kulanzanfrage beim Chef, Kostenvoranschlag für eine Reparatur), lässt du dich nach und nach beruhigen.`,
+    checks:["Ruhig und freundlich geblieben, auch bei Druck","Kaufdatum, Fehler und Schadensursache geklärt, ohne zu unterstellen","Erkannt, dass es ohne Kassenbon geht, und einen anderen Kaufnachweis genannt","Erklärt: Nach 12 Monaten gilt die Beweislastumkehr nicht mehr, der Kunde muss beweisen, dass der Mangel schon beim Kauf da war","Erkannt, dass der Displaysprung auf einen Sturz hindeutet (kein Gewährleistungsfall)","Alternativen angeboten: Herstellergarantie, Kulanz, Kostenvoranschlag/Reparatur"],
+    legal:`Richtig wäre: Die Gewährleistung (2 Jahre) läuft noch, aber nach 12 Monaten gilt die Beweislastumkehr nicht mehr: Der Kunde muss beweisen, dass der Mangel schon beim Kauf da war. Der Displaysprung deutet auf einen Sturz hin; Sturzschäden sind keine Mängel. Kassenbon ist trotzdem nicht nötig, Kartenzahlung reicht als Kaufnachweis. Gute Alternativen: Herstellergarantie prüfen, Kulanz beim Chef anfragen, Kostenvoranschlag für Reparatur oder Akkutausch anbieten.` }
+};
+const MAXTURNS = 14;
+
+/* ---------- Zustand ---------- */
+let S = { screen:"start", lvl:"basis" };
+let sample = null; let sampleChecked = false;
+
+function startGame(){
+  S = { ...S, screen:"game", r:0, mood:25, pts:0, got:new Set(), picked:null, order:shuffle(ROUNDS[0].opts), left:false };
+  render();
+}
+function pick(i){
+  if (S.picked !== null) return;
+  const o = S.order[i];
+  S.picked = i; S.mood = clamp(S.mood + o.m); S.pts += o.p; if (o.c && o.p === 2) S.got.add(o.c);
+  if (S.mood <= 0) { if (S.r >= 2) S.left = true; else S.mood = 5; }
+  render();
+  const fb = document.getElementById("fb"); if (fb) fb.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function next(){
+  if (S.left || S.r + 1 >= ROUNDS.length){ S.screen = "end"; render(); window.scrollTo(0,0); return; }
+  S.r++; S.picked = null; S.order = shuffle(ROUNDS[S.r].opts); render(); window.scrollTo(0,0);
+}
+
+/* ---------- Bausteine ---------- */
+function moodColor(m){ return m < 35 ? "var(--bad)" : m < 65 ? "var(--mid)" : "var(--good)"; }
+function moodWord(m){ return m < 15 ? "kocht vor Wut" : m < 35 ? "sauer" : m < 55 ? "genervt" : m < 75 ? "beruhigt sich" : "zufrieden"; }
+function face(m){
+  const c = moodColor(m); const curve = Math.round((m - 50) / 50 * 9); // -9 ... +9
+  const brow = Math.round((50 - m) / 50 * 5);
+  return `<svg class="face" viewBox="0 0 64 64" role="img" aria-label="Gesicht des Kunden: ${moodWord(m)}">
+    <circle cx="32" cy="32" r="29" fill="var(--paper)" stroke="${c}" stroke-width="4"/>
+    <line x1="17" y1="${22 - brow}" x2="27" y2="${22 + brow}" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="47" y1="${22 - brow}" x2="37" y2="${22 + brow}" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="23" cy="29" r="3" fill="var(--ink)"/><circle cx="41" cy="29" r="3" fill="var(--ink)"/>
+    <path d="M20 ${44 - curve / 2} Q32 ${44 + curve} 44 ${44 - curve / 2}" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+  </svg>`;
+}
+function hud(m, extra){
+  return `<div class="hud">${face(m)}<div class="meter">
+    <div class="lbl"><span>Kundenlaune: <b>${moodWord(m)}</b></span><span>${extra || ""}</span></div>
+    <div class="bar"><div class="fill" style="width:${Math.max(3, m)}%;background:${moodColor(m)}"></div></div></div></div>`;
+}
+
+/* ---------- Bildschirme ---------- */
+function vStart(){
+  const aiOk = !!sample;
+  return `
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <span class="eyebrow">LF 10 · Reklamation · Rollenspiel-Trainer</span>
+    <h1>Kein Bon, kein Problem?</h1>
+    <p class="muted">Ein Kunde kommt wütend mit seinem Handy an die Info. Bleib ruhig, stell die richtigen Fragen und finde eine Lösung.</p>
+  </header>
+  <section class="bon" aria-label="Die Situation">
+    <div class="bonline"><span>ELEKTRO-HAFEN · INFO-THEKE</span><span>Sa 11:42</span></div>
+    <hr class="dash">
+    <div class="bonline"><span>Novaphone X5, 128 GB</span><span>349,00 €</span></div>
+    <div class="bonline"><span>Gekauft</span><span>„im Sommer“</span></div>
+    <div class="bonline"><span>Fehler</span><span>Akku, Neustarts</span></div>
+    <hr class="dash">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="mono">Kunde: Herr Brandt</span><span class="stamp">KEIN KASSENBON</span>
+    </div>
+  </section>
+  <div class="modes">
+    <button class="mode" data-act="game">
+      <span class="tag">Spiel 1 · 10 Runden · ca. 8 Min.</span>
+      <span class="t">Antworten wählen</span>
+      <span class="muted">Der Kunde spricht, du wählst eine von drei Antworten. Pass auf seine Laune auf. Am Ende siehst du deine Punkte und was du noch üben kannst.</span>
+    </button>
+    <div class="mode" style="cursor:default">
+      <span class="tag">Spiel 2 · frei sprechen</span>
+      <span class="t">Der KI-Kunde</span>
+      <span class="muted">Du schreibst deine Antworten selbst. Eine KI spielt Herrn Brandt und reagiert auf dich. Danach bekommst du eine Rückmeldung.</span>
+      <div class="lvl" role="group" aria-label="Schwierigkeit">
+        <button class="chip" data-lvl="basis" aria-pressed="${S.lvl === "basis"}">Basis-Fall</button>
+        <button class="chip" data-lvl="plus" aria-pressed="${S.lvl === "plus"}">Plus-Fall (schwer)</button>
+      </div>
+      <span class="hint">${esc(CASES[S.lvl].short)}</span>
+      <button class="btn" data-act="chat" ${aiOk ? "" : "disabled"}>KI-Kunde starten</button>
+      ${aiOk ? `<span class="hint">Beim ersten Start fragt claude.ai, ob die App die KI nutzen darf.</span>`
+             : `<span class="hint">${sampleChecked ? "Spiel 2 geht nur, wenn die App über claude.ai geöffnet wird. Spiel 1 läuft überall." : "Prüfe, ob die KI hier verfügbar ist …"}</span>`}
+    </div>
+  </div>`;
+}
+
+function vGame(){
+  const R = ROUNDS[S.r]; const done = S.picked !== null; const o = done ? S.order[S.picked] : null;
+  const cls = o ? (o.p === 2 ? "good" : o.p === 1 ? "mid" : "bad") : "";
+  const head = o ? (o.p === 2 ? "Stark!" : o.p === 1 ? "Geht so" : "Lieber nicht") : "";
+  return `
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <button class="chip" data-act="home">← Start</button>
+    <span class="progress">Runde ${S.r + 1}/${ROUNDS.length} · ${S.pts} Punkte</span>
+  </div>
+  ${hud(S.mood)}
+  <div class="bubble"><span class="who">Herr Brandt</span>${esc(R.say)}</div>
+  <p class="eyebrow">Was sagst du?</p>
+  <div class="opts">${S.order.map((x, i) => `
+    <button class="opt ${done && i === S.picked ? "picked " + cls : ""}" data-pick="${i}" ${done ? "disabled" : ""}>
+      <span class="k">${"ABC"[i]}</span><span>${esc(x.t)}</span></button>`).join("")}
+  </div>
+  ${done ? `<div class="fb ${cls}" id="fb" role="status">
+      <span class="head">${head} ${o.p ? `+${o.p} Punkt${o.p > 1 ? "e" : ""}` : "0 Punkte"}</span>
+      <p>${esc(o.fb)}</p>
+      <p class="re">Herr Brandt: „${esc(S.left ? "Wissen Sie was? Ich gehe! Und ich erzähle allen, wie Sie hier mit Kunden umgehen!" : o.re)}“</p>
+    </div>
+    <button class="btn" data-act="next">${S.left ? "Der Kunde ist weg … Auswertung" : S.r + 1 >= ROUNDS.length ? "Zur Auswertung" : "Weiter"}</button>` : ""}`;
+}
+
+function vEnd(){
+  const p = S.pts; const pct = p / MAXP;
+  const verdict = S.left ? ["Kunde verloren", "Herr Brandt ist wütend gegangen. Probier es noch einmal und bleib ruhiger."]
+    : pct >= .9 ? ["Reklamations-Profi", "Du hast den Kunden beruhigt und fachlich alles richtig gemacht."]
+    : pct >= .7 ? ["Gut gemacht", "Fast alles richtig. Schau dir die roten Punkte unten an."]
+    : pct >= .5 ? ["Auf dem Weg", "Ein paar Antworten haben den Kunden geärgert oder waren fachlich falsch."]
+    : ["Noch mal üben", "Lies die Merksätze und spiel noch eine Runde."];
+  return `
+  <header style="display:flex;flex-direction:column;gap:6px">
+    <span class="eyebrow">Auswertung · zeig das deiner Lehrkraft</span>
+    <h2>${verdict[0]}</h2>
+  </header>
+  <section class="card" style="display:flex;flex-direction:column;gap:14px">
+    <div class="score"><span class="n">${p}</span><span class="muted">von ${MAXP} Punkten${S.left ? ` · nach Runde ${S.r + 1}` : ""}</span></div>
+    ${hud(S.mood, "am Ende")}
+    <p>${verdict[1]}</p>
+  </section>
+  <section class="card" style="display:flex;flex-direction:column;gap:12px">
+    <h3>Deine Checkliste</h3>
+    <ul class="check">${Object.entries(CHECK).map(([k, t]) => {
+      const ok = S.got.has(k);
+      return `<li><span class="ic ${ok ? "ok" : "no"}" aria-hidden="true">${ok ? "✓" : "✗"}</span><span>${esc(t)}<span class="sr" style="position:absolute;left:-9999px">${ok ? " erledigt" : " fehlt"}</span></span></li>`;
+    }).join("")}</ul>
+  </section>
+  <section class="card" style="display:flex;flex-direction:column;gap:12px">
+    <h3>Das musst du wissen</h3>
+    <ul class="facts">${FACTS.map(f => `<li><b>${esc(f[0])}</b><br>${esc(f[1])}</li>`).join("")}</ul>
+  </section>
+  <div class="row">
+    <button class="btn" data-act="game">Noch einmal spielen</button>
+    <button class="btn ghost" data-act="home">Zum Start${sample ? " · KI-Kunde" : ""}</button>
+  </div>`;
+}
+
+/* ---------- KI-Kunde ---------- */
+function customerRules(c){
+  return `Du spielst in einem Rollenspiel für Auszubildende im Einzelhandel (Berufsschule, Deutschland) einen Kunden, der ein Smartphone reklamieren will. Die Person, die dir schreibt, ist ein Azubi und spielt die Verkäuferin oder den Verkäufer.
+
+DEINE ROLLE:
+${c.facts}
+
+SO SPIELST DU:
+- Bleib immer in der Rolle. Gib nie Tipps, erkläre nie die Rechtslage und sag nie, was der Azubi besser machen soll.
+- Du bist ungeduldig und leicht unhöflich, aber nie beleidigend, nie vulgär, nie diskriminierend.
+- Antworte kurz: 1 bis 3 Sätze, gesprochene Alltagssprache, einfaches Deutsch (Niveau B1). Keine Emojis, keine Regieanweisungen in Sternchen.
+- Deine Laune (0 = kocht vor Wut, 100 = zufrieden) startet bei 15. Freundlichkeit, Verständnis, gute Fragen und richtige, klare Lösungen heben sie. Unterstellungen, Ausreden, falsche Aussagen ("ohne Bon geht nichts"), Unterbrechen oder Belehren senken sie deutlich.
+- Verrate Informationen nur, wenn danach gefragt wird.
+- Sinkt die Laune auf 5 oder weniger, gehst du verärgert weg. Ist das Problem gelöst und du bist zufrieden, verabschiedest du dich.
+- Schreibt der Azubi etwas, das nicht zum Verkaufsgespräch passt, reagierst du verwirrt als Kunde ("Hä? Was soll das jetzt?").
+
+ANTWORTFORMAT: Antworte nur mit einem JSON-Objekt, ohne weiteren Text:
+{"antwort": "was Herr Brandt sagt", "laune": Zahl von 0 bis 100, "ende": true oder false}
+"ende" ist true, wenn du weggehst oder dich zufrieden verabschiedest.
+
+Das Gespräch beginnt. Du hast als Erstes gesagt: "Guten Tag, ich will das Ding hier zurückgeben, das ist Schrott!"`;
+}
+function startChat(){
+  S = { ...S, screen:"chat", mood:15, turns:[], busy:false, ended:false, err:"", fb:null, fbBusy:false };
+  S.turns.push({ role:"assistant", content:"Guten Tag, ich will das Ding hier zurückgeben, das ist Schrott!" });
+  render();
+}
+let ctl = null;
+async function send(text){
+  text = text.trim(); if (!text || S.busy || S.ended) return;
+  S.turns.push({ role:"user", content:text }); S.busy = true; S.err = ""; render(); scrollChat();
+  const c = CASES[S.lvl];
+  const input = [{ role:"user", content: customerRules(c) + "\n\nVerstanden? Dann warte auf den Azubi." },
+                 { role:"assistant", content: '{"antwort":"Guten Tag, ich will das Ding hier zurückgeben, das ist Schrott!","laune":15,"ende":false}' },
+                 ...S.turns.slice(1).map(t => t.role === "assistant" ? { role:"assistant", content: JSON.stringify({antwort:t.content, laune:t.mood ?? S.mood, ende:false}) } : t)];
+  ctl = new AbortController();
+  try {
+    const r = await sample.json(input, { modelTier:"quick", cache:false, signal:ctl.signal });
+    const ans = String(r && r.antwort || "").trim() || "…";
+    const m = clamp(Number(r && r.laune)); S.mood = Number.isFinite(m) ? m : S.mood;
+    S.turns.push({ role:"assistant", content:ans, mood:S.mood });
+    if (r && r.ende === true) S.ended = true;
+    const asked = S.turns.filter(t => t.role === "user").length;
+    if (!S.ended && asked >= MAXTURNS) { S.ended = true; S.limit = true; }
+  } catch (e) {
+    S.turns.pop();
+    S.err = errText(e);
+    if (e && (e.code === "not_granted" || e.code === "sampling_disabled")) sample = null;
+  } finally { S.busy = false; render(); scrollChat(); if (!S.err) { const ta = document.getElementById("say"); if (ta && !S.ended) ta.focus(); } else { const ta = document.getElementById("say"); if (ta) ta.value = text; } }
+}
+function errText(e){
+  const c = e && e.code;
+  if (c === "cancelled") return "";
+  if (c === "not_granted") return "Die KI wurde für diese App nicht erlaubt. Spiel 1 funktioniert trotzdem.";
+  if (c === "sampling_disabled") return "Die KI ist für dieses Konto nicht verfügbar.";
+  if (c === "rate_limited") return "Zu viele Nachrichten auf einmal. Warte kurz und schick deine Antwort noch einmal.";
+  if (c === "session_expired") return "Bitte melde dich bei claude.ai neu an.";
+  if (c === "invalid_json") return "Herr Brandt hat sich verhaspelt. Schick deine Antwort bitte noch einmal.";
+  return "Verbindung hat nicht geklappt. Schick deine Antwort bitte noch einmal.";
+}
+async function getFeedback(){
+  if (S.fbBusy) return;
+  const c = CASES[S.lvl];
+  const tr = S.turns.map(t => (t.role === "user" ? "AZUBI: " : "KUNDE: ") + t.content).join("\n");
+  if (!S.turns.some(t => t.role === "user")) return;
+  S.fbBusy = true; S.err = ""; render(); window.scrollTo(0, document.body.scrollHeight);
+  const prompt = `Du bist eine freundliche, ehrliche Berufsschul-Lehrkraft für Verkäufer-Azubis. Bewerte das folgende Reklamations-Rollenspiel. Der Azubi spielt den Verkäufer, der Kunde ist eine KI-Figur.
+
+FALL: ${c.short}
+${c.legal}
+
+CHECKLISTE (bewerte jeden Punkt):
+${c.checks.map((x, i) => (i + 1) + ". " + x).join("\n")}
+
+GESPRÄCH:
+${tr}
+
+Schreibe in einfachem Deutsch (Niveau B1), in der Du-Form, kurze Sätze. Sei ermutigend, aber ehrlich. Bewerte nur, was der AZUBI geschrieben hat.
+Antworte nur mit JSON in genau dieser Form:
+{"punkte": Zahl 0 bis 12 (2 Punkte je Checklistenpunkt, 1 Punkt wenn teilweise), "urteil": "ein Satz Gesamturteil", "checkliste": [{"punkt": "Text aus der Checkliste", "erfuellt": "ja" oder "teilweise" oder "nein", "hinweis": "ein kurzer Satz dazu"}], "gut": ["bis zu 2 Dinge, die gut waren, mit kurzem Zitat"], "besser": [{"du": "wörtliches Zitat des Azubis", "besser": "bessere Formulierung in wörtlicher Rede"}] (höchstens 3; leer, wenn alles gut war)}`;
+  try {
+    const r = await sample.json(prompt, { modelTier:"default", cache:false });
+    S.fb = r;
+  } catch (e) { S.err = errText(e) || "Abgebrochen."; }
+  finally { S.fbBusy = false; render(); const f = document.getElementById("fbbox"); if (f) f.scrollIntoView({behavior:"smooth", block:"start"}); }
+}
+function scrollChat(){ requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight)); }
+
+function vChat(){
+  const c = CASES[S.lvl];
+  const asked = S.turns.filter(t => t.role === "user").length;
+  const starters = asked === 0 ? ["Guten Tag! Das klingt ärgerlich. Was ist denn los?", "Oh, das tut mir leid. Erzählen Sie mal."] : [];
+  return `
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <button class="chip" data-act="home">← Start</button>
+    <span class="progress">${esc(c.name)} · ${asked}/${MAXTURNS} Antworten</span>
+  </div>
+  ${hud(S.mood)}
+  <div class="chat" aria-live="polite">
+    ${S.turns.map(t => `<div class="msg ${t.role === "user" ? "a" : "k"}">${esc(t.content)}</div>`).join("")}
+    ${S.busy ? `<div class="msg k"><span class="dots">Herr Brandt überlegt</span></div>` : ""}
+    ${S.ended ? `<div class="msg sys">${S.limit ? "Die Zeit ist um." : S.mood <= 10 ? "Herr Brandt ist gegangen." : "Das Gespräch ist zu Ende."} Hol dir jetzt deine Rückmeldung.</div>` : ""}
+  </div>
+  ${S.err ? `<div class="fb bad" role="alert"><p>${esc(S.err)}</p></div>` : ""}
+  ${S.fb ? vFeedback() : S.fbBusy ? `<div class="card"><p class="dots">Deine Rückmeldung wird geschrieben. Das dauert bis zu einer Minute</p></div>` : ""}
+  ${!S.ended && !S.fb ? `<div class="compose">
+      ${starters.length ? `<div class="starter">${starters.map(s => `<button data-start="${esc(s)}">${esc(s)}</button>`).join("")}</div>` : ""}
+      <label for="say" class="eyebrow">Deine Antwort als Verkäufer/in</label>
+      <textarea id="say" placeholder="Schreib, was du zu Herrn Brandt sagst …" ${S.busy ? "disabled" : ""}></textarea>
+      <div class="row">
+        <button class="btn" data-act="send" ${S.busy ? "disabled" : ""}>Sagen</button>
+        <button class="btn ghost" data-act="finish" ${S.busy || asked === 0 ? "disabled" : ""}>Gespräch beenden</button>
+      </div>
+    </div>` : ""}
+  ${S.ended && !S.fb && !S.fbBusy ? `<button class="btn" data-act="feedback">Rückmeldung holen</button>` : ""}
+  ${S.fb ? `<div class="row"><button class="btn" data-act="chat">Neues Gespräch</button><button class="btn ghost" data-act="home">Zum Start</button></div>` : ""}`;
+}
+function vFeedback(){
+  const f = S.fb || {}; const list = Array.isArray(f.checkliste) ? f.checkliste : [];
+  const n = Math.max(0, Math.min(12, Math.round(Number(f.punkte) || 0)));
+  const ic = v => v === "ja" ? ["ok", "✓"] : v === "teilweise" ? ["", "~"] : ["no", "✗"];
+  return `<section class="card" id="fbbox" style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Rückmeldung · zeig das deiner Lehrkraft</span>
+    <div class="score"><span class="n">${n}</span><span class="muted">von 12 Punkten · ${esc(CASES[S.lvl].name)}</span></div>
+    ${f.urteil ? `<p><b>${esc(f.urteil)}</b></p>` : ""}
+    <ul class="check">${list.map(x => { const [k, s] = ic(String(x.erfuellt)); return `<li><span class="ic ${k}" style="${k ? "" : "background:var(--mid-soft);color:var(--mid)"}" aria-hidden="true">${s}</span><span><b>${esc(x.punkt || "")}</b><br><span class="muted">${esc(x.hinweis || "")}</span></span></li>`; }).join("")}</ul>
+    ${Array.isArray(f.gut) && f.gut.length ? `<h3>Das war gut</h3><ul class="facts">${f.gut.map(g => `<li>${esc(g)}</li>`).join("")}</ul>` : ""}
+    ${Array.isArray(f.besser) && f.besser.length ? `<h3>So klingt es noch besser</h3>${f.besser.map(b => `<div class="pair"><span class="du">Du: „${esc(b.du || "")}“</span><span class="bs">Besser: „${esc(b.besser || "")}“</span></div>`).join("")}` : ""}
+    <p class="hint">Die Rückmeldung schreibt eine KI. Sie kann sich irren. Sprich mit deiner Lehrkraft darüber.</p>
+  </section>`;
+}
+
+/* ---------- Render + Events ---------- */
+function render(){
+  const draft = document.getElementById("say")?.value || "";
+  $app.innerHTML = S.screen === "game" ? vGame() : S.screen === "end" ? vEnd() : S.screen === "chat" ? vChat() : vStart();
+  const ta = document.getElementById("say"); if (ta && draft) ta.value = draft;
+}
+$app.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b || b.disabled) return;
+  if (b.dataset.pick !== undefined) return pick(+b.dataset.pick);
+  if (b.dataset.lvl) { S.lvl = b.dataset.lvl; return render(); }
+  if (b.dataset.start) { const ta = document.getElementById("say"); if (ta) { ta.value = b.dataset.start; ta.focus(); } return; }
+  const a = b.dataset.act;
+  if (a === "game") startGame();
+  else if (a === "next") next();
+  else if (a === "home") { ctl?.abort(); S = { screen:"start", lvl:S.lvl }; render(); window.scrollTo(0,0); }
+  else if (a === "chat") { if (sample) startChat(); }
+  else if (a === "send") { const ta = document.getElementById("say"); const v = ta ? ta.value : ""; if (ta) ta.value = ""; send(v); }
+  else if (a === "finish") { S.ended = true; render(); }
+  else if (a === "feedback") getFeedback();
+});
+$app.addEventListener("keydown", e => {
+  if (e.target.id === "say" && e.key === "Enter" && !e.shiftKey) { e.preventDefault(); const v = e.target.value; e.target.value = ""; send(v); }
+});
+
+render();
+(async () => {
+  try { sample = window.claude && window.claude.use ? await window.claude.use("sample") : null; } catch { sample = null; }
+  sampleChecked = true; if (S.screen === "start") render();
+})();
+})();
+</script>
+
+</body>
+</html>
