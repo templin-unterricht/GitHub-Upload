@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stundenplan-Dashboard 2026/27</title>
+<style>
+:root{
+  --bg:#f4f6fa;--card:#ffffff;--ink:#1d2433;--mute:#5d6778;--line:#dde2ec;--brand:#2456c9;--brand-ink:#ffffff;
+  --green:#1f9d55;--green-bg:#dcf5e5;--amber:#c27c0e;--amber-bg:#fdf0d2;--red:#d1342f;--red-bg:#fde0de;
+  --off:#eceff5;--shadow:0 1px 3px rgba(20,30,60,.08),0 4px 14px rgba(20,30,60,.05);
+  --c-Lernfelder:#2456c9;--c-Wiso:#8a3fc4;--c-Englisch:#0f8a8a;--c-Wahlpflicht:#c2661b;--c-Mathe:#4d7a1a;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#10141c;--card:#1a2030;--ink:#e8ecf5;--mute:#9aa5ba;--line:#2c3550;--brand:#6c97ff;--brand-ink:#0d1220;
+  --green:#4fd18a;--green-bg:#17372a;--amber:#f0b44c;--amber-bg:#3c2f12;--red:#ff7b74;--red-bg:#44201f;--off:#222a3d;--shadow:none;
+  --c-Lernfelder:#6c97ff;--c-Wiso:#c493f0;--c-Englisch:#4fd1d1;--c-Wahlpflicht:#f0a05c;--c-Mathe:#9ccf5a}
+}
+:root[data-theme="dark"]{--bg:#10141c;--card:#1a2030;--ink:#e8ecf5;--mute:#9aa5ba;--line:#2c3550;--brand:#6c97ff;--brand-ink:#0d1220;
+  --green:#4fd18a;--green-bg:#17372a;--amber:#f0b44c;--amber-bg:#3c2f12;--red:#ff7b74;--red-bg:#44201f;--off:#222a3d;--shadow:none;
+  --c-Lernfelder:#6c97ff;--c-Wiso:#c493f0;--c-Englisch:#4fd1d1;--c-Wahlpflicht:#f0a05c;--c-Mathe:#9ccf5a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.hwrap{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+h1{font-size:18px;margin:0;font-weight:700}
+.sub{color:var(--mute);font-size:12.5px}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav button{border:0;background:transparent;color:var(--mute);padding:7px 12px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+nav button:hover{background:var(--off)}
+nav button.on{background:var(--brand);color:var(--brand-ink)}
+main{max-width:1280px;margin:0 auto;padding:16px}
+.lamp{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:6px;background:var(--mute)}
+.lamp.g{background:var(--green);box-shadow:0 0 0 3px var(--green-bg)}
+.lamp.y{background:var(--amber);box-shadow:0 0 0 3px var(--amber-bg)}
+.lamp.r{background:var(--red);box-shadow:0 0 0 3px var(--red-bg);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px var(--red-bg)}}
+.badge{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--off);color:var(--mute)}
+.badge.g{background:var(--green-bg);color:var(--green)}.badge.y{background:var(--amber-bg);color:var(--amber)}.badge.r{background:var(--red-bg);color:var(--red)}
+.badge.A{background:#dbe7ff;color:#1b45a8}.badge.B{background:#ffe3cc;color:#a24b0a}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 6px;font-size:16px}
+.card h2{margin:0 0 10px;font-size:17px}
+.bar{height:8px;background:var(--off);border-radius:99px;overflow:hidden;margin:8px 0}
+.bar>i{display:block;height:100%;background:var(--brand)}
+.muted{color:var(--mute)}.small{font-size:12.5px}
+button.b,a.b{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 11px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+button.b:hover,a.b:hover{border-color:var(--brand)}
+button.p{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+button.d{color:var(--red)}
+button.sm{padding:2px 8px;font-size:12.5px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 9px;max-width:100%}
+textarea{width:100%}
+label{display:inline-flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--mute);font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:8px 0}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}
+th{background:var(--off);font-size:13px}
+.wk td{height:70px;min-width:130px;padding:4px}
+.wk th.per{width:62px;text-align:center}
+.wk th.hol,.wk td.hol{background:var(--off)}
+.les{border-left:5px solid var(--cc,#888);background:var(--card);border-radius:6px;padding:4px 7px;margin-bottom:4px;box-shadow:0 0 0 1px var(--line);cursor:pointer;font-size:13px}
+.les:hover{box-shadow:0 0 0 2px var(--brand)}
+.les b{display:block;font-size:12.5px}
+.les.off{background:var(--off);color:var(--mute);text-decoration:line-through;border-left-style:dashed}
+.les.exam{background:var(--amber-bg)}
+.les.free{opacity:.7}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{padding:5px 12px}
+.tabs button.on{background:var(--brand);color:var(--brand-ink)}
+.scroll{overflow-x:auto}
+.chip{display:inline-flex;gap:4px;align-items:center;background:var(--off);border-radius:99px;padding:2px 4px 2px 10px;margin:2px;font-size:13px;font-weight:600}
+.chip button{border:0;background:transparent;cursor:pointer;color:var(--mute);font-size:14px;padding:0 3px}
+.modalbg{position:fixed;inset:0;background:rgba(10,15,30,.55);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:4vh 12px;overflow:auto}
+.modal{background:var(--card);border-radius:16px;max-width:760px;width:100%;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal h2{margin:0 0 4px}
+.banner{background:var(--amber-bg);color:var(--ink);border:1px solid var(--amber);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:13.5px}
+.tl td.dt{white-space:nowrap}
+.shift{color:var(--red);font-weight:700}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;z-index:99;font-weight:600}
+details{margin:8px 0}summary{cursor:pointer;font-weight:700}
+.stu-item{padding:10px 0;border-bottom:1px solid var(--line)}
+.stu-item p{margin:6px 0;background:var(--off);padding:8px 10px;border-radius:8px}
+@media (max-width:700px){nav{margin-left:0}.wk td{min-width:110px}}
+@media print{header nav,button{display:none!important}}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <div><h1>Stundenplan-Dashboard · Schuljahr 2026/27 · Bremen</h1><div class="sub" id="hsub"></div></div>
+  <nav id="nav"></nav>
+</div></header>
+<main id="view"></main>
+<div id="modal"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   KONSTANTEN: Kalender Bremen 2026/27 (fest kodiert)
+   ===================================================================== */
+const FERIEN=[
+ {n:'Herbstferien',f:'2026-10-12',t:'2026-10-24'},
+ {n:'Weihnachtsferien',f:'2026-12-23',t:'2027-01-09'},
+ {n:'Halbjahresferien',f:'2027-02-01',t:'2027-02-02'},
+ {n:'Osterferien',f:'2027-03-22',t:'2027-04-03'},
+ {n:'Himmelfahrt-Brückentag',f:'2027-05-07',t:'2027-05-07'},
+ {n:'Pfingstferien',f:'2027-05-18',t:'2027-05-18'},
+ {n:'Sommerferien 2027',f:'2027-07-08',t:'2027-09-15'}
+];
+const FEIERTAGE=[
+ {n:'Tag der Deutschen Einheit',d:'2026-10-03'},{n:'Reformationstag',d:'2026-10-31'},
+ {n:'1. Weihnachtstag',d:'2026-12-25'},{n:'2. Weihnachtstag',d:'2026-12-26'},
+ {n:'Neujahr',d:'2027-01-01'},{n:'Karfreitag',d:'2027-03-26'},{n:'Ostermontag',d:'2027-03-29'},
+ {n:'Tag der Arbeit',d:'2027-05-01'},{n:'Christi Himmelfahrt',d:'2027-05-06'},{n:'Pfingstmontag',d:'2027-05-17'}
+];
+const PERIODS=['1./2.','3./4.','5./6.','7./8.','9./10.'];
+const WD=['','Mo','Di','Mi','Do','Fr'];
+const WDL=['','Montag','Dienstag','Mittwoch','Donnerstag','Freitag'];
+const SUBJ=['Lernfelder','Wiso','Englisch','Wahlpflicht','Mathe'];
+const SUBJ_LABEL={Lernfelder:'Lernfelder',Wiso:'WiSo',Englisch:'Englisch',Wahlpflicht:'Wahlpflicht',Mathe:'Mathe'};
+const KEY='stundenplan_dashboard_v1';
+
+/* =====================================================================
+   STOFFPLÄNE (Standard-Katalog). Format je Zeile: [Modul, Titel]
+   LF 1, 3, 5, 10 stammen aus den "Übersicht"-Dateien der Lernfelder.
+   ===================================================================== */
+const LF1=[['M 1','Auftakt: Übersicht, Punktekonto, Kann-Liste; Wer gibt wem was? Haushalte und Unternehmen'],['M 1','Der einfache Wirtschaftskreislauf: Güterstrom, Geldstrom, Produktionsfaktoren'],['M 2','Drei Wirtschaftssektoren; Handels-, Dienstleistungs- und Produktionsbetriebe'],['M 2','Die Handelskette und die Bedeutung des Einzelhandels'],['M 3','Bedürfnisse, Bedarf, Nachfrage; Güterarten'],['M 4','Das ökonomische Prinzip: Maximal- und Minimalprinzip'],['M 5','Markt, Angebot und Nachfrage'],['M 5','Der Gleichgewichtspreis; Käufer- und Verkäufermarkt'],['M 6','Umweltschutz und Nachhaltigkeit: Begriffe und drei Dimensionen'],['M 6','Nachhaltig handeln im Einzelhandel: Verpackung, Mehrweg, Batterien, Abfall'],['M 7','Die Aufgaben des Einzelhandels'],['M 7','Die Outlet-Tour; Prüfungs-Check Block A'],['','Übungsklausur 1 (Wirtschaft und Einzelhandel) mit Selbstkorrektur'],['','Wiederholung: Escape Room „Frischmarkt“, gezielte Wiederholung'],['','Klausur 1: Die Stellung des Einzelhandels'],['M 8','Das Sortiment: Begriff und Sortimentspyramide'],['M 8','Breit und schmal, tief und flach'],['M 8','Kern-, Rand- und Saisonsortiment; Marke, Handelsmarke, No-Name'],['M 8','Sortimentsplanung; Prüfungs-Check Sortiment'],['M 9','Der Standort'],['M 9','Betriebsformen im Einzelhandel'],['M 10','Verkaufsformen'],['M 11','Unternehmensziele'],['M 12','Aufbauorganisation: Stelle, Instanz, Abteilung, Organigramm'],['M 12','Leitungs- und Ausführungsaufgaben; Ablauforganisation'],['','Übungsklausur 2 (Sortiment bis Organisation) mit Selbstkorrektur'],['','Klausur 2: Sortiment bis Organisation'],['M 13','Präsentieren: Ziel, Ablauf, Regeln, Feedback'],['M 13','Präsentation „Mein Ausbildungsbetrieb“ vorbereiten'],['M 13','Präsentationen mit Feedback; Kann-Liste abschließen']];
+const LF3=[['M 1','Auftakt: Kasse erleben; Kann-Liste, Punktekonto, Rechen-Minute; Kassensysteme, Scanner, GTIN, TSE'],['M 1','Der Kassenbon: Pflichtangaben lesen und erklären'],['M 2','Vor dem Kassieren: Vorbereitung und Kassieranweisung'],['M 2','Kassiervorgang bar, Wechselgeld, kundenorientiertes Verhalten (Rollenspiel)'],['M 3','Bargeld, Sicherheitsmerkmale, Falschgeld'],['M 4','girocard und Kreditkarte: Ablauf in Schritten, Vor- und Nachteile'],['M 4','Kontaktlos und Smartphone; Gutschein, Coupon, Kundenkarte, Datenschutz'],['M 5','Besondere Situationen in wörtlicher Rede; Ergonomie'],['M 6','Tageslosung und Kassenbericht'],['M 6','Kassendifferenz und Kassenkontrolle; Prüfungs-Check Kassenblock'],['M 7','Rechts- und Geschäftsfähigkeit'],['M 7','Taschengeldparagraf: Fälle an der Kasse'],['M 8','Rechtsgeschäfte, Nichtigkeit, Anfechtung'],['M 9','Antrag und Annahme – auch an der Kasse'],['M 9','Pflichten aus dem Kaufvertrag; Datumsaufgaben'],['M 10','Besitz und Eigentum, Eigentumsvorbehalt'],['','Übungsklausur 1 (Kasse und Recht)'],['','Besprechung, Fehleranalyse, gezielte Wiederholung'],['','Klausur 1: Kasse und Recht'],['M 11','Rechen-Start: Taschenrechner, Komma, Runden, Einheiten, Rechenfahrplan'],['M 12','Dreisatz: auf 1 zurückrechnen'],['M 12','Dreisatz: Grundpreis, lose Ware, Gewichtsware'],['M 12','Dreisatz: Prämie, Fläche, Strom; Kosten geteilt durch Beteiligte'],['M 13','Prozent: Grundwert, Prozentsatz, Prozentwert – über 1 %'],['M 13','Prozentwert im Laden: Anteile, Rabattbetrag, Aufschlag'],['M 14','Prozentsatz I: Um wie viel Prozent wurde der Preis gesenkt?'],['M 14','Prozentsatz II: Anteil am Umsatz, Grafiken, Rundungsvorgaben'],['M 14','Grundwert und verminderter Grundwert'],['M 15','Rabatt und Coupon'],['M 15','Skonto und Überweisungsbetrag'],['M 15','Umsatzsteuer herausrechnen und aufschlagen'],['M 16','Einfacher Durchschnitt'],['M 16','Gewogener Durchschnitt'],['M 17','Verteilungsrechnung'],['M 18','Rechnen an der Kasse – Prüfungsmix'],['','Übungsklausur 2 (Rechnen und Kassenabrechnung)'],['','Besprechung, Fehleranalyse, Rechen-Stationen nach Fehlerbild'],['','Wiederholung: Escape Room „Kassensturz“ und Prüfungsaufgaben im Tempo'],['','Klausur 2: Rechnen und Kassenabrechnung'],['','Rückgabe, Nachschreiben, Puffer']];
+const LF5=[['M 1','Werbung und Werbearten'],['M 1','Werbearten festigen: Domino-Rundlauf'],['M 2','Werbegrundsätze, Werbebotschaft, AIDA'],['M 2','Slogan; Werbemittel und Werbeträger'],['M 3','Werbemittel und Werbeträger: Sortierspiel; Stopp 1'],['M 4','Der Werbeplan: Werbeetat, Streuzeit, Streukreis, Streugebiet'],['M 4','Werbeplan-Werkstatt'],['M 5','Werbeerfolgskontrolle: Werbeerfolg in Prozent, Werberendite; Stopp 2'],['M 6','Verkaufsförderung und PR'],['M 6','Exkursion (Vorbereitung); Kundenbindung heute'],['M 7','Kundenbindung heute: Kundenkarte, App, Newsletter, Coupons (Exkursion Bogen)'],['M 8','Das UWG: irreführende Werbung, Mondpreise, Lockangebote'],['M 8','Wiederholung: Escape Room „Die Werbeagentur“; Stopp 3'],['M 9','Verpackung: Aufgaben und Arten, Verpackungsgesetz'],['M 9','Verpackungs-Rallye'],['M 10','Warenzustellung: Tourenplanung, Frachtführer und Spediteur'],['M 11','Teamarbeit: Voraussetzungen, fünf Phasen, Gesprächsregeln'],['M 11','Teamsitzung als Rollenspiel; Stopp 4'],['','Übungsklausur im Format der Klausur, danach Besprechung'],['','Klausur (Teil A–F über alle elf Module)']];
+const LF8=[['M 1','Inventur'],['M 2','Inventurdifferenz'],['M 3','Bilanz: Aufbau und Gliederung'],['M 3','Bilanz: Eigenkapitalanteil'],['M 4','Gewinn- und Verlustrechnung (GuV)'],['M 4','Kennzahlen'],['','Wiederholung: Prüfungstraining, Abschlussspiel und Übungstest'],['','Test (45 Min., nur Taschenrechner)']];
+const LF10_T=[['M 1','Jugendschutz','Einstieg|Training|Selbsttest'],['M 2','Kasse besonders','Einstieg|Training|Selbsttest'],['M 3','Beschwerden','Einstieg|Training|Selbsttest'],['M 4','Umtausch oder Reklamation','Einstieg|Training|Selbsttest'],['M 5','Rechte bei Mängeln','Einstieg|Training|Selbsttest'],['M 6','Ladendiebstahl','Einstieg|Selbsttest'],['M 7','Kundengruppen','Einstieg|Training|Selbsttest'],['M 8','Spezielle Situationen','Einstieg|Training|Selbsttest'],['M 9','Ratenkauf','Einstieg'],['M 10','Situationstraining','Einstieg|Training|Training|Selbsttest']];
+const LF10=[].concat(...LF10_T.map(([m,t,ph])=>ph.split('|').map(p=>[m,t+' – '+p])),[['','Übungsklausur mit Besprechung'],['','Klausur (90 Min.)']]);
+function gen(n,prefix,m){return Array.from({length:n},(_,i)=>[m||'',prefix+' '+(i+1)])}
+
+function defaultBlocks(){
+ const B={};
+ const add=(id,name,subj,lf,arr,check)=>{B[id]={id,name,subj,lf:lf||'',check:!!check,units:arr.map(([m,t,f,u])=>({m:m||'',t,f:f||'',u:u||''}))}};
+ add('LF1','Lernfeld 1 – Das Einzelhandelsunternehmen repräsentieren','Lernfelder',1,LF1);
+ add('LF2','Lernfeld 2 – Verkaufsgespräche kundenorientiert führen','Lernfelder',2,gen(40,'LF 2 – Doppelstunde'),true);
+ add('LF3','Lernfeld 3 – Kunden im Servicebereich Kasse betreuen','Lernfelder',3,LF3);
+ add('LF4','Lernfeld 4 – Waren präsentieren','Lernfelder',4,gen(40,'LF 4 – Doppelstunde'),true);
+ add('LF5','Lernfeld 5 – Werben und den Verkauf fördern','Lernfelder',5,LF5);
+ add('LF6','Lernfeld 6 – Waren beschaffen','Lernfelder',6,gen(30,'LF 6 – Doppelstunde'),true);
+ add('LF7','Lernfeld 7 – Lernfeld 7','Lernfelder',7,gen(30,'LF 7 – Doppelstunde'),true);
+ add('LF8','Lernfeld 8 – Geschäftsprozesse erfassen und kontrollieren','Lernfelder',8,LF8,true);
+ add('LF9','Lernfeld 9 – Lernfeld 9','Lernfelder',9,gen(30,'LF 9 – Doppelstunde'),true);
+ add('LF10','Lernfeld 10 – Besondere Verkaufssituationen bewältigen','Lernfelder',10,LF10);
+ const wiso=[].concat(gen(14,'Berufliche Bildung – Doppelstunde'),gen(14,'Mitbestimmung – Doppelstunde'),gen(4,'Politik (Grundgesetz/Wahlen) – Termin'));
+ add('WISO','WiSo 1. Ausbildungsjahr (28 DS + 4 Politik-Termine)','Wiso','',wiso,true);
+ const eng=gen(15,'Englisch – Termin');eng[6][1]='Englisch – Klausur';eng[14][1]='Englisch – Präsentation';
+ add('ENG','Englisch für Verkäufer (15 Termine)','Englisch','',eng,true);
+ add('WPF','Wahlpflicht Methoden','Wahlpflicht','',gen(20,'WPF Methoden – Doppelstunde'),true);
+ const m=gen(30,'Mathe Fachlageristen – Doppelstunde');m[0][1]='Grundrechenarten wiederholen (plus, minus, mal, geteilt)';m[1][1]='Grundrechenarten im Lageralltag';
+ add('MATHE','Mathe Fachlageristen','Mathe','',m,true);
+ return B;
+}
+function sampleSlots(){
+ const s=(id,wd,per,week,cls,subj)=>({id,wd,per,week,cls,subj,sample:true});
+ return [s('s1',2,1,'AB','FKL26-1','Mathe'),s('s2',4,0,'AB','V26-1','Wiso'),s('s3',4,2,'AB','V26-1','Wahlpflicht'),s('s4',4,1,'AB','V26-2','Wiso'),
+  s('s5',1,0,'AB','V26-1','Lernfelder'),s('s6',3,0,'AB','V26-1','Lernfelder'),s('s7',1,1,'AB','V26-2','Lernfelder'),s('s8',3,1,'AB','V26-2','Lernfelder'),
+  s('s9',2,0,'AB','V26-4','Lernfelder'),s('s10',5,0,'AB','V26-4','Lernfelder'),s('s11',3,2,'A','V25-1','Englisch'),s('s12',3,2,'B','V25-3','Englisch')];
+}
+function defaults(){
+ return {v:1,
+  settings:{aMonday:'2026-08-10',countFerienWeeks:true,thresholdH:4,hoursPerSlot:2,sollMitFeiertagen:true,stichtag:'',yearStart:'2026-08-13',yearEnd:'2027-07-07'},
+  classes:[{id:'V26-1',name:'V26/1',type:'V'},{id:'V26-2',name:'V26/2',type:'V'},{id:'V26-4',name:'V26/4',type:'V'},{id:'V25-1',name:'V25/1',type:'V'},{id:'V25-3',name:'V25/3',type:'V'},{id:'FKL26-1',name:'Fkl 26/1',type:'F'}],
+  slots:sampleSlots(),
+  courses:[
+   {id:'c1',cls:'V26-1',subj:'Lernfelder',blocks:['LF2','LF3','LF4','LF5'],start:'2026-10-26',done:0,gain:0},
+   {id:'c2',cls:'V26-2',subj:'Lernfelder',blocks:['LF2','LF3','LF4','LF5'],start:'2026-10-26',done:0,gain:0},
+   {id:'c3',cls:'V26-4',subj:'Lernfelder',blocks:['LF2','LF3','LF4','LF5'],start:'2026-10-26',done:0,gain:0},
+   {id:'c4',cls:'V26-1',subj:'Wiso',blocks:['WISO'],start:'',done:0,gain:0},
+   {id:'c5',cls:'V26-2',subj:'Wiso',blocks:['WISO'],start:'',done:0,gain:0},
+   {id:'c6',cls:'V26-1',subj:'Wahlpflicht',blocks:['WPF'],start:'',done:0,gain:0},
+   {id:'c7',cls:'V25-1',subj:'Englisch',blocks:['ENG'],start:'',done:0,gain:0},
+   {id:'c8',cls:'V25-3',subj:'Englisch',blocks:['ENG'],start:'',done:0,gain:0},
+   {id:'c9',cls:'FKL26-1',subj:'Mathe',blocks:['MATHE'],start:'',done:0,gain:0}],
+  blocks:defaultBlocks(),
+  freeDays:[],exams:[],absences:[],matOv:{},untisOv:{}};
+}
+
+/* =====================================================================
+   STATE / STORAGE
+   ===================================================================== */
+let S=defaults(), VIEW='dash', WEEK=null, STUDENT=false, STU_CLS='', STU_NOTE='';
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const r=localStorage.getItem(KEY);if(r)adopt(JSON.parse(r))}catch(e){}}
+function adopt(o){const d=defaults();S=Object.assign(d,o);S.settings=Object.assign(d.settings,o.settings||{});}
+const uid=()=>'x'+Math.random().toString(36).slice(2,9);
+
+/* =====================================================================
+   DATUMS-HELFER
+   ===================================================================== */
+const p2=n=>String(n).padStart(2,'0');
+const D=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12)};
+const iso=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const mondayOf=d=>addDays(d,-((d.getDay()+6)%7));
+const fmt=s=>s?s.slice(8,10)+'.'+s.slice(5,7)+'.'+s.slice(0,4):'';
+const fmtS=s=>s?s.slice(8,10)+'.'+s.slice(5,7)+'.':'';
+const todayIso=()=>S.settings.stichtag||iso(new Date());
+function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);const y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7)}
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clsName=id=>(S.classes.find(c=>c.id===id)||{name:id}).name;
+
+/* Ferien / Feiertage / freie Tage / Fehltage */
+const ferienAt=d=>FERIEN.find(f=>d>=f.f&&d<=f.t);
+const feiertagAt=d=>FEIERTAGE.find(f=>f.d===d);
+const freeAt=(d,cls)=>S.freeDays.find(f=>d>=f.from&&d<=(f.to||f.from)&&(!f.cls||f.cls===cls));
+const absentAt=d=>S.absences.find(a=>d>=a.from&&d<=(a.to||a.from));
+function weekFullyOff(mon){for(let i=0;i<5;i++){const d=iso(addDays(mon,i));if(!ferienAt(d)&&!feiertagAt(d))return false}return true}
+const _wl=new Map();
+function weekLetter(date){
+  const mon=mondayOf(date),k=iso(mon)+S.settings.aMonday+S.settings.countFerienWeeks;
+  if(_wl.has(k))return _wl.get(k);
+  const a=mondayOf(D(S.settings.aMonday));let n=0;
+  const step=mon>=a?1:-1;
+  if(S.settings.countFerienWeeks){n=Math.round((mon-a)/(7*864e5))}
+  else{let w=new Date(a);const lo=step>0?a:mon,hi=step>0?mon:a;for(w=new Date(lo);w<hi;w=addDays(w,7)){if(!weekFullyOff(w))n++}}
+  const r=Math.abs(n)%2===0?'A':'B';_wl.set(k,r);return r;
+}
+
+/* =====================================================================
+   STOFFPLAN-ENGINE
+   ===================================================================== */
+function kindOf(t){if(/Klausur|^Test\b|Präsentation „?Mein|Englisch – Präsentation/i.test(t)&&!/^Besprechung|vorbereiten/i.test(t))return'exam';
+  if(/Puffer/i.test(t))return'buffer';if(/Wiederholung|Escape|Besprechung|Fehleranalyse/i.test(t))return'review';return'lesson'}
+function courseUnits(c){
+  const out=[];
+  c.blocks.forEach(bid=>{const b=S.blocks[bid];if(!b)return;
+    b.units.forEach((u,i)=>out.push({bid,idx:i,b,m:u.m,t:u.t,f:u.f,u:u.u,kind:kindOf(u.t),key:c.cls+'|'+bid+'|'+i}))});
+  return out;
+}
+const perOrder=(a,b)=>a.per-b.per;
+function offReason(di,cls,mode){
+  const f=ferienAt(di);if(f)return f.n;
+  if(!(mode==='soll'&&!S.settings.sollMitFeiertagen)){
+    const h=feiertagAt(di);if(h)return h.n;
+    const fr=freeAt(di,cls);if(fr)return fr.label||'Freier Tag';}
+  if(mode==='ist'){const a=absentAt(di);if(a)return'Lehrkraft fehlt';}
+  return null;
+}
+function examAt(di,c,slot){return S.exams.find(e=>e.date===di&&e.cls===c.cls&&e.subj===c.subj&&(e.per===''||e.per==null||Number(e.per)===slot.per))}
+function schedule(c,mode){
+  const units=courseUnits(c),slots=S.slots.filter(s=>s.cls===c.cls&&s.subj===c.subj);
+  const out=[];let ui=Math.max(0,c.done||0);
+  const start=c.start&&c.start>S.settings.yearStart?c.start:S.settings.yearStart;
+  for(let d=D(start);iso(d)<=S.settings.yearEnd;d=addDays(d,1)){
+    const wd=d.getDay();if(wd<1||wd>5)continue;
+    const di=iso(d),L=weekLetter(d);
+    slots.filter(s=>s.wd===wd&&(s.week==='AB'||s.week===L)).sort(perOrder).forEach(s=>{
+      const l={date:di,slot:s,letter:L,course:c};const off=offReason(di,c.cls,mode);
+      if(off){l.status='off';l.reason=off}
+      else{const ex=examAt(di,c,s);
+        if(ex){l.status='exam';l.exam=ex;const nu=units[ui];if(nu&&nu.kind==='exam'){l.unit=nu;l.ui=ui;ui++}else{l.extra=true}}
+        else if(ui<units.length){l.status='unit';l.unit=units[ui];l.ui=ui;ui++}
+        else l.status='free';}
+      out.push(l)});
+  }
+  return {lessons:out,units,next:ui};
+}
+function courseStatus(c){
+  const ist=schedule(c,'ist'),soll=schedule(c,'soll'),today=todayIso();
+  const cnt=sc=>sc.lessons.filter(l=>l.date<=today&&l.unit).length;
+  const doneIst=cnt(ist),doneSoll=cnt(soll);
+  const lost=Math.max(0,doneSoll-doneIst-(c.gain||0));
+  const hrs=lost*S.settings.hoursPerSlot;
+  const col=lost<=0?'g':(hrs>S.settings.thresholdH?'r':'y');
+  const overhang=Math.max(0,ist.units.length-ist.next);
+  const nextL=ist.lessons.find(l=>l.date>=today&&(l.status==='unit'||l.status==='exam'));
+  const lastL=[...ist.lessons].reverse().find(l=>l.unit);
+  return {c,ist,soll,doneIst,doneSoll,lost,hrs,col,overhang,nextL,lastL,total:ist.units.length,done:(c.done||0)+doneIst};
+}
+const colLabel={g:'Im Zeitplan',y:'Leicht im Verzug',r:'Im Verzug'};
+function allStatus(){return S.courses.map(courseStatus)}
+function worst(sts){return sts.some(s=>s.col==='r')?'r':sts.some(s=>s.col==='y')?'y':'g'}
+
+/* Material & Berichtsheft */
+function matFor(u,cls){
+  const ov=S.matOv[u.key];let m=(ov!=null&&ov!==''?ov:u.f)||'',auto=false;
+  if(!m){auto=true;
+    const mm=/M (\d+)/.exec(u.m||'');
+    if(mm&&u.b.lf&&u.kind==='lesson')m='LF'+u.b.lf+' Modul '+mm[1]+' - Aufgaben.pdf';
+    else m=u.bid+'-DS'+String(u.idx+1).padStart(2,'0')+'.pdf';}
+  if(/^https?:\/\//i.test(m))return{url:m,name:m.replace(/^https?:\/\/(www\.)?/,'').slice(0,40),ext:true,auto};
+  const path=m.includes('/')?m:'materials/'+m;
+  return{url:encodeURI(path),name:m.replace(/^.*\//,'').replace(/\.pdf$/i,''),ext:false,auto,path};
+}
+function untisText(u,cls,subj){
+  const ov=S.untisOv[u.key];if(ov)return ov;if(u.u)return u.u;
+  const B=u.b.name.replace(/ – .*/,' „'+u.b.name.replace(/^.*? – /,'')+'“');
+  const mod=u.m?' ('+u.m.replace('M ','Modul ')+')':'';
+  const mat=matFor(u,cls).name,t=u.t;
+  const sub=SUBJ_LABEL[subj];
+  const head=subj==='Lernfelder'?B+mod:subj==='Wiso'?'Wirtschafts- und Sozialkunde':subj==='Englisch'?'Englisch im Einzelhandel':subj==='Mathe'?'Mathematik für Fachlageristen':'Wahlpflichtfach';
+  if(u.kind==='exam')return `${head}: Schriftliche bzw. praktische Leistungsüberprüfung „${t}“ im Format der Abschlussprüfung; anschließend Selbsteinschätzung der erreichten Punkte und Auswertung der Ergebnisse.`;
+  if(u.kind==='buffer')return `${head}: Rückgabe und Besprechung der Leistungsüberprüfung, Nachschreibtermin sowie Wiederholung offener Inhalte.`;
+  if(u.kind==='review')return `${head}: Gezielte Wiederholung – ${t}; Festigung der Inhalte durch Lernspiel bzw. Prüfungsaufgaben und Auswertung der Ergebnisse im Plenum.`;
+  let m;
+  if((m=/^(.*) – Einstieg$/.exec(t)))return `${head}: Einstieg in das Thema „${m[1]}“ mit einem Situationsbeispiel; Erarbeitung der Grundlagen anhand von Fallbeispielen (Arbeitsblatt „${mat}“).`;
+  if((m=/^(.*) – Training$/.exec(t)))return `${head}: Training zum Thema „${m[1]}“ mit Situationsaufgaben und Rollenspielen unter Verwendung des Arbeitsblatts „${mat}“; Rückmeldung durch Beobachtungsbogen und Lösungsblatt.`;
+  if((m=/^(.*) – Selbsttest$/.exec(t)))return `${head}: Selbsttest zum Thema „${m[1]}“ am Rechner, Auswertung im Punktekonto und Ausfüllen der Kann-Liste.`;
+  return `${head}: Erarbeitung des Themas „${t}“ anhand von Einstiegsmaterial, Fallbeispielen und Aufgaben (Arbeitsblatt „${mat}“); Ergebnissicherung im Unterrichtsgespräch und Kontrolle mit dem Lösungsblatt.`;
+}
+
+/* =====================================================================
+   RENDER-HILFEN
+   ===================================================================== */
+const $=(s,r=document)=>r.querySelector(s);
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1800)}
+function copyText(t){
+  const done=()=>toast('Kopiert ✓');
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(done,()=>fb())}else fb();
+  function fb(){const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity=0;document.body.appendChild(a);a.select();try{document.execCommand('copy');done()}catch(e){toast('Bitte manuell kopieren')}a.remove()}
+}
+const subjColor=s=>`style="--cc:var(--c-${s})"`;
+function lamp(c){return `<span class="lamp ${c}" title="${colLabel[c]}"></span>`}
+function nav(){
+  const items=STUDENT?[['stu','Berichtsheft-Einträge']]:[['dash','Übersicht'],['week','Wochenplan'],['plan','Stundenplan A/B'],['stoff','Klassen & Stoffplan'],['kal','Kalender & Termine'],['data','Daten & Einstellungen']];
+  $('#nav').innerHTML=items.map(([k,l])=>`<button class="${VIEW===k?'on':''}" data-act="view" data-v="${k}">${l}</button>`).join('');
+  const t=todayIso(),L=weekLetter(D(t));
+  $('#hsub').innerHTML=STUDENT?'Schüleransicht – Einträge für Berichtsheft / Ausbildungsnachweis':`Heute: ${fmt(t)} · ${L}-Woche (KW ${isoWeek(D(t))}) · Daten nur in diesem Browser gespeichert`;
+}
+function render(){
+  _wl.clear();nav();
+  const v=$('#view');
+  try{
+  v.innerHTML=({dash:vDash,week:vWeek,plan:vPlan,stoff:vStoff,kal:vKal,data:vData,stu:vStu})[VIEW]();
+  }catch(e){v.innerHTML='<div class="card">Fehler: '+esc(e.message)+'</div>';console.error(e)}
+}
+
+/* ---------- Übersicht ---------- */
+function vDash(){
+  const sts=allStatus(),w=worst(sts),today=todayIso();
+  const hasSample=S.slots.some(s=>s.sample);
+  let h='';
+  if(hasSample)h+=`<div class="banner"><b>Beispiel-Stundenplan aktiv.</b> Die Zeiten im Tab „Stundenplan A/B“ sind Platzhalter (nur WiSo donnerstags und Mathe dienstags sind aus deinen Angaben). Bitte an deinen echten Plan anpassen – dort kannst du auch alle Beispiel-Einträge mit einem Klick löschen. Ebenso ist die A-Woche im Tab „Daten & Einstellungen“ festzulegen.</div>`;
+  h+=`<div class="card" style="margin-bottom:14px"><h2>${lamp(w)} Gesamtstatus: ${colLabel[w]}</h2><div class="muted small">Ampel: grün = im Plan · gelb = bis ${S.settings.thresholdH} Std. Verzug · rot = mehr als ${S.settings.thresholdH} Std. Verzug gegenüber dem Soll-Curriculum (Stichtag ${fmt(today)}). 1 Einheit = 1 Doppelstunde = ${S.settings.hoursPerSlot} Std.</div></div>`;
+  // heute
+  const tl=[];sts.forEach(s=>s.ist.lessons.filter(l=>l.date===today).forEach(l=>tl.push(l)));
+  tl.sort((a,b)=>a.slot.per-b.slot.per);
+  h+=`<div class="card" style="margin-bottom:14px"><h2>Heute (${fmt(today)})</h2>${tl.length?tl.map(l=>lessonLine(l)).join(''):'<div class="muted">Heute keine Unterrichtsstunden laut Stundenplan.</div>'}</div>`;
+  h+='<div class="grid">'+sts.map(s=>{
+    const c=s.c,pct=s.total?Math.round(100*s.done/s.total):0;
+    return `<div class="card"><h3>${lamp(s.col)}${esc(clsName(c.cls))} · ${SUBJ_LABEL[c.subj]}</h3>
+      <div class="small muted">${c.blocks.map(b=>esc((S.blocks[b]||{}).id||b)).join(' → ')}</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="small">${s.done} von ${s.total} Einheiten (${pct} %) · Soll bis heute: ${(c.done||0)+s.doneSoll} · <b>Verzug: ${s.hrs} Std.</b> <span class="badge ${s.col}">${colLabel[s.col]}</span></div>
+      <div class="small" style="margin-top:6px">${s.nextL?`Nächste: <b>${fmtS(s.nextL.date)}</b> – ${esc(s.nextL.unit?s.nextL.unit.t:s.nextL.exam.label||'Leistungsüberprüfung')}`:'Keine weitere Stunde mit Stoff geplant.'}</div>
+      ${s.overhang?`<div class="small shift">⚠ Bis Schuljahresende ${S.settings.yearEnd.slice(8,10)+'.'+S.settings.yearEnd.slice(5,7)+'.'} fehlen Termine für ${s.overhang} Einheit(en).</div>`:(s.lastL?`<div class="small muted">Planende: ${fmt(s.lastL.date)}</div>`:'')}
+      <div class="row"><button class="b sm" data-act="timeline" data-c="${c.id}">Verlauf & Verschiebung</button></div></div>`}).join('')+'</div>';
+  return h;
+}
+function lessonLine(l){
+  const c=l.course;
+  let txt=l.status==='off'?`<span class="muted">entfällt (${esc(l.reason)})</span>`:l.status==='free'?'<span class="muted">kein Stoff mehr hinterlegt</span>':esc(l.unit?l.unit.t:('Leistungsüberprüfung'+(l.exam&&l.exam.label?': '+l.exam.label:'')));
+  return `<div class="les ${l.status}" ${subjColor(c.subj)} data-act="lesson" data-c="${c.id}" data-d="${l.date}" data-s="${l.slot.id}"><b>${PERIODS[l.slot.per]} · ${esc(clsName(c.cls))} · ${SUBJ_LABEL[c.subj]}</b>${txt}</div>`;
+}
+
+/* ---------- Wochenplan ---------- */
+function vWeek(){
+  if(!WEEK)WEEK=iso(mondayOf(D(todayIso())));
+  const mon=D(WEEK),L=weekLetter(mon);
+  const sts=S.courses.map(c=>({c,sc:schedule(c,'ist')}));
+  const days=[1,2,3,4,5].map(i=>addDays(mon,i-1));
+  const usedPer=new Set([0,1,2]);S.slots.forEach(s=>usedPer.add(s.per));
+  const maxP=Math.max(...usedPer);
+  let h=`<div class="row"><button class="b" data-act="wk" data-n="-1">‹ Woche zurück</button><button class="b" data-act="wk" data-n="0">Heute</button><button class="b" data-act="wk" data-n="1">Woche vor ›</button>
+   <h2 style="margin:0 8px">KW ${isoWeek(mon)} · <span class="badge ${L}">${L}-Woche</span></h2><span class="muted small">${fmt(iso(days[0]))} – ${fmt(iso(days[4]))}</span></div>`;
+  h+='<div class="scroll"><table class="wk"><tr><th class="per"></th>'+days.map(d=>{const di=iso(d),f=ferienAt(di),ft=feiertagAt(di);return `<th class="${f||ft?'hol':''}">${WDL[d.getDay()]} ${fmtS(di)}${f?`<div class="small muted">${esc(f.n)}</div>`:''}${ft?`<div class="small muted">${esc(ft.n)}</div>`:''}</th>`}).join('')+'</tr>';
+  for(let p=0;p<=maxP;p++){
+    h+=`<tr><th class="per">${PERIODS[p]}</th>`;
+    days.forEach(d=>{const di=iso(d);const cell=[];
+      sts.forEach(({c,sc})=>sc.lessons.forEach(l=>{if(l.date===di&&l.slot.per===p)cell.push(l)}));
+      h+=`<td class="${ferienAt(di)||feiertagAt(di)?'hol':''}">${cell.map(lessonLine).join('')}</td>`});
+    h+='</tr>';
+  }
+  h+='</table></div><p class="muted small">Klick auf eine Stunde: Material, Klassenbuch-Eintrag (Untis), Klausur eintragen oder Fehltag setzen. Ausgefallene Stunden sind durchgestrichen – der Stoff rückt automatisch nach.</p>';
+  return h;
+}
+
+/* ---------- Stundenplan A/B ---------- */
+function slotOptions(){return S.classes.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}
+function vPlan(){
+  let h=`<div class="card" style="margin-bottom:14px"><h2>Stunde zum Stundenplan hinzufügen</h2>
+   <div class="row"><label>Klasse<select id="sl_cls" data-act="slsubj">${slotOptions()}</select></label>
+   <label>Fach<select id="sl_sub"></select></label>
+   <label>Tag<select id="sl_wd">${[1,2,3,4,5].map(i=>`<option value="${i}">${WDL[i]}</option>`).join('')}</select></label>
+   <label>Doppelstunde<select id="sl_per">${PERIODS.map((p,i)=>`<option value="${i}">${p} Std.</option>`).join('')}</select></label>
+   <label>Woche<select id="sl_wk"><option value="AB">jede Woche (A+B)</option><option value="A">nur A-Woche</option><option value="B">nur B-Woche</option></select></label>
+   <button class="b p" data-act="addslot">Hinzufügen</button>
+   ${S.slots.some(s=>s.sample)?'<button class="b d" data-act="delsamples">Beispiel-Einträge löschen</button>':''}</div>
+   <div class="muted small">Jeder Eintrag ist eine Doppelstunde (90 Min.). Jede Klasse bekommt ihren eigenen Stoffplan (Tab „Klassen & Stoffplan“).</div></div>`;
+  ['A','B'].forEach(L=>{
+    h+=`<div class="card" style="margin-bottom:14px"><h2><span class="badge ${L}">${L}-Woche</span></h2><div class="scroll"><table class="wk"><tr><th class="per"></th>${[1,2,3,4,5].map(i=>`<th>${WDL[i]}</th>`).join('')}</tr>`;
+    for(let p=0;p<5;p++){
+      h+=`<tr><th class="per">${PERIODS[p]}</th>`+[1,2,3,4,5].map(wd=>{
+        const ss=S.slots.filter(s=>s.wd===wd&&s.per===p&&(s.week==='AB'||s.week===L));
+        return '<td>'+ss.map(s=>`<div class="les" ${subjColor(s.subj)}><b>${esc(clsName(s.cls))} · ${SUBJ_LABEL[s.subj]}${s.sample?' <span class="badge y">Beispiel</span>':''}${s.week==='AB'?'':''}</b><button class="b sm d" data-act="delslot" data-id="${s.id}">entfernen</button></div>`).join('')+'</td>'}).join('')+'</tr>';
+    }
+    h+='</table></div></div>';
+  });
+  setTimeout(()=>fillSubj('sl_cls','sl_sub'),0);
+  return h;
+}
+
+/* ---------- Klassen & Stoffplan ---------- */
+let BLK_SEL='LF1';
+function unitsToText(b){return b.units.map(u=>[u.m,u.t,u.f,u.u].join(' | ').replace(/( \| )+$/,'')).join('\n')}
+function textToUnits(t){return t.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const p=l.split('|').map(x=>x.trim());
+  if(p.length===1)return{m:'',t:p[0],f:'',u:''};return{m:p[0]||'',t:p[1]||'',f:p[2]||'',u:p[3]||''}})}
+function vStoff(){
+  let h=`<div class="card" style="margin-bottom:14px"><h2>Welche Lernfelder/Fächer unterrichte ich in welcher Klasse?</h2>
+   <div class="muted small" style="margin-bottom:8px">Pro Klasse und Fach gibt es einen „Kurs“ mit einer geordneten Kette von Stoff-Blöcken (z. B. LF 2 → LF 3 → LF 4). Die Doppelstunden aus dem Stundenplan werden der Reihe nach mit den Einheiten gefüllt.</div>`;
+  S.courses.forEach(c=>{
+    h+=`<div class="card" style="margin:10px 0"><div class="row" style="margin:0"><b>${esc(clsName(c.cls))} · ${SUBJ_LABEL[c.subj]}</b>
+     <button class="b sm d" data-act="delcourse" data-c="${c.id}" style="margin-left:auto">Kurs löschen</button></div>
+     <div>${c.blocks.map((b,i)=>`<span class="chip">${esc(b)}<button title="nach vorn" data-act="blkmv" data-c="${c.id}" data-i="${i}" data-n="-1">‹</button><button title="nach hinten" data-act="blkmv" data-c="${c.id}" data-i="${i}" data-n="1">›</button><button title="entfernen" data-act="blkdel" data-c="${c.id}" data-i="${i}">✕</button></span>`).join('')||'<span class="muted">noch kein Block</span>'}</div>
+     <div class="row"><label>Block hinzufügen<select data-act="blkadd" data-c="${c.id}"><option value="">– wählen –</option>${Object.values(S.blocks).filter(b=>b.subj===c.subj).map(b=>`<option value="${b.id}">${esc(b.id)} – ${esc(b.name)} (${b.units.length} DS)</option>`).join('')}</select></label>
+     <label>Start des Kurses<input type="date" data-act="cfld" data-c="${c.id}" data-f="start" value="${c.start||''}"></label>
+     <label>Bereits erledigte Einheiten vor Start<input type="number" min="0" style="width:90px" data-act="cfld" data-c="${c.id}" data-f="done" value="${c.done||0}"></label>
+     <label title="Wenn du Verzug durch Straffung aufgeholt hast">Aufgeholt (Einheiten)<input type="number" min="0" style="width:90px" data-act="cfld" data-c="${c.id}" data-f="gain" value="${c.gain||0}"></label></div></div>`;
+  });
+  h+=`<div class="row"><label>Neuer Kurs – Klasse<select id="nc_cls" data-act="ncsubj">${slotOptions()}</select></label><label>Fach<select id="nc_sub"></select></label><button class="b p" data-act="addcourse">Kurs anlegen</button></div></div>`;
+  const b=S.blocks[BLK_SEL]||Object.values(S.blocks)[0];
+  h+=`<div class="card"><h2>Stoffkatalog bearbeiten</h2>
+   <div class="row"><label>Block<select data-act="blksel">${Object.values(S.blocks).map(x=>`<option value="${x.id}" ${x.id===b.id?'selected':''}>${esc(x.id)} – ${esc(x.name)}</option>`).join('')}</select></label>
+   <button class="b" data-act="newblock">Neuer Block</button></div>
+   ${b.check?'<div class="banner">Umfang und Titel sind hier noch <b>Platzhalter</b> – bitte Doppelstunden und Themen anpassen (eine Zeile = eine Doppelstunde).</div>':''}
+   <div class="row"><label>Name<input id="bk_name" style="min-width:320px" value="${esc(b.name)}"></label><label>Fach<select id="bk_subj">${SUBJ.map(s=>`<option ${s===b.subj?'selected':''}>${s}</option>`).join('')}</select></label>
+   <label>LF-Nr. (für Standardpfad)<input id="bk_lf" style="width:90px" value="${esc(b.lf)}"></label></div>
+   <label style="display:flex">Einheiten – eine Zeile pro Doppelstunde: <code>Modul | Thema | Material (Link oder Dateiname) | Klassenbuch-Text (optional)</code>
+   <textarea id="bk_txt" rows="16" spellcheck="false">${esc(unitsToText(b))}</textarea></label>
+   <div class="muted small">Material leer lassen → Standardpfad <code>materials/…pdf</code> im Repository. Eine Zeile mit „Klausur“ im Thema wird als Leistungsüberprüfung erkannt; eingetragene Klausurtermine werden darauf angerechnet. ${b.units.length} Einheiten.</div>
+   <div class="row"><button class="b p" data-act="saveblock">Block speichern</button><button class="b d" data-act="delblock">Block löschen</button></div></div>`;
+  setTimeout(()=>{fillSubj('nc_cls','nc_sub')},0);
+  return h;
+}
+function fillSubj(clsId,subId){
+  const c=S.classes.find(x=>x.id===($('#'+clsId)||{}).value);const sel=$('#'+subId);if(!sel||!c)return;
+  const list=c.type==='F'?['Mathe']:['Lernfelder','Wiso','Englisch','Wahlpflicht'];
+  sel.innerHTML=list.map(s=>`<option value="${s}">${SUBJ_LABEL[s]}</option>`).join('');
+}
+
+/* ---------- Kalender & Termine ---------- */
+function vKal(){
+  const examCourses=S.courses;
+  let h=`<div class="grid">
+  <div class="card"><h2>Lehrkraft-Fehltage <span class="badge">Admin</span></h2>
+   <div class="muted small">Nur <b>deine eigenen</b> Fehltage (Krankheit, Fortbildung …) – keine Schülerdaten. Alle Stunden an diesen Tagen entfallen, der Stoff rückt nach.</div>
+   <div class="row"><label>von<input type="date" id="ab_f"></label><label>bis<input type="date" id="ab_t"></label>
+   <label>Grund<select id="ab_r"><option>Krankheit</option><option>Fortbildung</option><option>Sonstiges</option></select></label>
+   <label>Notiz<input id="ab_n" placeholder="optional"></label><button class="b p" data-act="addabs">Eintragen</button></div>
+   ${S.absences.length?`<table>${S.absences.slice().sort((a,b)=>a.from<b.from?-1:1).map(a=>`<tr><td>${fmt(a.from)}${a.to&&a.to!==a.from?' – '+fmt(a.to):''}</td><td>${esc(a.reason)}${a.note?' · '+esc(a.note):''}</td><td><button class="b sm d" data-act="delabs" data-id="${a.id}">✕</button></td></tr>`).join('')}</table>`:'<div class="muted">Keine Fehltage eingetragen.</div>'}</div>
+  <div class="card"><h2>Klausuren & Leistungsüberprüfungen</h2>
+   <div class="muted small">Die Stunde wird für neuen Stoff gesperrt. Ist die nächste Einheit im Stoffplan eine Klausur, wird sie darauf angerechnet – sonst rückt der Stoff um eine Einheit nach hinten.</div>
+   <div class="row"><label>Kurs<select id="ex_c">${examCourses.map(c=>`<option value="${c.id}">${esc(clsName(c.cls))} · ${SUBJ_LABEL[c.subj]}</option>`).join('')}</select></label>
+   <label>Datum<input type="date" id="ex_d"></label><label>Doppelstunde<select id="ex_p"><option value="">egal</option>${PERIODS.map((p,i)=>`<option value="${i}">${p}</option>`).join('')}</select></label>
+   <label>Bezeichnung<input id="ex_l" placeholder="z. B. Klausur 1"></label><button class="b p" data-act="addexam">Eintragen</button></div>
+   ${S.exams.length?`<table>${S.exams.slice().sort((a,b)=>a.date<b.date?-1:1).map(e=>{const c=S.courses.find(x=>x.id===e.course);const ok=S.slots.some(s=>s.cls===e.cls&&s.subj===e.subj);return `<tr><td>${fmt(e.date)}</td><td>${esc(clsName(e.cls))} · ${SUBJ_LABEL[e.subj]}</td><td>${esc(e.label||'')}${ok?'':' <span class="shift">(kein Stundenplan-Eintrag!)</span>'}</td><td><button class="b sm d" data-act="delexam" data-id="${e.id}">✕</button></td></tr>`}).join('')}</table>`:'<div class="muted">Keine Termine eingetragen.</div>'}</div>
+  <div class="card"><h2>Schulspezifische freie Tage</h2>
+   <div class="muted small">Studientage, Zeugniskonferenzen, Projekttage … Optional nur für eine Klasse (z. B. Exkursion).</div>
+   <div class="row"><label>von<input type="date" id="fr_f"></label><label>bis<input type="date" id="fr_t"></label><label>Bezeichnung<input id="fr_l" placeholder="z. B. Studientag"></label>
+   <label>Gilt für<select id="fr_c"><option value="">alle Klassen</option>${slotOptions()}</select></label><button class="b p" data-act="addfree">Eintragen</button></div>
+   ${S.freeDays.length?`<table>${S.freeDays.slice().sort((a,b)=>a.from<b.from?-1:1).map(f=>`<tr><td>${fmt(f.from)}${f.to&&f.to!==f.from?' – '+fmt(f.to):''}</td><td>${esc(f.label)}</td><td>${f.cls?esc(clsName(f.cls)):'alle'}</td><td><button class="b sm d" data-act="delfree" data-id="${f.id}">✕</button></td></tr>`).join('')}</table>`:'<div class="muted">Keine freien Tage eingetragen.</div>'}</div>
+  </div>
+  <div class="card" style="margin-top:14px"><h2>Ferien & Feiertage Bremen 2026/27 (fest hinterlegt)</h2><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+   <div><b>Ferien / unterrichtsfrei</b><table>${FERIEN.map(f=>`<tr><td>${esc(f.n)}</td><td>${fmt(f.f)}${f.t!==f.f?' – '+(f.n.startsWith('Sommer')?'(bis Ferienende)':fmt(f.t)):''}</td></tr>`).join('')}</table></div>
+   <div><b>Gesetzliche Feiertage</b><table>${FEIERTAGE.map(f=>`<tr><td>${esc(f.n)}</td><td>${fmt(f.d)}</td></tr>`).join('')}</table></div></div></div>`;
+  return h;
+}
+
+/* ---------- Daten & Einstellungen ---------- */
+function vData(){
+  const s=S.settings;
+  const base=location.href.split('?')[0].split('#')[0];
+  return `<div class="grid">
+  <div class="card"><h2>Sicherung (JSON)</h2>
+   <div class="muted small">Die App speichert automatisch im Browser (Local Storage). Für dauerhafte Sicherung exportieren.</div>
+   <div class="row"><button class="b p" data-act="export">Daten exportieren</button><label class="b" style="flex-direction:row;cursor:pointer">Daten importieren<input type="file" id="imp" accept="application/json,.json" style="display:none"></label></div>
+   <div class="muted small">Export-Datei: <code>stundenplan_backup.json</code></div>
+   <hr><b>Schüler-App veröffentlichen</b>
+   <div class="muted small" style="margin:4px 0">Erzeugt <code>stundenplan_oeffentlich.json</code> ohne Fehltags-Gründe und Notizen. Diese Datei legst du neben <code>index.html</code> ins GitHub-Repository. Schüler öffnen dann den Link unten und kopieren ihre Einträge per Klick.</div>
+   <div class="row"><button class="b" data-act="exportpub">Schüler-Datei exportieren</button><a class="b" href="?ansicht=schueler" target="_blank">Schüleransicht ansehen</a></div>
+   <div class="small">Schüler-Links:<br>${S.classes.map(c=>`<code>${esc(base)}?ansicht=schueler&amp;klasse=${encodeURIComponent(c.id)}</code>`).join('<br>')}</div>
+   <hr><button class="b d" data-act="reset">Alles zurücksetzen (Standardwerte)</button></div>
+  <div class="card"><h2>Einstellungen</h2>
+   <div class="row"><label>Montag einer A-Woche<input type="date" data-act="set" data-f="aMonday" value="${s.aMonday}"></label>
+   <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" data-act="setb" data-f="countFerienWeeks" ${s.countFerienWeeks?'checked':''}> Ferienwochen zählen beim A/B-Wechsel mit</label></div>
+   <div class="muted small">Aktuell: diese Woche ist <b>${weekLetter(D(todayIso()))}-Woche</b>. Stimmt das nicht, einen Montag einer echten A-Woche eintragen.</div>
+   <div class="row"><label>Schuljahr von<input type="date" data-act="set" data-f="yearStart" value="${s.yearStart}"></label><label>bis (letzter Schultag)<input type="date" data-act="set" data-f="yearEnd" value="${s.yearEnd}"></label></div>
+   <div class="row"><label>Ampel rot ab Verzug über (Std.)<input type="number" min="0" style="width:90px" data-act="set" data-f="thresholdH" value="${s.thresholdH}"></label>
+   <label>Stunden je Einheit<input type="number" min="1" style="width:90px" data-act="set" data-f="hoursPerSlot" value="${s.hoursPerSlot}"></label></div>
+   <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" data-act="setb" data-f="sollMitFeiertagen" ${s.sollMitFeiertagen?'checked':''}> Feiertage/freie Tage im Soll-Plan bereits einplanen</label>
+   <div class="muted small">Aus = auch Feiertage und freie Tage zählen als Verzug zum Soll (Ferien nie).</div>
+   <div class="row"><label>Stichtag (leer = heute)<input type="date" data-act="set" data-f="stichtag" value="${s.stichtag}"></label></div></div>
+  <div class="card"><h2>GitHub-Pages in 4 Schritten</h2><ol class="small">
+   <li>Diese Datei als <code>index.html</code> in ein Repository hochladen.</li>
+   <li>Unter Settings → Pages: Branch <code>main</code>, Ordner <code>/ (root)</code> aktivieren.</li>
+   <li>Material (PDF) in den Ordner <code>materials/</code> legen. Im Stoffplan reicht der Dateiname; Dropbox-Links werden direkt als Link verwendet.</li>
+   <li>Für die Schüler: „Schüler-Datei exportieren“ und die Datei ins Repository legen.</li></ol>
+   <div class="muted small">Datenschutz: Es werden keine Schülerdaten gespeichert. Dein Planungsstand liegt nur in deinem Browser und in deiner Backup-Datei.</div></div></div>`;
+}
+
+/* ---------- Schüleransicht ---------- */
+function vStu(){
+  const classes=S.classes.filter(c=>S.courses.some(x=>x.cls===c.id));
+  if(!STU_CLS||!classes.some(c=>c.id===STU_CLS))STU_CLS=(classes[0]||{}).id||'';
+  const today=todayIso();
+  const items=[];
+  S.courses.filter(c=>c.cls===STU_CLS).forEach(c=>{
+    schedule(c,'ist').lessons.forEach(l=>{if(l.date<=today&&l.unit)items.push(l)})});
+  items.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:a.slot.per-b.slot.per);
+  let h=(STU_NOTE?`<div class="banner">${esc(STU_NOTE)}</div>`:'')+`<div class="card"><div class="row"><label>Klasse<select data-act="stucls">${classes.map(c=>`<option value="${c.id}" ${c.id===STU_CLS?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>
+   <button class="b" data-act="stuall">Alle Einträge kopieren</button></div>
+   <div class="muted small">Jeder Eintrag ist so formuliert, dass du ihn direkt in dein Berichtsheft / deinen Ausbildungsnachweis übernehmen kannst.</div></div>`;
+  h+='<div class="card" style="margin-top:12px">'+(items.length?items.map(l=>{
+    const t=untisText(l.unit,l.course.cls,l.course.subj);
+    return `<div class="stu-item"><b>${fmt(l.date)} · ${SUBJ_LABEL[l.course.subj]} · ${PERIODS[l.slot.per]} Std.</b><div class="muted small">${esc(l.unit.t)}</div><p>${esc(t)}</p>
+      <button class="b sm" data-act="stucopy" data-t="${esc(t)}">Text kopieren</button> <button class="b sm" data-act="stucopy" data-t="${esc(fmt(l.date)+' – '+t)}">mit Datum kopieren</button>
+      ${matLinkHtml(l.unit,l.course.cls)}</div>`}).join(''):'<div class="muted">Noch keine Einträge vorhanden.</div>')+'</div>';
+  return h;
+}
+window._stuItems=null;
+function matLinkHtml(u,cls){const m=matFor(u,cls);return m.auto&&!STUDENT?'':`<a class="b sm" href="${esc(m.url)}" target="_blank" rel="noopener">Material öffnen</a>`}
+
+/* =====================================================================
+   MODALS
+   ===================================================================== */
+function closeModal(){$('#modal').innerHTML=''}
+function openModal(html){$('#modal').innerHTML=`<div class="modalbg" data-act="mbg"><div class="modal">${html}</div></div>`}
+function lessonModal(cid,d,sid){
+  const c=S.courses.find(x=>x.id===cid);const sc=schedule(c,'ist');
+  const l=sc.lessons.find(x=>x.date===d&&x.slot.id===sid);if(!l)return;
+  const head=`<div class="row" style="margin:0"><h2>${esc(clsName(c.cls))} · ${SUBJ_LABEL[c.subj]}</h2><button class="b" style="margin-left:auto" data-act="close">Schließen</button></div>
+   <div class="muted">${WDL[l.slot.wd]}, ${fmt(d)} · ${PERIODS[l.slot.per]} Std. · <span class="badge ${l.letter}">${l.letter}-Woche</span></div>`;
+  let body='';
+  if(l.status==='off')body=`<p><b>Entfällt:</b> ${esc(l.reason)}. Der Stoff rückt auf den nächsten Termin.</p>`;
+  else if(l.status==='free')body='<p class="muted">Für diese Stunde ist kein Stoff hinterlegt (Plan abgeschlossen). Block im Tab „Klassen & Stoffplan“ ergänzen.</p>';
+  else if(!l.unit)body=`<p><b>Leistungsüberprüfung:</b> ${esc(l.exam.label||'')}<br><span class="muted">Zusätzliche Stunde – der Stoff ist um eine Einheit verschoben.</span></p>`;
+  if(l.unit){
+    const u=l.unit,m=matFor(u,c.cls),t=untisText(u,c.cls,c.subj);
+    body+=`<h3>${esc(u.t)}</h3><div class="muted small">${esc(u.b.name)}${u.m?' · '+esc(u.m):''} · Einheit ${u.idx+1} von ${u.b.units.length}${l.exam?' · <b>Klausurtermin</b>':''}</div>
+     <label style="display:flex;margin-top:10px">Material (Weblink oder Dateiname im Ordner materials/)
+       <input id="lm_mat" value="${esc(S.matOv[u.key]||u.f||'')}" placeholder="${esc(m.path||m.url)}"></label>
+     <div class="row"><button class="b p" data-act="savemat" data-k="${esc(u.key)}">Material speichern</button>
+       <a class="b" href="${esc(m.url)}" target="_blank" rel="noopener">${m.ext?'Link öffnen':'PDF öffnen'}: ${esc(m.name)}</a>${m.auto?'<span class="muted small">(Standardpfad – Datei muss im Repo liegen)</span>':''}</div>
+     <label style="display:flex;margin-top:10px">Eintrag für Klassenbuch (Untis) / Berichtsheft
+       <textarea id="lm_txt" rows="5">${esc(t)}</textarea></label>
+     <div class="row"><button class="b p" data-act="copyfield" data-f="lm_txt">In Zwischenablage kopieren</button>
+       <button class="b" data-act="saveuntis" data-k="${esc(u.key)}">Text für diese Klasse speichern</button>
+       <button class="b" data-act="resetuntis" data-k="${esc(u.key)}">Automatischen Text wiederherstellen</button></div>`;
+  }
+  body+=`<hr><div class="row"><button class="b" data-act="quickabs" data-d="${d}">Ich fehle an diesem Tag</button>
+    <button class="b" data-act="quickexam" data-c="${c.id}" data-d="${d}" data-p="${l.slot.per}">Klausur auf diese Stunde legen</button></div>`;
+  openModal(head+body);
+}
+function timelineModal(cid){
+  const c=S.courses.find(x=>x.id===cid),st=courseStatus(c);
+  const sollDate=new Map(st.soll.lessons.filter(l=>l.unit).map(l=>[l.ui,l.date]));
+  const istDate=new Map(st.ist.lessons.filter(l=>l.unit).map(l=>[l.ui,l.date]));
+  const rows=st.ist.units.map((u,i)=>{
+    const si=sollDate.get(i),ii=istDate.get(i);
+    const wks=si&&ii?Math.round((D(ii)-D(si))/(7*864e5)):0;
+    return `<tr><td>${i+1}</td><td>${esc(u.m)}</td><td>${esc(u.t)}</td><td class="dt">${si?fmtS(si):'–'}</td><td class="dt">${ii?fmtS(ii):'<span class="shift">kein Termin</span>'}</td><td>${wks>0?`<span class="shift">+${wks} Wo.</span>`:''}</td></tr>`}).join('');
+  openModal(`<div class="row" style="margin:0"><h2>${lamp(st.col)}${esc(clsName(c.cls))} · ${SUBJ_LABEL[c.subj]}</h2><button class="b" style="margin-left:auto" data-act="close">Schließen</button></div>
+   <div class="muted small">Soll = Plan ohne deine Fehltage · Ist = aktueller Stand mit Ausfällen und Klausuren. Verzug: ${st.hrs} Std.</div>
+   <div class="scroll"><table class="tl"><tr><th>#</th><th>Modul</th><th>Thema</th><th>Soll</th><th>Ist</th><th></th></tr>${rows}</table></div>`);
+}
+
+/* =====================================================================
+   EVENTS
+   ===================================================================== */
+function val(id){return ($('#'+id)||{}).value}
+const A={
+ view(e,t){VIEW=t.dataset.v;render();window.scrollTo(0,0)},
+ wk(e,t){const n=+t.dataset.n;WEEK=n===0?iso(mondayOf(D(todayIso()))):iso(addDays(D(WEEK),7*n));render()},
+ lesson(e,t){lessonModal(t.dataset.c,t.dataset.d,t.dataset.s)},
+ timeline(e,t){timelineModal(t.dataset.c)},
+ close(){closeModal()},
+ mbg(e){if(e.target.classList.contains('modalbg'))closeModal()},
+ savemat(e,t){const v=val('lm_mat').trim();if(v)S.matOv[t.dataset.k]=v;else delete S.matOv[t.dataset.k];save();toast('Material gespeichert');closeModal();render()},
+ copyfield(e,t){copyText(val(t.dataset.f))},
+ saveuntis(e,t){S.untisOv[t.dataset.k]=val('lm_txt');save();toast('Text gespeichert')},
+ resetuntis(e,t){delete S.untisOv[t.dataset.k];save();closeModal();render();toast('Zurückgesetzt')},
+ quickabs(e,t){S.absences.push({id:uid(),from:t.dataset.d,to:t.dataset.d,reason:'Krankheit',note:''});save();closeModal();render();toast('Fehltag eingetragen')},
+ quickexam(e,t){const c=S.courses.find(x=>x.id===t.dataset.c);S.exams.push({id:uid(),course:c.id,cls:c.cls,subj:c.subj,date:t.dataset.d,per:t.dataset.p,label:'Klausur'});save();closeModal();render();toast('Klausur eingetragen')},
+ addslot(){const cls=val('sl_cls'),sub=val('sl_sub');if(!sub)return;
+   S.slots.push({id:uid(),wd:+val('sl_wd'),per:+val('sl_per'),week:val('sl_wk'),cls,subj:sub});save();render()},
+ delslot(e,t){S.slots=S.slots.filter(s=>s.id!==t.dataset.id);save();render()},
+ delsamples(){if(confirm('Alle Beispiel-Stunden löschen?')){S.slots=S.slots.filter(s=>!s.sample);save();render()}},
+ addcourse(){const cls=val('nc_cls'),sub=val('nc_sub');if(S.courses.some(c=>c.cls===cls&&c.subj===sub)){toast('Kurs existiert schon');return}
+   S.courses.push({id:uid(),cls,subj:sub,blocks:[],start:'',done:0,gain:0});save();render()},
+ delcourse(e,t){if(confirm('Kurs löschen?')){S.courses=S.courses.filter(c=>c.id!==t.dataset.c);save();render()}},
+ blkdel(e,t){const c=S.courses.find(x=>x.id===t.dataset.c);c.blocks.splice(+t.dataset.i,1);save();render()},
+ blkmv(e,t){const c=S.courses.find(x=>x.id===t.dataset.c),i=+t.dataset.i,j=i+ +t.dataset.n;if(j<0||j>=c.blocks.length)return;[c.blocks[i],c.blocks[j]]=[c.blocks[j],c.blocks[i]];save();render()},
+ blksel(e,t){BLK_SEL=t.value;render()},
+ newblock(){const id=(prompt('Kürzel für den neuen Block (z. B. LF11):')||'').trim().toUpperCase();if(!id||S.blocks[id])return;
+   S.blocks[id]={id,name:id,subj:'Lernfelder',lf:'',check:false,units:[{m:'',t:'Thema 1',f:'',u:''}]};BLK_SEL=id;save();render()},
+ saveblock(){const b=S.blocks[BLK_SEL];b.name=val('bk_name');b.subj=val('bk_subj');b.lf=val('bk_lf').trim();b.units=textToUnits(val('bk_txt'));b.check=false;save();render();toast('Block gespeichert')},
+ delblock(){if(confirm('Block wirklich löschen?')){delete S.blocks[BLK_SEL];S.courses.forEach(c=>c.blocks=c.blocks.filter(x=>x!==BLK_SEL));BLK_SEL=Object.keys(S.blocks)[0];save();render()}},
+ addabs(){const f=val('ab_f');if(!f)return;S.absences.push({id:uid(),from:f,to:val('ab_t')||f,reason:val('ab_r'),note:val('ab_n')});save();render()},
+ delabs(e,t){S.absences=S.absences.filter(a=>a.id!==t.dataset.id);save();render()},
+ addexam(){const d=val('ex_d'),c=S.courses.find(x=>x.id===val('ex_c'));if(!d||!c)return;S.exams.push({id:uid(),course:c.id,cls:c.cls,subj:c.subj,date:d,per:val('ex_p'),label:val('ex_l')||'Klausur'});save();render()},
+ delexam(e,t){S.exams=S.exams.filter(a=>a.id!==t.dataset.id);save();render()},
+ addfree(){const f=val('fr_f');if(!f)return;S.freeDays.push({id:uid(),from:f,to:val('fr_t')||f,label:val('fr_l')||'Freier Tag',cls:val('fr_c')});save();render()},
+ delfree(e,t){S.freeDays=S.freeDays.filter(a=>a.id!==t.dataset.id);save();render()},
+ export(){download('stundenplan_backup.json',JSON.stringify(S,null,1))},
+ exportpub(){const P=JSON.parse(JSON.stringify(S));P.absences=P.absences.map(a=>({id:a.id,from:a.from,to:a.to,reason:'',note:''}));P.public=true;download('stundenplan_oeffentlich.json',JSON.stringify(P))},
+ reset(){if(confirm('Wirklich alle Daten auf Standard zurücksetzen? Vorher bitte exportieren!')){S=defaults();save();render()}},
+ stucopy(e,t){copyText(t.dataset.t)},
+ stuall(){const today=todayIso(),out=[];S.courses.filter(c=>c.cls===STU_CLS).forEach(c=>schedule(c,'ist').lessons.forEach(l=>{if(l.date<=today&&l.unit)out.push(l)}));
+   out.sort((a,b)=>a.date<b.date?-1:1);copyText(out.map(l=>fmt(l.date)+' – '+untisText(l.unit,l.course.cls,l.course.subj)).join('\n\n'))},
+};
+function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t)return;
+  const a=t.dataset.act;if(t.tagName==='SELECT'||t.tagName==='INPUT')return;if(a==='mbg'&&e.target!==t)return;
+  if(A[a]){if(a==='delslot'||a==='lesson'||true)e.stopPropagation();A[a](e,t)}});
+document.addEventListener('change',e=>{
+  const t=e.target;if(t.id==='imp'){const f=t.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||!o.slots||!o.courses)throw new Error('Keine gültige Sicherung');adopt(o);save();render();toast('Import erfolgreich')}catch(x){alert('Import fehlgeschlagen: '+x.message)}};r.readAsText(f);return}
+  const a=t.dataset&&t.dataset.act;if(!a)return;
+  if(a==='slsubj')fillSubj('sl_cls','sl_sub');
+  else if(a==='ncsubj')fillSubj('nc_cls','nc_sub');
+  else if(a==='blkadd'){if(t.value){const c=S.courses.find(x=>x.id===t.dataset.c);c.blocks.push(t.value);save();render()}}
+  else if(a==='blksel'){A.blksel(e,t)}
+  else if(a==='cfld'){const c=S.courses.find(x=>x.id===t.dataset.c);const f=t.dataset.f;c[f]=(f==='start')?t.value:Math.max(0,+t.value||0);save();render()}
+  else if(a==='set'){S.settings[t.dataset.f]=(t.type==='number')?(+t.value||0):t.value;save();render()}
+  else if(a==='setb'){S.settings[t.dataset.f]=t.checked;save();render()}
+  else if(a==='stucls'){STU_CLS=t.value;render()}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+/* =====================================================================
+   START
+   ===================================================================== */
+(function init(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('ansicht')==='schueler'){
+    STUDENT=true;VIEW='stu';STU_CLS=q.get('klasse')||'';
+    fetch('stundenplan_oeffentlich.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(o=>{adopt(o)}).catch(()=>{load();STU_NOTE='Vorschau mit lokalen Daten (stundenplan_oeffentlich.json wurde nicht gefunden).'}).finally(render);
+  }else{load();render();}
+})();
+</script>
+</body>
+</html>
