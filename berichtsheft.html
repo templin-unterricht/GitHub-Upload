@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Berichtsheft digital</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --ink:#17233F; --bg:#E8EEF5; --paper:#FFFFFF; --rule:#BCD2EA; --margin:#CF3F36;
+  --accent:#1F5FBF; --ok:#1B7F4B; --muted:#55627A; --line:#C5D0DE; --marker:#FFF3B8; --markerLine:#D9B600;
+}
+html{background:var(--bg);}
+body{margin:0;color:var(--ink);background:var(--bg);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Noto Sans Arabic","Noto Sans Ethiopic",Nyala,Arial,sans-serif;
+  font-size:16px;line-height:1.45;padding-bottom:96px;}
+a{color:var(--accent);}
+.wrap{max-width:48rem;margin-inline:auto;padding-inline:1rem;}
+.title{font-size:2rem;font-weight:800;letter-spacing:-.01em;margin:0;}
+.muted{color:var(--muted);}
+.card{background:var(--paper);border:1px solid var(--line);border-inline-start:5px solid var(--margin);
+  border-radius:6px;padding:1rem 1rem 1.1rem;margin-block:1rem;}
+.card-title,.card h2{font-size:1.15rem;font-weight:700;margin:0 0 .6rem;}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;margin-bottom:.5rem;}
+.card-head h2{margin:0;}
+.date{font-weight:500;color:var(--muted);font-size:.95rem;}
+.opt{font-weight:400;color:var(--muted);font-size:.85rem;}
+.badge{color:var(--ok);font-weight:800;font-size:1.2rem;min-width:1.2rem;text-align:center;}
+label,.lbl{display:block;font-weight:600;font-size:.92rem;margin:.7rem 0 .25rem;}
+input[type=text],input[type=date],select,textarea{
+  width:100%;box-sizing:border-box;border:1px solid #8E9BB0;border-radius:5px;background:#fff;color:var(--ink);
+  padding:.55rem .65rem;font:inherit;min-height:44px;}
+select{appearance:auto;}
+textarea{display:block;resize:vertical;}
+textarea.lined{
+  line-height:28px;padding:0 .75rem;min-height:84px;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,var(--rule) 27px,var(--rule) 28px);
+  background-attachment:local;background-color:#fff;}
+.hours{width:6rem;}
+input.hours{text-align:center;}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.5rem .9rem;border-radius:6px;
+  border:2px solid var(--ink);background:#fff;color:var(--ink);font:inherit;font-weight:700;cursor:pointer;text-align:center;}
+.btn:hover{background:#EEF3FA;}
+.btn.primary{background:var(--ink);color:#fff;}
+.btn.primary:hover{background:#26365C;}
+.btn.blue{background:var(--accent);border-color:var(--accent);color:#fff;}
+.btn.blue:hover{background:#18499A;}
+.btn.small{min-height:40px;padding:.35rem .7rem;font-size:.92rem;}
+.btn[disabled]{opacity:.45;cursor:not-allowed;background:#E4E8EF;color:#4A5568;border-color:#9AA6B8;}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.lang{min-height:44px;padding:.35rem .8rem;border:2px solid var(--ink);border-radius:999px;background:#fff;font:inherit;font-weight:600;cursor:pointer;color:var(--ink);}
+.lang[aria-pressed=true]{background:var(--ink);color:#fff;}
+.ai{background:var(--marker);border:2px solid var(--markerLine);border-radius:6px;padding:.7rem .8rem;}
+.ai-title{font-weight:800;margin:0 0 .3rem;}
+.ai-text{margin:0 0 .6rem;font-size:.9rem;word-break:break-word;}
+.weekbox{margin-top:.8rem;padding:.6rem .8rem;border:1px dashed #8E9BB0;border-radius:6px;background:#F5F8FC;min-height:2.6rem;}
+.warn{color:#9A3B00;font-weight:600;}
+.bar{position:fixed;inset-inline:0;bottom:0;background:#fff;border-top:2px solid var(--ink);padding:.6rem 0 calc(.6rem + env(safe-area-inset-bottom,0px));z-index:20;}
+.bar-in{max-width:48rem;margin-inline:auto;padding-inline:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
+#barstatus{font-weight:600;font-size:.95rem;}
+#missingList{margin:.3rem 0 0;padding-inline-start:1.3rem;}
+#toast{position:fixed;inset-inline:0;bottom:84px;margin-inline:auto;width:max-content;max-width:90%;background:var(--ink);color:#fff;
+  padding:.5rem 1rem;border-radius:6px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .15s;z-index:40;}
+#toast.on{opacity:1;}
+dialog#sheet{width:min(42rem,calc(100% - 1rem));max-height:88vh;padding:0;border:2px solid var(--ink);border-radius:10px;color:var(--ink);}
+dialog#sheet::backdrop{background:rgba(23,35,63,.55);}
+.sheet-head{position:sticky;top:0;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.7rem 1rem;border-bottom:1px solid var(--line);z-index:1;}
+.sheet-head h2{margin:0;font-size:1.05rem;}
+.sheet-body{padding:.5rem 1rem 1.2rem;}
+details.cat{border:1px solid var(--line);border-radius:6px;margin-top:.6rem;background:#fff;}
+details.cat summary{cursor:pointer;padding:.7rem .8rem;font-weight:700;min-height:44px;box-sizing:border-box;}
+.plist{display:flex;flex-direction:column;gap:.4rem;padding:.2rem .6rem .7rem;}
+.phrase{text-align:left;border:1px solid #8E9BB0;border-radius:6px;background:#F5F8FC;padding:.55rem .7rem;font:inherit;cursor:pointer;color:var(--ink);min-height:44px;}
+.phrase:hover{background:#E4EDF9;}
+.prow{display:flex;gap:.4rem;align-items:stretch;}
+.prow .phrase{flex:1;}
+.trbtn{min-width:44px;padding:.2rem;}
+.ct{display:block;font-weight:500;font-size:.88rem;color:var(--muted);}
+.phrase.done{background:#DDF3E6;border-color:var(--ok);}
+.hint{background:#F5F8FC;border:1px dashed #8E9BB0;border-radius:6px;padding:.6rem .8rem;margin:.6rem 0 0;}
+.small-note{font-size:.88rem;color:var(--muted);}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<noscript><p style="padding:1rem">Bitte JavaScript aktivieren.</p></noscript>
+<div id="app"></div>
+<dialog id="sheet" aria-labelledby="sheetTitle"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================================
+   EINSTELLUNGEN FÜR LEHRKRÄFTE
+   ===================================================================== */
+var SCHOOLYEAR = { start: '2026-08-01', end: '2027-07-31' };
+// IHK-Logo für Bremen: Bild (PNG/JPG) als Base64 hier eintragen, z. B. 'data:image/png;base64,iVBOR...'
+// Leer = Textkopf "Handelskammer Bremen". Bei Niedersachsen wird nie ein Logo gedruckt.
+var LOGO = { data: '', type: 'PNG', w: 42, h: 14 };
+var STAND_TEXT = 'Stand: Juni 2017';
+var STORE_KEY = 'berichtsheft-v2';
+var LANDS = { HB: 'Bremen', NI: 'Niedersachsen' };
+var LANGS = [
+  ['de','Deutsch'],['ar','العربية'],['es','Español'],['pt','Português'],
+  ['ti','ትግርኛ'],['uk','Українська'],['vi','Tiếng Việt']
+];
+
+/* =====================================================================
+   SPRACHOBJEKTE (JSON)
+   ===================================================================== */
+var I18N = {
+ de:{title:'Berichtsheft',subtitle:'Wöchentlicher Ausbildungsnachweis',lang:'Sprache',state:'Bundesland',profile:'Deine Angaben',
+  name:'Name des/der Auszubildenden',year:'Ausbildungsjahr',yearOpt:'{n}. Ausbildungsjahr',branch:'Branche (für Fachphrasen)',area:'Ausbildungsbereich',
+  pickDate:'Ein Datum aus der Ausbildungswoche',kw:'Kalenderwoche',from:'vom',to:'bis',outOfYear:'Das Datum liegt nicht im Schuljahr 2026/2027.',
+  notes:'Was habe ich heute gelernt? (Muttersprache / Deutsch)',translate:'In deutsches IHK-Format übersetzen',
+  finalLbl:'Geprüfter deutscher Text (IHK-Vorgabe)',aiTitle:'KI-Hilfe für ChatGPT oder Claude',copy:'Text kopieren',copied:'Kopiert',
+  phrases:'Fachphrasen',hours:'Stunden',sick:'Krank / Fehltag',vac:'Urlaub',school:'Berufsschule',holiday:'Feiertag',optional:'optional',
+  extraTitle:'Unterweisungen und Berufsschule',instr:'Unterweisungen, betrieblicher Unterricht, sonstige Schulungen',
+  schoolLbl:'Themen des Berufsschulunterrichts',schoolHint:'Kopiere die Themen aus Untis und füge sie hier ein.',
+  weekend:'Samstag und Sonntag ergänzen',pdf:'PDF erstellen',missing:'Noch offen:',mName:'Name',mYear:'Ausbildungsjahr',mDate:'Datum der Woche',
+  mDay:'{d}: deutscher Text',mChars:'{d}: nur lateinische Buchstaben erlaubt',ready:'Alles ausgefüllt. Das PDF ist bereit.',
+  newWeek:'Neue Woche beginnen',newWeekConfirm:'Alle Einträge dieser Woche löschen? Name, Jahr und Sprache bleiben erhalten.',
+  sheetTitle:'Fachphrasen für',close:'Schließen',replaceConfirm:'Den vorhandenen Text ersetzen?',sum:'Summe Stunden',
+  autosave:'Alles wird automatisch auf diesem Gerät gespeichert.',inserted:'Eingefügt',
+  chooseBranch:'Wähle oben eine Branche, dann siehst du passende Fachphrasen.',saveTpl:'Diese Woche als Vorlage speichern',loadTpl:'Vorlage einfügen (nur leere Tage)',tplSaved:'Vorlage gespeichert',tplLoaded:'Vorlage eingefügt',tplNone:'Noch keine Vorlage gespeichert',phraseTr:'Phrase übersetzen'},
+ ar:{title:'دفتر التقارير',subtitle:'تقرير التدريب الأسبوعي',lang:'اللغة',state:'الولاية',profile:'بياناتك',
+  name:'اسم المتدرب/المتدربة',year:'سنة التدريب',yearOpt:'سنة التدريب {n}',branch:'القطاع (لعبارات المهنة)',area:'مجال التدريب',
+  pickDate:'أي تاريخ من أسبوع التدريب',kw:'الأسبوع التقويمي',from:'من',to:'إلى',outOfYear:'هذا التاريخ ليس ضمن العام الدراسي 2026/2027.',
+  notes:'ماذا تعلّمت اليوم؟ (لغتي الأم / الألمانية)',translate:'ترجمة إلى صيغة IHK الألمانية',
+  finalLbl:'النص الألماني المدقّق (حسب متطلبات IHK)',aiTitle:'مساعدة الذكاء الاصطناعي لـ ChatGPT أو Claude',copy:'نسخ النص',copied:'تم النسخ',
+  phrases:'عبارات مهنية',hours:'الساعات',sick:'مرض / غياب',vac:'إجازة',school:'المدرسة المهنية',holiday:'عطلة رسمية',optional:'اختياري',
+  extraTitle:'التوجيهات والمدرسة المهنية',instr:'التوجيهات والتدريب داخل الشركة ودورات أخرى',
+  schoolLbl:'مواضيع دروس المدرسة المهنية',schoolHint:'انسخ المواضيع من Untis والصقها هنا.',
+  weekend:'إضافة السبت والأحد',pdf:'إنشاء ملف PDF',missing:'ما زال ناقصًا:',mName:'الاسم',mYear:'سنة التدريب',mDate:'تاريخ الأسبوع',
+  mDay:'{d}: نص ألماني',mChars:'{d}: الأحرف اللاتينية فقط',ready:'اكتمل كل شيء. ملف PDF جاهز.',
+  newWeek:'بدء أسبوع جديد',newWeekConfirm:'حذف كل مدخلات هذا الأسبوع؟ يبقى الاسم والسنة واللغة.',
+  sheetTitle:'عبارات مهنية ليوم',close:'إغلاق',replaceConfirm:'هل تريد استبدال النص الموجود؟',sum:'مجموع الساعات',
+  autosave:'يتم الحفظ تلقائيًا على هذا الجهاز.',inserted:'تمت الإضافة',
+  chooseBranch:'اختر القطاع في الأعلى لتظهر لك العبارات المناسبة.',saveTpl:'حفظ هذا الأسبوع كقالب',loadTpl:'إدراج القالب (الأيام الفارغة فقط)',tplSaved:'تم حفظ القالب',tplLoaded:'تم إدراج القالب',tplNone:'لا يوجد قالب محفوظ بعد',phraseTr:'ترجمة العبارة'},
+ es:{title:'Cuaderno de informes',subtitle:'Informe semanal de formación',lang:'Idioma',state:'Estado federado',profile:'Tus datos',
+  name:'Nombre del/de la aprendiz',year:'Año de formación',yearOpt:'{n}.º año de formación',branch:'Sector (para frases técnicas)',area:'Área de formación',
+  pickDate:'Una fecha de la semana de formación',kw:'Semana del calendario',from:'del',to:'al',outOfYear:'La fecha no está en el curso escolar 2026/2027.',
+  notes:'¿Qué he aprendido hoy? (lengua materna / alemán)',translate:'Traducir al formato alemán de la IHK',
+  finalLbl:'Texto alemán revisado (norma de la IHK)',aiTitle:'Ayuda con IA para ChatGPT o Claude',copy:'Copiar texto',copied:'Copiado',
+  phrases:'Frases técnicas',hours:'Horas',sick:'Enfermo / ausencia',vac:'Vacaciones',school:'Escuela profesional',holiday:'Festivo',optional:'opcional',
+  extraTitle:'Instrucciones y escuela profesional',instr:'Instrucciones, formación en la empresa, otros cursos',
+  schoolLbl:'Temas de la clase en la escuela profesional',schoolHint:'Copia los temas de Untis y pégalos aquí.',
+  weekend:'Añadir sábado y domingo',pdf:'Crear PDF',missing:'Falta todavía:',mName:'Nombre',mYear:'Año de formación',mDate:'Fecha de la semana',
+  mDay:'{d}: texto en alemán',mChars:'{d}: solo letras latinas',ready:'Todo completo. El PDF está listo.',
+  newWeek:'Empezar nueva semana',newWeekConfirm:'¿Borrar todas las entradas de esta semana? Nombre, año e idioma se conservan.',
+  sheetTitle:'Frases técnicas para',close:'Cerrar',replaceConfirm:'¿Reemplazar el texto existente?',sum:'Total de horas',
+  autosave:'Todo se guarda automáticamente en este dispositivo.',inserted:'Insertado',
+  chooseBranch:'Elige arriba un sector para ver frases técnicas adecuadas.',saveTpl:'Guardar esta semana como plantilla',loadTpl:'Insertar plantilla (solo días vacíos)',tplSaved:'Plantilla guardada',tplLoaded:'Plantilla insertada',tplNone:'Aún no hay plantilla guardada',phraseTr:'Traducir frase'},
+ pt:{title:'Caderno de relatórios',subtitle:'Relatório semanal de formação',lang:'Idioma',state:'Estado federado',profile:'Os seus dados',
+  name:'Nome do/da aprendiz',year:'Ano de formação',yearOpt:'{n}.º ano de formação',branch:'Setor (para frases técnicas)',area:'Área de formação',
+  pickDate:'Uma data da semana de formação',kw:'Semana do calendário',from:'de',to:'a',outOfYear:'A data não está no ano letivo 2026/2027.',
+  notes:'O que aprendi hoje? (língua materna / alemão)',translate:'Traduzir para o formato alemão da IHK',
+  finalLbl:'Texto alemão revisto (norma da IHK)',aiTitle:'Ajuda de IA para ChatGPT ou Claude',copy:'Copiar texto',copied:'Copiado',
+  phrases:'Frases técnicas',hours:'Horas',sick:'Doente / falta',vac:'Férias',school:'Escola profissional',holiday:'Feriado',optional:'opcional',
+  extraTitle:'Instruções e escola profissional',instr:'Instruções, ensino na empresa, outras formações',
+  schoolLbl:'Temas das aulas na escola profissional',schoolHint:'Copie os temas do Untis e cole aqui.',
+  weekend:'Acrescentar sábado e domingo',pdf:'Criar PDF',missing:'Ainda falta:',mName:'Nome',mYear:'Ano de formação',mDate:'Data da semana',
+  mDay:'{d}: texto em alemão',mChars:'{d}: apenas letras latinas',ready:'Tudo preenchido. O PDF está pronto.',
+  newWeek:'Começar nova semana',newWeekConfirm:'Apagar todas as entradas desta semana? Nome, ano e idioma ficam guardados.',
+  sheetTitle:'Frases técnicas para',close:'Fechar',replaceConfirm:'Substituir o texto existente?',sum:'Total de horas',
+  autosave:'Tudo é guardado automaticamente neste dispositivo.',inserted:'Inserido',
+  chooseBranch:'Escolha acima um setor para ver frases técnicas adequadas.',saveTpl:'Guardar esta semana como modelo',loadTpl:'Inserir modelo (só dias vazios)',tplSaved:'Modelo guardado',tplLoaded:'Modelo inserido',tplNone:'Ainda não há modelo guardado',phraseTr:'Traduzir frase'},
+ ti:{title:'መዝገብ ጸብጻብ',subtitle:'ሰሙናዊ ጸብጻብ ልምምድ',lang:'ቋንቋ',state:'ክልል',profile:'ሓበሬታኻ',
+  name:'ስም ተለማማዲ/ተለማማዲት',year:'ዓመት ልምምድ',yearOpt:'{n}ይ ዓመት ልምምድ',branch:'ዓይነት ንግዲ (ንናይ ሞያ ሓረጋት)',area:'ክፍሊ ልምምድ',
+  pickDate:'ዝዀነ ዕለት ካብ ሰሙን ልምምድ',kw:'ሰሙን ካላንደር',from:'ካብ',to:'ክሳብ',outOfYear:'እዚ ዕለት ኣብ ዓመተ ትምህርቲ 2026/2027 ኣይኰነን።',
+  notes:'ሎሚ እንታይ ተማሂረ? (ቋንቋ ኣደ / ጀርመንኛ)',translate:'ናብ ጀርመንኛ IHK ቅርጺ ተርጉም',
+  finalLbl:'ዝተፈተሸ ጀርመንኛ ጽሑፍ (ናይ IHK ሕጊ)',aiTitle:'ሓገዝ AI ንChatGPT ወይ Claude',copy:'ጽሑፍ ቅዳሕ',copied:'ተቐዲሑ',
+  phrases:'ናይ ሞያ ሓረጋት',hours:'ሰዓታት',sick:'ሕማም / ዘይምምጻእ',vac:'ዕረፍቲ',school:'ሞያዊ ቤት ትምህርቲ',holiday:'ዕለት በዓል',optional:'ኣማራጺ',
+  extraTitle:'መምርሒታትን ሞያዊ ቤት ትምህርትን',instr:'መምርሒታት፣ ኣብ ኩባንያ ዝወሃብ ትምህርቲ፣ ካልእ ስልጠና',
+  schoolLbl:'ኣርእስትታት ትምህርቲ ሞያዊ ቤት ትምህርቲ',schoolHint:'ኣርእስትታት ካብ Untis ቅዳሕን ኣብዚ ለጥፍን።',
+  weekend:'ቀዳምን ሰንበትን ወስኽ',pdf:'PDF ፍጠር',missing:'ገና ዝጐደለ:',mName:'ስም',mYear:'ዓመት ልምምድ',mDate:'ዕለት ሰሙን',
+  mDay:'{d}: ጀርመንኛ ጽሑፍ',mChars:'{d}: ላቲን ፊደላት ጥራይ',ready:'ኩሉ ተመሊኡ። PDF ድሉው እዩ።',
+  newWeek:'ሓድሽ ሰሙን ጀምር',newWeekConfirm:'ኩሉ ጽሑፋት ናይዚ ሰሙን ይጥፋእ? ስም፣ ዓመትን ቋንቋን ይተርፉ።',
+  sheetTitle:'ናይ ሞያ ሓረጋት ን',close:'ዕጸው',replaceConfirm:'ዘሎ ጽሑፍ ይትካዕ?',sum:'ጠቕላላ ሰዓታት',
+  autosave:'ኩሉ ኣብዚ መሳርሒ ባዕሉ ይዕቅብ።',inserted:'ተወሲኹ',
+  chooseBranch:'ኣብ ላዕሊ ዓይነት ንግዲ ምረጽ።',saveTpl:'እዚ ሰሙን ከም ቅርጺ ዕቅብ',loadTpl:'ቅርጺ ኣእትው (ባዶ መዓልትታት ጥራይ)',tplSaved:'ቅርጺ ተዐቂቡ',tplLoaded:'ቅርጺ ተኣትዩ',tplNone:'ክሳብ ሕጂ ዝተዐቀበ ቅርጺ የለን',phraseTr:'ሓረግ ተርጉም'},
+ uk:{title:'Звітний зошит',subtitle:'Тижневий звіт про навчання',lang:'Мова',state:'Федеральна земля',profile:'Ваші дані',
+  name:'Ім’я та прізвище учня/учениці',year:'Рік навчання',yearOpt:'{n}-й рік навчання',branch:'Галузь (для фахових фраз)',area:'Напрям навчання',
+  pickDate:'Будь-яка дата навчального тижня',kw:'Календарний тиждень',from:'з',to:'по',outOfYear:'Дата не входить у навчальний рік 2026/2027.',
+  notes:'Чого я навчився/навчилася сьогодні? (рідна мова / німецька)',translate:'Перекласти у німецький формат IHK',
+  finalLbl:'Перевірений німецький текст (вимога IHK)',aiTitle:'Допомога ШІ для ChatGPT або Claude',copy:'Копіювати текст',copied:'Скопійовано',
+  phrases:'Фахові фрази',hours:'Години',sick:'Хвороба / відсутність',vac:'Відпустка',school:'Професійна школа',holiday:'Святковий день',optional:'за бажанням',
+  extraTitle:'Інструктажі та професійна школа',instr:'Інструктажі, навчання на підприємстві, інші курси',
+  schoolLbl:'Теми занять у професійній школі',schoolHint:'Скопіюйте теми з Untis і вставте сюди.',
+  weekend:'Додати суботу й неділю',pdf:'Створити PDF',missing:'Ще не заповнено:',mName:'Ім’я',mYear:'Рік навчання',mDate:'Дата тижня',
+  mDay:'{d}: німецький текст',mChars:'{d}: лише латинські літери',ready:'Усе заповнено. PDF готовий.',
+  newWeek:'Почати новий тиждень',newWeekConfirm:'Видалити всі записи цього тижня? Ім’я, рік і мова залишаться.',
+  sheetTitle:'Фахові фрази для',close:'Закрити',replaceConfirm:'Замінити наявний текст?',sum:'Усього годин',
+  autosave:'Усе автоматично зберігається на цьому пристрої.',inserted:'Додано',
+  chooseBranch:'Оберіть галузь угорі, щоб побачити відповідні фахові фрази.',saveTpl:'Зберегти цей тиждень як шаблон',loadTpl:'Вставити шаблон (лише порожні дні)',tplSaved:'Шаблон збережено',tplLoaded:'Шаблон вставлено',tplNone:'Шаблон ще не збережено',phraseTr:'Перекласти фразу'},
+ vi:{title:'Sổ báo cáo',subtitle:'Báo cáo đào tạo hằng tuần',lang:'Ngôn ngữ',state:'Bang',profile:'Thông tin của bạn',
+  name:'Họ tên học viên',year:'Năm học nghề',yearOpt:'Năm học nghề thứ {n}',branch:'Ngành hàng (cho cụm từ chuyên môn)',area:'Bộ phận đào tạo',
+  pickDate:'Một ngày bất kỳ trong tuần đào tạo',kw:'Tuần lịch',from:'từ',to:'đến',outOfYear:'Ngày này không nằm trong năm học 2026/2027.',
+  notes:'Hôm nay tôi đã học được gì? (tiếng mẹ đẻ / tiếng Đức)',translate:'Dịch sang định dạng tiếng Đức của IHK',
+  finalLbl:'Văn bản tiếng Đức đã kiểm tra (theo quy định IHK)',aiTitle:'Trợ giúp AI cho ChatGPT hoặc Claude',copy:'Sao chép',copied:'Đã sao chép',
+  phrases:'Cụm từ chuyên môn',hours:'Giờ',sick:'Ốm / nghỉ',vac:'Nghỉ phép',school:'Trường nghề',holiday:'Ngày lễ',optional:'tùy chọn',
+  extraTitle:'Hướng dẫn và trường nghề',instr:'Hướng dẫn, đào tạo tại doanh nghiệp, các khóa học khác',
+  schoolLbl:'Chủ đề giờ học ở trường nghề',schoolHint:'Hãy sao chép các chủ đề từ Untis và dán vào đây.',
+  weekend:'Thêm thứ Bảy và Chủ nhật',pdf:'Tạo PDF',missing:'Còn thiếu:',mName:'Họ tên',mYear:'Năm học nghề',mDate:'Ngày của tuần',
+  mDay:'{d}: văn bản tiếng Đức',mChars:'{d}: chỉ dùng chữ Latinh',ready:'Đã điền đủ. PDF sẵn sàng.',
+  newWeek:'Bắt đầu tuần mới',newWeekConfirm:'Xóa mọi mục của tuần này? Họ tên, năm học và ngôn ngữ được giữ lại.',
+  sheetTitle:'Cụm từ chuyên môn cho',close:'Đóng',replaceConfirm:'Thay thế văn bản hiện có?',sum:'Tổng số giờ',
+  autosave:'Mọi thứ được tự động lưu trên thiết bị này.',inserted:'Đã chèn',
+  chooseBranch:'Hãy chọn ngành hàng ở trên để xem các cụm từ phù hợp.',saveTpl:'Lưu tuần này làm mẫu',loadTpl:'Chèn mẫu (chỉ các ngày còn trống)',tplSaved:'Đã lưu mẫu',tplLoaded:'Đã chèn mẫu',tplNone:'Chưa có mẫu nào được lưu',phraseTr:'Dịch cụm từ'}
+};
+
+var DAYS = {
+ de:['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'],
+ ar:['الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت','الأحد'],
+ es:['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
+ pt:['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'],
+ ti:['ሰኑይ','ሰሉስ','ረቡዕ','ሓሙስ','ዓርቢ','ቀዳም','ሰንበት'],
+ uk:['Понеділок','Вівторок','Середа','Четвер','Пʼятниця','Субота','Неділя'],
+ vi:['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ nhật']
+};
+var DAYS_DE = DAYS.de;
+
+/* =====================================================================
+   TEXTBAUSTEINE
+   ===================================================================== */
+var PROMPT = "Formuliere folgenden Text in stichpunktartiges, professionelles IHK-Berichtsheft-Deutsch (Nominalstil, z.B. 'Verräumen der Ware' statt 'Ich habe Ware verräumt') für den Beruf Verkäufer um: [TEXT]";
+
+var QUICK = {
+  sick:'Betriebliche Freistellung wegen Krankheit / Arbeitsunfähigkeit.',
+  vac:'Keine gesetzliche/betriebliche Ausbildung wegen Erholungsurlaub.',
+  school:'Theoretische Ausbildung in der Berufsschule laut Stundenplan (siehe Themen des Berufsschulunterrichts).',
+  holiday:'Gesetzlicher Feiertag, keine betriebliche Ausbildung.'
+};
+
+var BRANCHES = [
+  ['tabak','Tabakwaren'],['lebensmittel','Lebensmittel'],['textil','Textil'],['drogerie','Drogerie'],
+  ['elektro','Elektro'],['pflanzen','Pflanzen / Gartencenter'],['allgemein','Allgemein / andere Branche']
+];
+
+// Kategorien orientieren sich an den Handlungsfeldern des KMK-Rahmenlehrplans (ohne Lernfeld-Nummern)
+var CATS = [
+  'Verkauf & Beratung',
+  'Kasse & Zahlung',
+  'Warenpräsentation & Preisauszeichnung',
+  'Werbung & Verkaufsförderung',
+  'Wareneingang & Beschaffung',
+  'Lagerung & Warenpflege',
+  'Bestandskontrolle & Inventur',
+  'Reklamation, Umtausch & Sonderfälle',
+  'Sicherheit, Recht & Umwelt'
+];
+
+
+var CAT_T = {
+ ar:['البيع والاستشارة','الصندوق والدفع','عرض البضائع وتسعيرها','الدعاية وتشجيع المبيعات','استلام البضائع والتوريد','التخزين والعناية بالبضائع','مراقبة المخزون والجرد','الشكاوى والاستبدال والحالات الخاصة','السلامة والقانون والبيئة'],
+ es:['Venta y asesoramiento','Caja y pago','Presentación de la mercancía y etiquetado de precios','Publicidad y promoción de ventas','Recepción de mercancía y compras','Almacenamiento y cuidado de la mercancía','Control de existencias e inventario','Reclamaciones, cambios y casos especiales','Seguridad, normativa y medio ambiente'],
+ pt:['Venda e aconselhamento','Caixa e pagamento','Apresentação da mercadoria e etiquetagem de preços','Publicidade e promoção de vendas','Receção de mercadoria e compras','Armazenamento e cuidado da mercadoria','Controlo de stock e inventário','Reclamações, trocas e casos especiais','Segurança, legislação e ambiente'],
+ ti:['ሽያጥን ምኽርን','ካሳን ክፍሊትን','ምዕዳል ንብረትን ዋጋ ምልጣፍን','ማስታወቂያን ሽያጥ ምደጋፍን','ምቕባል ንብረትን ዕዳጋን','ምዕቃብን ክንክን ንብረትን','ቁጽጽር ንብረትን ዝርዝርን','ቅሬታን ምቕያርን ፍሉይ ኩነታትን','ድሕነትን ሕግን ኣከባቢን'],
+ uk:['Продаж і консультування','Каса та оплата','Викладка товару та цінники','Реклама та стимулювання продажів','Приймання товару та закупівля','Зберігання та догляд за товаром','Контроль залишків та інвентаризація','Рекламації, обмін і особливі випадки','Безпека, право та довкілля'],
+ vi:['Bán hàng và tư vấn','Thu ngân và thanh toán','Trưng bày hàng và dán giá','Quảng cáo và xúc tiến bán hàng','Nhận hàng và mua hàng','Lưu kho và bảo quản hàng','Kiểm soát tồn kho và kiểm kê','Khiếu nại, đổi trả và trường hợp đặc biệt','An toàn, pháp luật và môi trường']
+};
+
+var PH = {
+ allgemein:[
+  ["Begrüßung und Ansprache der Kunden, Ermittlung des Kundenwunsches","Beratung zu Eigenschaften und Verwendung der Ware","Anbieten von Ergänzungs- und Zusatzartikeln"],
+  ["Bedienen der Kasse nach betrieblicher Kassieranweisung","Abwicklung von Bar- und Kartenzahlungen","Kassenabrechnung und Erstellen des Kassenberichts"],
+  ["Verräumen und Auffüllen der Ware nach Regalplan","Auszeichnen der Ware mit Preisetiketten","Pflege der Warenträger und Ausrichten der Ware (Facing)"],
+  ["Platzierung von Aktionsware nach Vorgabe der Filialleitung","Anbringen von Werbemitteln und Aktionsschildern","Information der Kunden über laufende Werbeaktionen"],
+  ["Annahme der Lieferung und Kontrolle anhand des Lieferscheins","Prüfung der Ware auf Vollständigkeit und Transportschäden","Erfassen des Wareneingangs im Warenwirtschaftssystem"],
+  ["Lagerung der Ware im Reservelager nach Lagergrundsätzen","Warenpflege und Qualitätskontrolle","Reinigung und Ordnung von Lager und Verkaufsfläche"],
+  ["Bestandskontrolle im Warenwirtschaftssystem","Mitwirkung bei der Inventur (Zählen und Erfassen der Bestände)","Meldung von Bestandsabweichungen, Bruch und Schwund"],
+  ["Bearbeitung von Umtausch und Reklamation nach betrieblichen Vorgaben","Umgang mit Kundenbeschwerden und Konfliktsituationen","Verhalten bei Verdacht auf Ladendiebstahl nach betrieblicher Anweisung"],
+  ["Einhaltung der Arbeitssicherheit und des Brandschutzes","Mülltrennung und umweltgerechte Entsorgung von Verpackungen","Beachtung des Datenschutzes im Umgang mit Kundendaten"]
+ ],
+ tabak:[
+  ["Sortenberatung zu Zigaretten, Zigarren, Feinschnitt und Pfeifentabak","Alterskontrolle bei Abgabe von Tabakwaren und E-Zigaretten (Abgabe erst ab 18 Jahren, JuSchG)","Ablehnung des Verkaufs an Jugendliche unter 18 Jahren mit Hinweis auf das Jugendschutzgesetz","Beratung zu Zubehör (Feuerzeuge, Filter, Papers, Pfeifenzubehör)"],
+  ["Kassieren von Tabakwaren mit Alterskontrolle bei Zweifeln (Ausweisprüfung)","Beachtung des Kleinverkaufspreises auf dem Steuerzeichen beim Kassieren","Abwicklung von Bar- und Kartenzahlungen bei hochpreisigen Tabakwaren (Stangen)","Kassenabrechnung mit Kontrolle des Tabakumsatzes"],
+  ["Diebstahlsichere Platzierung hochpreisiger Tabakwaren und Genussmittel im Sichtbereich der Kasse","Preisauszeichnung der Tabakwaren am Regal nach Kleinverkaufspreis","Auffüllen des Tabakregals nach Marken und Preisklassen","Pflege der Warenträger und Reinigung des Tabakregals"],
+  ["Platzierung von Zubehör und Aktionsware (z. B. Feuerzeuge) im Kassenbereich als Spontankaufartikel","Beachtung der gesetzlichen Werbebeschränkungen für Tabakerzeugnisse","Anbringen von Aktionsschildern für Zubehör und Nicht-Tabakartikel","Information der Kunden über Kundenkarte und Bonusaktionen"],
+  ["Annahme von Tabaklieferungen und Kontrolle der Packungsanzahl anhand des Lieferscheins","Prüfung der Steuerzeichen auf Vollständigkeit und Unversehrtheit","Kontrolle des Mindesthaltbarkeitsdatums der Tabakwaren beim Wareneingang","Erfassen des Wareneingangs im Warenwirtschaftssystem und Abgleich mit der Bestellung"],
+  ["Einlagerung der Tabakwaren nach dem FIFO-Prinzip (First In – First Out)","Lagerung der Tabakwaren bei geeigneter Temperatur und Luftfeuchtigkeit","Zigarrenpflege im Humidor mit Kontrolle der Luftfeuchtigkeit","Diebstahlsichere Lagerung hochpreisiger Tabakwaren im verschlossenen Reservelager"],
+  ["Tägliche Bestandskontrolle der Tabakwaren und Bestellvorschlag im Warenwirtschaftssystem","Mitwirkung bei der Inventur der Tabakbestände (Stangen- und Packungszählung)","Kontrolle auf Bestandsdifferenzen und Meldung von Schwund oder Diebstahl","Prüfung der Mindest- und Meldebestände bei umsatzstarken Sorten"],
+  ["Retourenprozess: Rücksendung beschädigter oder fehlerhafter Tabakwaren mit Retourenschein an den Lieferanten","Bearbeitung von Reklamationen bei beschädigten Packungen nach betrieblicher Vorgabe","Umgang mit Kunden bei verweigertem Verkauf (ruhiges, höfliches Auftreten)","Verhalten bei Verdacht auf Ladendiebstahl nach betrieblicher Anweisung"],
+  ["Einhaltung des Jugendschutzgesetzes (JuSchG) bei der Abgabe von Tabakwaren und Alkohol","Beachtung der gesundheitsbezogenen Warnhinweise auf Tabakverpackungen","Sichere Lagerung von Feuerzeugen und Feuerzeuggas (Brandschutz)","Ordnungsgemäße Entsorgung von Verpackungen und beschädigter Ware"]
+ ],
+ lebensmittel:[
+  ["Beratung zu Herkunft, Qualität und Verwendung von Obst und Gemüse","Information der Kunden zu Allergenen und Inhaltsstoffen anhand der Produktkennzeichnung","Beratung zu regionalen und saisonalen Produkten sowie zu Bio-Siegeln","Bedienung an der Frischetheke unter Beachtung der Hygienevorschriften"],
+  ["Kassieren von Lebensmitteln unter Berücksichtigung von Pfandbons und Gutscheinen","Wiegen und Eingeben von Waren ohne Barcode (Obst und Gemüse) an der Kasse","Abwicklung bargeldloser Zahlungen (Girocard, Handyzahlung)","Kassenabrechnung mit Kontrolle der Pfandauszahlungen"],
+  ["Einräumen der Ware nach Regalplan unter Beachtung der Regalzonen (Greifzone)","Auszeichnung der Ware mit Preis und Grundpreis nach Preisangabenverordnung","Saisonale Aktionsplatzierung (z. B. Grillsaison, Weihnachtsware) am Point of Sale (POS)","Ansprechende Präsentation von Obst und Gemüse (Frischeeindruck, Farbblöcke)"],
+  ["Aufbau von Zweitplatzierungen und Displays für Aktionsware am Point of Sale (POS)","Anbringen von Werbeaufstellern und Aktionspreisschildern","Verkostungsaktionen unter Beachtung der Hygienevorschriften","Information der Kunden über die Angebote der Woche"],
+  ["Annahme von Frischware und Temperaturkontrolle bei der Lieferung","Kontrolle des Mindesthaltbarkeitsdatums (MHD) und Verbrauchsdatums beim Wareneingang","Prüfung der Lieferung auf Vollständigkeit und Beschädigung anhand des Lieferscheins","Erfassen des Wareneingangs im Warenwirtschaftssystem"],
+  ["Lagerung nach dem FIFO-Prinzip mit Kennzeichnung nach Mindesthaltbarkeitsdatum","Sicherstellung der Kühlkette bei Lagerung und Transport von Kühl- und Tiefkühlware","Kontrolle und Dokumentation der Kühltemperaturen nach HACCP-Richtlinien","Warenpflege: Aussortieren von verdorbener Ware und Frischekontrolle von Obst und Gemüse"],
+  ["MHD-Kontrolle der Molkereiprodukte und Entnahme abgelaufener Ware aus dem Regal","Frischekontrolle von Obst und Gemüse und Aussortieren nicht mehr verkaufsfähiger Ware","Mitwirkung bei der Inventur (Zählen der Bestände und Erfassen im System)","Erfassen von Schwund, Verderb und Bruch im Warenwirtschaftssystem"],
+  ["Bearbeitung von Reklamationen bei Mängeln an Lebensmitteln nach betrieblicher Vorgabe","Rücknahme verdorbener Ware mit Erstattung oder Umtausch nach betrieblicher Vorgabe","Umgang mit Kundenbeschwerden an der Information oder Kasse","Abwicklung von Rückrufaktionen: Entfernen der betroffenen Ware aus dem Verkauf"],
+  ["Einhaltung des Hygieneplans (Händewaschen, Reinigung der Arbeitsflächen, Arbeitskleidung)","Bedienung und Pflege der Pfandautomaten (Leergutrücknahme)","Beachtung der Hygienevorschriften und der Belehrung nach dem Infektionsschutzgesetz","Mülltrennung und umweltgerechte Entsorgung von Verpackungen und Lebensmittelabfällen"]
+ ],
+ textil:[
+  ["Bedarfsanalyse im Beratungsgespräch (Anlass, Größe, Stil, Budget)","Cross-Selling: Anbieten passender Ergänzungsartikel (Gürtel, Schals, Accessoires)","Beratung zu Größen, Passform, Material und Pflege der Kleidung","Betreuung der Anprobe und Rückmeldung zur Passform"],
+  ["Kassieren von Textilien mit Entfernen der Sicherungsetiketten","Abwicklung von Bar-, Karten- und Gutscheinzahlungen","Anbieten von Kundenkarte und Geschenkverpackung beim Kassiervorgang","Kassenabrechnung und Erstellen des Kassenberichts"],
+  ["Visual Merchandising: Gestaltung von Warenträgern und Figurinen nach Dekorationskonzept","Dekoration des Schaufensters nach saisonalem Thema","Auszeichnen der Ware mit Preisschildern und Anbringen von Sicherungsetiketten","Sortieren der Ware nach Konfektionsgrößen, Farben und Größenreihen"],
+  ["Platzierung von Aktionsware (Sale, Reduzierungen) und Anbringen von Aktionsschildern","Umgestaltung der Verkaufsfläche bei Kollektionswechsel","Anbieten von Ergänzungsartikeln im Kassenbereich (Spontankäufe: Socken, Pflegemittel)","Information der Kunden über Rabattaktionen und Kundenkarte"],
+  ["Annahme der Textillieferung und Kontrolle anhand des Lieferscheins","Prüfung der Ware auf Mängel (Nähte, Flecken, Farbabweichungen)","Prüfung der Textilkennzeichnung (Faserzusammensetzung, Pflegehinweise)","Auspacken, Dämpfen und Auszeichnen der Neuware"],
+  ["Lagerung der Textilien nach Größen und Farben im Reservelager","Warenpflege: Dämpfen, Falten und Wiederherstellen der Präsentationsqualität","Kabinenräumung: Zurückbringen anprobierter Ware an die Warenträger","Schutz der Ware vor Staub, Feuchtigkeit und Lichteinwirkung"],
+  ["Kontrolle der Bestände im Warenwirtschaftssystem und Nachbestellung gängiger Größen","Mitwirkung bei der Inventur (Zählen und Scannen der Ware)","Kontrolle von Bestandsdifferenzen und Meldung von Schwund","Aussortieren von Restposten und Preisanpassung nach Vorgabe"],
+  ["Reklamationsbearbeitung im Rahmen der gesetzlichen Gewährleistung (Prüfung von Kaufbeleg und Mangel)","Umtausch von Textilien nach betrieblicher Kulanzregelung (Kaufbeleg, Etikett)","Umgang mit Kundenbeschwerden und Konfliktsituationen","Verhalten bei Verdacht auf Ladendiebstahl (Kabinen, Sicherungsetiketten) nach betrieblicher Anweisung"],
+  ["Einhaltung der Arbeitssicherheit bei der Dekoration (sichere Leiternutzung)","Sicherer Umgang mit Etikettiergerät, Sicherungsetiketten und Warensicherung","Entsorgung von Verpackungsmaterial und Kleiderbügeln (Mülltrennung)","Beachtung des Datenschutzes bei Kundenkarte und Kundendaten"]
+ ],
+ drogerie:[
+  ["Beratung zu Kosmetik, Pflegeprodukten und Düften nach Hauttyp und Bedarf","Beratung zu freiverkäuflichen Arzneimitteln und Nahrungsergänzungsmitteln (bei Bedarf Hinweis auf die Apotheke)","Beratung zu Baby- und Haushaltsartikeln","Zusatzverkauf von Ergänzungsprodukten (z. B. Pflegeserien, Zubehör)"],
+  ["Kassieren von Drogerieartikeln mit Entfernen der Warenschutzetiketten","Abwicklung von Bar-, Karten- und Gutscheinzahlungen sowie Kundenkarte (Punkte)","Anbieten von Zusatzartikeln im Kassenbereich","Kassenabrechnung und Erstellen des Kassenberichts"],
+  ["Spiegeln im Kosmetikbereich: Ware nach vorne ziehen und ausrichten (Facing)","Pflege und Auffüllen der Tester sowie Reinigung der Testerflächen","Anbringen und Entfernen der Aktionspreisschilder nach Aktionsplan","Warenplatzierung nach Regalplan (Marken, Preisklassen, Sortimentsbereiche)"],
+  ["Aufbau von Aktionsflächen und Displays (Saison- und Markenaktionen)","Austausch der Aktionspreisschilder zu Aktionsbeginn und Aktionsende","Information der Kunden über Aktionen, Treuepunkte und Probiergrößen","Auffüllen der Aktionsware und Kontrolle der Preise anhand des Prospekts"],
+  ["Annahme der Lieferung und Kontrolle anhand des Lieferscheins","Prüfung der Ware auf Beschädigung (Flaschen, Tuben, Verpackungen)","Kontrolle des Mindesthaltbarkeitsdatums bei Kosmetik und Babynahrung","Erfassen des Wareneingangs im Warenwirtschaftssystem"],
+  ["Lagerung von Gefahrstoffen nach Kennzeichnung (Gefahrenpiktogramme) getrennt von anderer Ware","Beachtung der Sicherheitsdatenblätter bei Lagerung und Umgang mit Gefahrstoffen","Lagerung von Kosmetik und Arzneimitteln nach Temperaturvorgaben","Auffüllen der Regale nach dem FIFO-Prinzip unter Beachtung des Mindesthaltbarkeitsdatums"],
+  ["Kontrolle der Mindesthaltbarkeitsdaten und Entnahme abgelaufener Ware","Kontrolle der Warenschutzetiketten bei Düften und hochpreisigen Artikeln","Mitwirkung bei der Inventur (Zählen, Scannen, Erfassen)","Meldung von Bestandsdifferenzen, Schwund und Diebstahl"],
+  ["Bearbeitung von Reklamationen und Umtausch nach betrieblicher Vorgabe (geöffnete Hygieneartikel beachten)","Umgang mit Kundenbeschwerden und Konfliktsituationen","Verhalten bei Verdacht auf Ladendiebstahl bei Düften und Kosmetik nach betrieblicher Anweisung","Umgang mit Rückrufaktionen: Entfernen betroffener Produkte aus dem Verkauf"],
+  ["Umgang mit Gefahrstoffen (Gefahrstoffkennzeichnung, Sicherheitsdatenblätter) nach Betriebsanweisung","Beachtung der Abgabebestimmungen für freiverkäufliche Arzneimittel","Beachtung der Hygienevorschriften bei Testern und Probierprodukten","Mülltrennung und umweltgerechte Entsorgung von Verpackungen und Batterien"]
+ ],
+ elektro:[
+  ["Beratung zu Unterhaltungselektronik (Fernseher, Audio, Smartphones) nach Kundenbedarf","Beratung zu Garantieverlängerung und Serviceleistungen","Vorführen und Erklären von Geräten und deren Funktionen","Beratung zur Energieeffizienz anhand des EU-Energielabels"],
+  ["Kassieren von Elektroartikeln mit Erfassen der Seriennummern","Abwicklung von Finanzierungs-, Karten- und Barzahlungen","Anbieten von Zubehör beim Kassiervorgang (Kabel, Hüllen, Batterien)","Ausstellen von Kaufbeleg und Garantieunterlagen"],
+  ["Zubehörplatzierung im Kassenbereich als Spontankaufartikel","Warenpräsentation von Geräten (Funktionsmuster, Vorführgeräte) nach Plan","Sicherung von Smartphones und Tablets mit Leinensicherungen","Preisauszeichnung mit Preisschildern bzw. elektronischen Preisschildern nach Aktionsplan"],
+  ["Aufbau von Aktionsflächen (z. B. Black Friday, Weihnachtsgeschäft)","Platzierung von Zubehör neben den Hauptgeräten zur Förderung des Zusatzverkaufs","Aktualisieren der Preisschilder und der Prospektware","Information der Kunden über Aktionen, Kundenkarte und Finanzierungsangebote"],
+  ["Annahme der Warenlieferung und Kontrolle von Seriennummern und Stückzahlen","Prüfung von Verpackung und Gerät auf Transportschäden","Erfassen des Wareneingangs im Warenwirtschaftssystem","Abgleich der Lieferung mit Bestellung und Lieferschein"],
+  ["Lagerung hochwertiger Geräte im gesicherten Lager","Lagerung von Akkus und Batterien nach Sicherheitsvorgaben","Warenpflege: Reinigung der Vorführgeräte und Funktionsprüfung","Beachtung von Stapelhöhen und Tragfähigkeit bei der Lagerung schwerer Geräte"],
+  ["Bestandskontrolle von Zubehör und Geräten im Warenwirtschaftssystem","Mitwirkung bei der Inventur mit Scannen der Seriennummern","Kontrolle auf Bestandsdifferenzen und Meldung von Schwund und Diebstahl","Disposition von Zubehör und Nachbestellung"],
+  ["Garantiefall: Aufnahme des Reparaturauftrags mit Kaufbeleg, Fehlerbeschreibung und Zubehör","Retourenprüfung: Funktionsprüfung, Vollständigkeit des Zubehörs und Zurücksetzen der Daten","Bearbeitung von Reklamationen im Rahmen der gesetzlichen Gewährleistung","Umgang mit Kundenbeschwerden und Konfliktsituationen"],
+  ["Rücknahme von Elektroaltgeräten und Batterien nach dem Elektrogesetz (ElektroG)","Beachtung der Sicherheitsvorschriften beim Umgang mit Elektrogeräten","Beachtung des Datenschutzes bei der Rückgabe von Smartphones und Computern","Mülltrennung und Entsorgung von Verpackungen"]
+ ],
+ pflanzen:[
+  ["Beratung zu Standort, Pflege und Gießen von Zimmer- und Gartenpflanzen","Beratung zu Erden, Düngern und Pflanzenschutz nach Gebrauchsanleitung","Beratung zur Pflanzenauswahl nach Licht- und Platzverhältnissen","Hinweis auf giftige Pflanzen bei Haushalten mit Kindern und Haustieren"],
+  ["Kassieren von Pflanzen und Gartenartikeln mit Scannen bzw. Wiegen","Abwicklung von Bar-, Karten- und Gutscheinzahlungen","Erfassen von Pflanzen ohne Barcode anhand der Preisliste","Unterstützung beim Verladen sperriger Ware (Großpflanzen, Keramik)"],
+  ["Botanische Auszeichnung der Pflanzen (deutscher und botanischer Name, Standort, Preis)","Platzierung der Pflanzen nach Standortansprüchen (Sonne, Halbschatten, Schatten)","Gestaltung von Pflanzenarrangements und saisonalen Themenflächen","Pflege der Verkaufsfläche: Entfernen verblühter und welker Pflanzenteile"],
+  ["Aufbau saisonaler Aktionen (Frühjahrsblüher, Weihnachtssterne, Adventsgestecke)","Anbringen von Aktionsschildern und Pflegeetiketten","Platzierung von Zusatzartikeln (Dünger, Übertöpfe) neben den Pflanzen","Information der Kunden über Pflanzenaktionen und Pflanztipps"],
+  ["Annahme der Pflanzenlieferung und Kontrolle von Menge und Qualität","Prüfung auf Schädlingsbefall und Transportschäden bei der Anlieferung","Auspacken, Wässern und Aufstellen der angelieferten Pflanzen","Erfassen des Wareneingangs im Warenwirtschaftssystem"],
+  ["Pflanzenpflege: Gießen, Düngen und Entfernen welker Blätter","Lagerung der Pflanzen bei geeigneter Temperatur, Licht und Luftfeuchtigkeit (Gewächshaus)","Lagerung von Erden, Düngern und Pflanzenschutzmitteln nach Vorschrift","Frischekontrolle und Aussortieren nicht mehr verkaufsfähiger Pflanzen"],
+  ["Aussortieren bei Schädlingsbefall und Abschreibung nicht verkaufsfähiger Pflanzen im Warenwirtschaftssystem","Bestandskontrolle und Nachbestellung gängiger Pflanzensorten","Mitwirkung bei der Inventur der Pflanzen- und Zubehörbestände","Erfassen von Schwund und Verderb"],
+  ["Bearbeitung von Reklamationen bei eingegangenen Pflanzen nach betrieblicher Vorgabe","Beratung bei Pflegefehlern und Umgang mit Kundenbeschwerden","Umtausch nach Kulanzregelung und gesetzlicher Gewährleistung","Verhalten bei Verdacht auf Diebstahl nach betrieblicher Anweisung"],
+  ["Rückengerechtes Heben schwerer Erdsäcke (Unfallverhütung)","Transportsicherung von Großkeramik und Pflanzcontainern auf Paletten und Wagen","Einsatz von Hubwagen und Sackkarre zum Transport schwerer Ware","Entsorgung von Pflanzenabfällen und Erdresten (Kompostierung)"]
+ ]
+};
+
+/* =====================================================================
+   ZUSTAND
+   ===================================================================== */
+var NONLATIN = /[^\u0009\u000A\u000D\u0020-\u007E\u00A0-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u201E\u2022\u2026\u20AC]/;
+
+function emptyDay(){ return {note:'',text:'',hours:''}; }
+function defaultState(){
+  return {lang:'de',land:'HB',name:'',year:'',branch:'',area:'',date:'',
+    days:[0,1,2,3,4,5,6].map(emptyDay),instr:'',instrHours:'',school:'',schoolHours:'',weekend:false,tpl:null};
+}
+var state = defaultState();
+
+function load(){
+  try{
+    var raw = window.localStorage.getItem(STORE_KEY);
+    if(raw){
+      var p = JSON.parse(raw);
+      state = Object.assign(defaultState(), p);
+      if(!Array.isArray(state.days) || state.days.length !== 7){ state.days = defaultState().days; }
+      state.days = state.days.map(function(d){ return Object.assign(emptyDay(), d); });
+    }
+  }catch(e){}
+  if(!state.date){
+    var n = new Date();
+    var iso = n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+    if(iso >= SCHOOLYEAR.start && iso <= SCHOOLYEAR.end){ state.date = iso; }
+  }
+}
+function save(){ try{ window.localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+/* =====================================================================
+   HILFSFUNKTIONEN
+   ===================================================================== */
+function $(s,r){ return (r||document).querySelector(s); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function t(k,v){
+  var s = (I18N[state.lang] && I18N[state.lang][k]) || I18N.de[k] || k;
+  if(v){ Object.keys(v).forEach(function(x){ s = s.split('{'+x+'}').join(v[x]); }); }
+  return s;
+}
+function dayName(i){ return (DAYS[state.lang]||DAYS.de)[i]; }
+function pad(n){ return String(n).padStart(2,'0'); }
+function parseISO(s){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||''); return m? new Date(Date.UTC(+m[1],+m[2]-1,+m[3])) : null; }
+function addDays(d,n){ return new Date(d.getTime()+n*864e5); }
+function fmt(d){ return pad(d.getUTCDate())+'.'+pad(d.getUTCMonth()+1)+'.'+d.getUTCFullYear(); }
+function fmtShort(d){ return pad(d.getUTCDate())+'.'+pad(d.getUTCMonth()+1)+'.'; }
+function toISO(d){ return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()); }
+
+// ISO-8601: Woche beginnt am Montag, Woche 1 enthält den ersten Donnerstag des Jahres
+function isoWeek(date){
+  var d = new Date(date.getTime());
+  var dayNum = (d.getUTCDay()+6)%7;
+  d.setUTCDate(d.getUTCDate()-dayNum+3);
+  var isoYear = d.getUTCFullYear();
+  var thu = new Date(Date.UTC(isoYear,0,4));
+  thu.setUTCDate(thu.getUTCDate()-((thu.getUTCDay()+6)%7)+3);
+  return {week:1+Math.round((d-thu)/(7*864e5)), year:isoYear};
+}
+function weekInfo(){
+  var d = parseISO(state.date);
+  if(!d) return null;
+  var mon = addDays(d,-((d.getUTCDay()+6)%7));
+  var w = isoWeek(d);
+  return {mon:mon, fri:addDays(mon,4), sun:addDays(mon,6), week:w.week, year:w.year};
+}
+function branchLabel(k){ var b=BRANCHES.filter(function(x){return x[0]===k;})[0]; return b?b[1]:''; }
+function phraseList(ci){
+  var b = state.branch, base = PH.allgemein[ci];
+  return (b && b!=='allgemein' && PH[b]) ? PH[b][ci].concat(base) : base.slice();
+}
+function toast(msg){
+  var el=$('#toast'); el.textContent=msg; el.classList.add('on');
+  clearTimeout(toast._t); toast._t=setTimeout(function(){el.classList.remove('on');},1800);
+}
+function copyText(s){
+  function fb(){
+    var ta=document.createElement('textarea'); ta.value=s; ta.setAttribute('readonly','');
+    ta.style.cssText='position:fixed;opacity:0;top:0;left:0'; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(e){} ta.remove();
+  }
+  if(navigator.clipboard && window.isSecureContext){ return navigator.clipboard.writeText(s).catch(fb); }
+  fb(); return Promise.resolve();
+}
+function parseHours(s){ var n=parseFloat(String(s||'').replace(',','.')); return isNaN(n)?0:n; }
+function fmtHours(n){ return (Math.round(n*100)/100).toString().replace('.',','); }
+
+
+/* Klassenlink: ?land=NI&jahr=1&branche=textil&lang=ar&bereich=...&name=... ; ?lehrer zeigt den Link-Generator */
+var TEACHER = false;
+function applyParams(){
+  var q; try{ q = new URLSearchParams(window.location.search); }catch(e){ return; }
+  var changed = false, keys = ['lang','land','jahr','branche','bereich','name'];
+  var land = (q.get('land')||'').toLowerCase();
+  if(land==='hb' || land==='bremen'){ state.land='HB'; changed=true; }
+  if(land==='ni' || land==='niedersachsen'){ state.land='NI'; changed=true; }
+  var lg = (q.get('lang')||'').toLowerCase();
+  if(LANGS.some(function(l){return l[0]===lg;})){ state.lang=lg; changed=true; }
+  var j = q.get('jahr'); if(j==='1'||j==='2'||j==='3'){ state.year=j; changed=true; }
+  var b = (q.get('branche')||'').toLowerCase();
+  if(BRANCHES.some(function(x){return x[0]===b;})){
+    var prev = branchLabel(state.branch); state.branch=b; changed=true;
+    if(!state.area.trim() || state.area===prev){ state.area = branchLabel(b); }
+  }
+  if(q.get('bereich')){ state.area = q.get('bereich').slice(0,60); changed=true; }
+  if(q.get('name')){ state.name = q.get('name').slice(0,60); changed=true; }
+  TEACHER = q.has('lehrer');
+  if(changed){
+    save();
+    try{ window.history.replaceState(null,'',window.location.pathname+(TEACHER?'?lehrer':'')+window.location.hash); }catch(e){}
+  }
+}
+function linkPanel(){
+  var lo = Object.keys(LANDS).map(function(k){return '<option value="'+k.toLowerCase()+'">'+LANDS[k]+'</option>';}).join('');
+  var yo = [1,2,3].map(function(n){return '<option value="'+n+'">'+n+'. Ausbildungsjahr</option>';}).join('');
+  var bo = '<option value="">(keine Vorauswahl)</option>'+BRANCHES.map(function(b){return '<option value="'+b[0]+'">'+esc(b[1])+'</option>';}).join('');
+  var go = LANGS.map(function(l){return '<option value="'+l[0]+'">'+esc(l[1])+'</option>';}).join('');
+  return '<section class="card" id="linkgen" aria-labelledby="h-lg"><h2 id="h-lg" class="card-title">Klassenlink erstellen (nur Lehrkraft)</h2>'+
+   '<div class="grid gap-x-4 sm:grid-cols-2">'+
+   '<div><label for="gl-land">Bundesland</label><select id="gl-land">'+lo+'</select></div>'+
+   '<div><label for="gl-year">Ausbildungsjahr</label><select id="gl-year">'+yo+'</select></div>'+
+   '<div><label for="gl-branch">Branche</label><select id="gl-branch">'+bo+'</select></div>'+
+   '<div><label for="gl-lang">Sprache</label><select id="gl-lang">'+go+'</select></div></div>'+
+   '<label for="gl-out">Link für die Klasse (als QR-Code oder Nachricht verteilen)</label>'+
+   '<input type="text" id="gl-out" readonly>'+
+   '<div class="chips"><button type="button" class="btn small" data-act="copylink">Link kopieren</button></div>'+
+   '<p class="small-note" style="margin:.7rem 0 0">Name und Daten der Schüler stecken nicht im Link. Die Werte werden beim Öffnen übernommen, bereits getippte Texte bleiben erhalten.</p></section>';
+}
+function updateLink(){
+  var g=function(id){return $('#'+id).value;}, base=window.location.origin+window.location.pathname;
+  var u = base+'?land='+g('gl-land')+'&jahr='+g('gl-year')+'&lang='+g('gl-lang')+(g('gl-branch')?'&branche='+g('gl-branch'):'');
+  $('#gl-out').value = u;
+}
+
+/* =====================================================================
+   OBERFLÄCHE
+   ===================================================================== */
+function langBar(){
+  return LANGS.map(function(l){
+    return '<button type="button" class="lang" data-act="lang" data-v="'+l[0]+'" lang="'+l[0]+'" aria-pressed="'+(state.lang===l[0])+'">'+esc(l[1])+'</button>';
+  }).join('');
+}
+function profileHTML(){
+  var landOpts = Object.keys(LANDS).map(function(k){ return '<option value="'+k+'"'+(state.land===k?' selected':'')+'>'+LANDS[k]+'</option>'; }).join('');
+  var yearOpts = '<option value="">–</option>'+[1,2,3].map(function(n){ return '<option value="'+n+'"'+(String(state.year)===String(n)?' selected':'')+'>'+esc(t('yearOpt',{n:n}))+'</option>'; }).join('');
+  var brOpts = '<option value="">–</option>'+BRANCHES.map(function(b){ return '<option value="'+b[0]+'"'+(state.branch===b[0]?' selected':'')+'>'+esc(b[1])+'</option>'; }).join('');
+  return '<section class="card" aria-labelledby="h-profile"><h2 id="h-profile" class="card-title">'+esc(t('profile'))+'</h2>'+
+   '<div class="grid gap-x-4 sm:grid-cols-2">'+
+    '<div><label for="land">'+esc(t('state'))+'</label><select id="land" data-s="land">'+landOpts+'</select></div>'+
+    '<div><label for="year">'+esc(t('year'))+'</label><select id="year" data-s="year">'+yearOpts+'</select></div>'+
+    '<div class="sm:col-span-2"><label for="name">'+esc(t('name'))+'</label><input type="text" id="name" data-s="name" autocomplete="name" value="'+esc(state.name)+'"></div>'+
+    '<div><label for="branch">'+esc(t('branch'))+'</label><select id="branch" data-s="branch">'+brOpts+'</select></div>'+
+    '<div><label for="area">'+esc(t('area'))+'</label><input type="text" id="area" data-s="area" value="'+esc(state.area)+'"></div>'+
+    '<div class="sm:col-span-2"><label for="date">'+esc(t('pickDate'))+'</label><input type="date" id="date" data-s="date" min="'+SCHOOLYEAR.start+'" max="'+SCHOOLYEAR.end+'" value="'+esc(state.date)+'"></div>'+
+   '</div>'+
+   '<div class="weekbox" id="weekinfo" aria-live="polite"></div>'+
+   '<p class="small-note" style="margin:.7rem 0 0">'+esc(t('autosave'))+'</p></section>';
+}
+function dayCard(i){
+  var d = state.days[i], opt = i>=5;
+  var quick = ['sick','vac','school','holiday'].map(function(k){
+    return '<button type="button" class="btn small" data-act="quick" data-k="'+k+'" data-i="'+i+'">'+esc(t(k))+'</button>';
+  }).join('');
+  return '<section class="card" aria-labelledby="dh-'+i+'">'+
+   '<div class="card-head"><h2 id="dh-'+i+'">'+esc(dayName(i))+' <span class="date" data-daydate="'+i+'"></span>'+
+   (opt?' <span class="opt">('+esc(t('optional'))+')</span>':'')+'</h2><span class="badge" data-badge="'+i+'" aria-hidden="true"></span></div>'+
+   '<label for="note-'+i+'">'+esc(t('notes'))+'</label>'+
+   '<textarea id="note-'+i+'" class="lined" rows="3" dir="auto" data-i="'+i+'" data-f="note">'+esc(d.note)+'</textarea>'+
+   '<div class="chips"><button type="button" class="btn blue" data-act="translate" data-i="'+i+'">'+esc(t('translate'))+'</button></div>'+
+   '<div class="grid gap-4 md:grid-cols-2" style="margin-top:.9rem">'+
+     '<div><label for="text-'+i+'" style="margin-top:0">'+esc(t('finalLbl'))+'</label>'+
+     '<textarea id="text-'+i+'" class="lined" rows="4" lang="de" dir="ltr" data-i="'+i+'" data-f="text">'+esc(d.text)+'</textarea></div>'+
+     '<div class="ai"><p class="ai-title">'+esc(t('aiTitle'))+'</p>'+
+     '<p class="ai-text" lang="de" dir="ltr">'+esc(PROMPT)+'</p>'+
+     '<button type="button" class="btn small" data-act="copyprompt" data-i="'+i+'">'+esc(t('copy'))+'</button></div>'+
+   '</div>'+
+   '<div class="chips">'+quick+'<button type="button" class="btn small primary" data-act="phrases" data-i="'+i+'">'+esc(t('phrases'))+'</button></div>'+
+   '<div style="margin-top:.5rem"><label for="h-'+i+'">'+esc(t('hours'))+'</label>'+
+   '<input type="text" id="h-'+i+'" class="hours" inputmode="decimal" autocomplete="off" data-i="'+i+'" data-f="hours" value="'+esc(d.hours)+'"></div>'+
+  '</section>';
+}
+function extraHTML(){
+  return '<section class="card" aria-labelledby="h-extra"><h2 id="h-extra" class="card-title">'+esc(t('extraTitle'))+'</h2>'+
+   '<label for="instr">'+esc(t('instr'))+'</label>'+
+   '<textarea id="instr" class="lined" rows="3" lang="de" dir="ltr" data-s="instr">'+esc(state.instr)+'</textarea>'+
+   '<label for="instrHours">'+esc(t('hours'))+'</label>'+
+   '<input type="text" id="instrHours" class="hours" inputmode="decimal" autocomplete="off" data-s="instrHours" value="'+esc(state.instrHours)+'">'+
+   '<label for="school" style="margin-top:1.1rem">'+esc(t('schoolLbl'))+'</label>'+
+   '<p class="small-note" style="margin:0 0 .4rem">'+esc(t('schoolHint'))+'</p>'+
+   '<textarea id="school" class="lined" rows="6" lang="de" dir="ltr" data-s="school">'+esc(state.school)+'</textarea>'+
+   '<label for="schoolHours">'+esc(t('hours'))+'</label>'+
+   '<input type="text" id="schoolHours" class="hours" inputmode="decimal" autocomplete="off" data-s="schoolHours" value="'+esc(state.schoolHours)+'">'+
+  '</section>';
+}
+function render(){
+  document.documentElement.lang = state.lang;
+  document.documentElement.dir = state.lang==='ar' ? 'rtl' : 'ltr';
+  document.title = t('title')+' – '+t('subtitle');
+  var n = state.weekend ? 7 : 5, cards = '';
+  for(var i=0;i<n;i++){ cards += dayCard(i); }
+  $('#app').innerHTML =
+   '<header class="wrap" style="padding-top:1.5rem"><h1 class="title">'+esc(t('title'))+'</h1><p class="muted" style="margin:.2rem 0 .8rem">'+esc(t('subtitle'))+'</p>'+
+   '<div class="flex flex-wrap gap-2" role="group" aria-label="'+esc(t('lang'))+'">'+langBar()+'</div></header>'+
+   '<main class="wrap">'+(TEACHER?linkPanel():'')+profileHTML()+cards+
+   '<section class="card"><label style="display:flex;gap:.6rem;align-items:center;margin:0;min-height:44px"><input type="checkbox" id="weekend" data-s="weekend"'+(state.weekend?' checked':'')+' style="width:1.4rem;height:1.4rem"> '+esc(t('weekend'))+'</label></section>'+
+   extraHTML()+
+   '<section class="card" id="missingBox" aria-live="polite"><div id="missingContent"></div>'+
+   '<p style="margin:.8rem 0 0"><strong>'+esc(t('sum'))+':</strong> <span id="sumHours">0</span></p>'+
+   '<div class="chips"><button type="button" class="btn small" data-act="savetpl">'+esc(t('saveTpl'))+'</button>'+
+   '<button type="button" class="btn small" data-act="loadtpl">'+esc(t('loadTpl'))+'</button>'+
+   '<button type="button" class="btn small" data-act="newweek">'+esc(t('newWeek'))+'</button></div></section></main>'+
+   '<div class="bar"><div class="bar-in"><a href="#missingBox" id="barstatus"></a>'+
+   '<button type="button" id="pdfbtn" class="btn primary" data-act="pdf" disabled>'+esc(t('pdf'))+'</button></div></div>';
+  if(TEACHER){ updateLink(); }
+  refresh();
+}
+
+/* =====================================================================
+   VALIDIERUNG UND STATUS
+   ===================================================================== */
+function missingList(){
+  var m = [];
+  if(!state.name.trim()) m.push(t('mName')); else if(NONLATIN.test(state.name)) m.push(t('mChars',{d:t('name')}));
+  if(!state.year) m.push(t('mYear'));
+  if(NONLATIN.test(state.area)) m.push(t('mChars',{d:t('area')}));
+  if(!weekInfo()) m.push(t('mDate'));
+  for(var i=0;i<5;i++){
+    var tx = state.days[i].text.trim();
+    if(!tx) m.push(t('mDay',{d:dayName(i)}));
+    else if(NONLATIN.test(tx)) m.push(t('mChars',{d:dayName(i)}));
+  }
+  for(var j=5;j<7;j++){ if(NONLATIN.test(state.days[j].text)) m.push(t('mChars',{d:dayName(j)})); }
+  if(NONLATIN.test(state.instr)) m.push(t('mChars',{d:t('instr')}));
+  if(NONLATIN.test(state.school)) m.push(t('mChars',{d:t('schoolLbl')}));
+  return m;
+}
+function refresh(){
+  var info = weekInfo(), box = $('#weekinfo');
+  if(box){
+    if(info){
+      var out = (state.date < SCHOOLYEAR.start || state.date > SCHOOLYEAR.end);
+      box.innerHTML = '<strong>'+esc(t('kw'))+' '+info.week+'</strong>: '+esc(t('from'))+' '+fmt(info.mon)+' '+esc(t('to'))+' '+fmt(info.sun)+
+        (out?'<br><span class="warn">'+esc(t('outOfYear'))+'</span>':'');
+    } else { box.textContent = ''; }
+  }
+  document.querySelectorAll('[data-daydate]').forEach(function(el){
+    var i = +el.dataset.daydate; el.textContent = info ? '('+fmtShort(addDays(info.mon,i))+')' : '';
+  });
+  document.querySelectorAll('[data-badge]').forEach(function(el){
+    el.textContent = state.days[+el.dataset.badge].text.trim() ? '✓' : '';
+  });
+  var total = state.days.reduce(function(a,d){return a+parseHours(d.hours);},0)+parseHours(state.instrHours)+parseHours(state.schoolHours);
+  var sh = $('#sumHours'); if(sh) sh.textContent = fmtHours(total);
+  var miss = missingList();
+  var mc = $('#missingContent');
+  if(mc){
+    mc.innerHTML = miss.length
+      ? '<strong>'+esc(t('missing'))+'</strong><ul id="missingList">'+miss.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'
+      : '<strong style="color:var(--ok)">✓ '+esc(t('ready'))+'</strong>';
+  }
+  var bs = $('#barstatus');
+  if(bs){ bs.textContent = miss.length ? t('missing')+' '+miss.length : '✓ '+t('ready'); bs.style.color = miss.length ? '' : 'var(--ok)'; }
+  var pb = $('#pdfbtn'); if(pb) pb.disabled = miss.length>0;
+}
+
+/* =====================================================================
+   AKTIONEN
+   ===================================================================== */
+function applyField(el){
+  if(el.dataset.i !== undefined){
+    state.days[+el.dataset.i][el.dataset.f] = el.value;
+  } else if(el.dataset.s){
+    var k = el.dataset.s, v = (el.type==='checkbox') ? el.checked : el.value;
+    if(state[k] === v) return;
+    if(k==='branch'){
+      var prevLabel = branchLabel(state.branch);
+      state.branch = v;
+      if(!state.area.trim() || state.area === prevLabel){
+        state.area = branchLabel(v); var ar=$('#area'); if(ar) ar.value = state.area;
+      }
+    } else {
+      state[k] = v;
+    }
+    if(k==='weekend'){ save(); render(); return; }
+  }
+  save(); refresh();
+}
+function translateDay(i){
+  var txt = state.days[i].note.trim().slice(0,1800);
+  window.open('https://translate.google.com/?sl=auto&tl=de&op=translate&text='+encodeURIComponent(txt),'_blank','noopener');
+}
+function quickFill(i,k){
+  var d = state.days[i], cur = d.text.trim();
+  if(k==='school' && cur){
+    if(cur.indexOf(QUICK.school) === -1){ d.text = cur+'\n'+QUICK.school; }
+  } else {
+    if(cur && !window.confirm(t('replaceConfirm'))) return;
+    d.text = QUICK[k];
+  }
+  var ta = $('#text-'+i); if(ta) ta.value = d.text;
+  save(); refresh();
+}
+function newWeek(){
+  if(!window.confirm(t('newWeekConfirm'))) return;
+  var info = weekInfo();
+  state.days = [0,1,2,3,4,5,6].map(emptyDay);
+  state.instr=''; state.instrHours=''; state.school=''; state.schoolHours='';
+  if(info){
+    var next = toISO(addDays(info.mon,7));
+    state.date = (next <= SCHOOLYEAR.end) ? next : '';
+  }
+  save(); render(); window.scrollTo(0,0);
+}
+
+
+function saveTemplate(){
+  state.tpl = {weekend:state.weekend, days:state.days.map(function(d){return {text:d.text,hours:d.hours};})};
+  save(); toast(t('tplSaved'));
+}
+function loadTemplate(){
+  var tp = state.tpl;
+  if(!tp){ toast(t('tplNone')); return; }
+  tp.days.forEach(function(td,i){
+    var d = state.days[i];
+    if(!d.text.trim() && td.text){ d.text = td.text; if(!String(d.hours).trim()) d.hours = td.hours; }
+  });
+  if(tp.weekend) state.weekend = true;
+  save(); render(); toast(t('tplLoaded'));
+}
+
+/* Fachphrasen-Auswahl (Bottom-Sheet) */
+var sheetDay = 0;
+function openSheet(i){
+  sheetDay = i;
+  var dlg = $('#sheet');
+  var body = '';
+  if(!state.branch) body += '<p class="hint">'+esc(t('chooseBranch'))+'</p>';
+  CATS.forEach(function(c,ci){
+    var list = phraseList(ci);
+    var tr = (state.lang!=='de' && CAT_T[state.lang]) ? '<span class="ct">'+esc(CAT_T[state.lang][ci])+'</span>' : '';
+    body += '<details class="cat"'+(ci===0?' open':'')+'><summary><span lang="de" dir="ltr">'+esc(c)+'</span>'+tr+'</summary><div class="plist">'+
+      list.map(function(p,pi){
+        return '<div class="prow"><button type="button" class="phrase" lang="de" dir="ltr" data-ci="'+ci+'" data-pi="'+pi+'">'+esc(p)+'</button>'+
+          (state.lang!=='de' ? '<button type="button" class="btn small trbtn" data-ptr="1" data-ci="'+ci+'" data-pi="'+pi+'" aria-label="'+esc(t('phraseTr'))+'" title="'+esc(t('phraseTr'))+'">🌐</button>' : '')+
+          '</div>';
+      }).join('')+'</div></details>';
+  });
+  dlg.innerHTML = '<div class="sheet-head"><h2 id="sheetTitle">'+esc(t('sheetTitle'))+' '+esc(dayName(i))+
+    (state.branch?' – '+esc(branchLabel(state.branch)):'')+'</h2>'+
+    '<button type="button" class="btn small" data-sheet="close">'+esc(t('close'))+'</button></div>'+
+    '<div class="sheet-body"><p id="sheetMsg" role="status" class="small-note" style="min-height:1.3em;margin:.3rem 0 0"></p>'+body+'</div>';
+  if(typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open','');
+}
+function insertPhrase(i,text){
+  var d = state.days[i], cur = d.text.replace(/\s+$/,'');
+  d.text = cur ? cur+'\n– '+text : '– '+text;
+  var ta = $('#text-'+i); if(ta) ta.value = d.text;
+  save(); refresh();
+}
+
+/* =====================================================================
+   PDF (Layout nach IHK-Vorlage "Ausbildungsnachweis wöchentlich")
+   ===================================================================== */
+function pdfSafe(s){
+  return String(s||'').replace(/\r/g,'')
+    .replace(/[\u2013\u2014]/g,'-').replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D\u201E]/g,'"')
+    .replace(/\u2022/g,'-').replace(/\u2026/g,'...').replace(/\u20AC/g,'EUR')
+    .replace(/[^\n\u0020-\u007E\u00A0-\u00FF]/g,'?');
+}
+function buildPDF(doc, st, info){
+  var W=210, H=297, M=14, CW=W-2*M, TOP=12, BOT=H-10;
+  var dayNames = DAYS_DE;
+  doc.setLineWidth(0.3); doc.setDrawColor(0); doc.setTextColor(0);
+  doc.setLineHeightFactor(1.2);
+
+  // Titel
+  doc.setFont('helvetica','bold'); doc.setFontSize(15);
+  doc.text('Ausbildungsnachweis (Berichtsheft)', M, TOP+6);
+  doc.setFontSize(11); doc.text('- wöchentlich -', M, TOP+12);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.text(STAND_TEXT, M, TOP+17);
+
+  // Logo / Kopf rechts: nur Bremen
+  if(st.land === 'HB'){
+    var drawn = false;
+    if(LOGO.data){ try{ doc.addImage(LOGO.data, LOGO.type, W-M-LOGO.w, TOP, LOGO.w, LOGO.h); drawn = true; }catch(e){ drawn = false; } }
+    if(!drawn){
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.text('Handelskammer Bremen', W-M, TOP+5, {align:'right'});
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.text('IHK für Bremen und Bremerhaven', W-M, TOP+9.5, {align:'right'});
+    }
+  }
+
+  // Kopffelder
+  var y = TOP+22, RH = 8;
+  function cell(x,yy,w,label,val){
+    doc.rect(x,yy,w,RH);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text(label, x+2, yy+5.2);
+    var lw = doc.getTextWidth(label);
+    doc.setFont('helvetica','normal');
+    var fs = 10; doc.setFontSize(fs); var avail = w-lw-6;
+    while(fs>6 && doc.getTextWidth(val)>avail){ fs-=0.5; doc.setFontSize(fs); }
+    doc.text(val, x+lw+4, yy+5.4);
+  }
+  cell(M,y,CW,'Name des/der Auszubildenden:',pdfSafe(st.name.trim()));
+  y += RH;
+  cell(M,y,CW*0.40,'Ausbildungsjahr:',pdfSafe(String(st.year)));
+  cell(M+CW*0.40,y,CW*0.60,'Ausbildungsbereich:',pdfSafe(st.area.trim()));
+  y += RH;
+  cell(M,y,CW*0.42,'Ausbildungswoche vom:',fmt(info.mon));
+  cell(M+CW*0.42,y,CW*0.34,'bis:',fmt(info.sun));
+  cell(M+CW*0.76,y,CW*0.24,'KW:',String(info.week));
+  y += RH + 5;
+  var tableY = y;
+
+  // Spalten
+  var labW=9, hrsW=22, xt=M+labW, xh=M+CW-hrsW;
+  var textW = xh-xt-3.6, fullW = xh-M-3.6;
+  var HDR = 7, SIG = 34, GAP = 8;
+
+  function layout(fs){
+    doc.setFont('helvetica','normal'); doc.setFontSize(fs);
+    var lh = fs*0.3528*1.2;
+    var dl = st.days.map(function(d){ var tx=d.text.trim(); return tx ? doc.splitTextToSize(pdfSafe(tx),textW) : []; });
+    var il = st.instr.trim() ? doc.splitTextToSize(pdfSafe(st.instr.trim()),fullW) : [];
+    var sl = st.school.trim() ? doc.splitTextToSize(pdfSafe(st.school.trim()),fullW) : [];
+    var dh = dl.map(function(l){ return Math.max(17.5, l.length*lh+4); });
+    var ih = Math.max(16, il.length*lh+4), sh = Math.max(22, sl.length*lh+4);
+    var total = HDR + dh.reduce(function(a,b){return a+b;},0) + HDR + ih + HDR + sh + GAP + SIG;
+    return {fs:fs,lh:lh,dl:dl,il:il,sl:sl,dh:dh,ih:ih,sh:sh,total:total};
+  }
+  var L = null;
+  for(var fs=9; fs>=6.5; fs-=0.5){ L = layout(fs); if(L.total <= BOT-tableY) break; }
+
+  function ensure(h){ if(y+h > BOT){ doc.addPage(); y = TOP; } }
+  function header(title){
+    doc.setFillColor(226,226,226);
+    doc.rect(M,y,xh-M,HDR,'FD'); doc.rect(xh,y,hrsW,HDR,'FD');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text(title, M+2, y+4.9);
+    doc.text('Stunden', xh+hrsW/2, y+4.9, {align:'center'});
+    y += HDR;
+  }
+  function hoursText(h,rowH,rowY){
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    doc.text(pdfSafe(String(h||'').trim()), xh+hrsW/2, rowY+rowH/2+1.3, {align:'center'});
+  }
+  function textLines(lines,x,rowY){
+    if(!lines.length) return;
+    doc.setFont('helvetica','normal'); doc.setFontSize(L.fs);
+    doc.text(lines, x, rowY+2.3+L.fs*0.3528*0.85);
+  }
+
+  // Betriebliche Tätigkeiten (Mo-So)
+  ensure(HDR+17.5);
+  header('Betriebliche Tätigkeiten');
+  for(var i=0;i<7;i++){
+    var h = L.dh[i]; ensure(h);
+    doc.rect(M,y,labW,h); doc.rect(xt,y,xh-xt,h); doc.rect(xh,y,hrsW,h);
+    doc.setFont('helvetica','bold');
+    var lf = 7.5; doc.setFontSize(lf);
+    while(lf>5 && doc.getTextWidth(dayNames[i])>h-3){ lf-=0.5; doc.setFontSize(lf); }
+    var tw = doc.getTextWidth(dayNames[i]);
+    doc.text(dayNames[i], M+labW/2+1.2, y+h/2+tw/2, {angle:90});
+    textLines(L.dl[i], xt+1.8, y);
+    hoursText(st.days[i].hours, h, y);
+    y += h;
+  }
+  // Unterweisungen
+  ensure(HDR+L.ih);
+  header('Unterweisungen, betrieblicher Unterricht, sonstige Schulungen');
+  doc.rect(M,y,xh-M,L.ih); doc.rect(xh,y,hrsW,L.ih);
+  textLines(L.il, M+1.8, y); hoursText(st.instrHours, L.ih, y);
+  y += L.ih;
+  // Berufsschule
+  ensure(HDR+L.sh);
+  header('Themen des Berufsschulunterrichts');
+  doc.rect(M,y,xh-M,L.sh); doc.rect(xh,y,hrsW,L.sh);
+  textLines(L.sl, M+1.8, y); hoursText(st.schoolHours, L.sh, y);
+  y += L.sh;
+
+  // Unterschriften
+  y += GAP; ensure(SIG-4);
+  var colW = (CW-12)/2, x2 = M+colW+12;
+  doc.setLineWidth(0.35);
+  var r1 = y+10, r2 = y+27;
+  doc.line(M,r1,M+colW,r1); doc.line(x2,r1,x2+colW,r1);
+  doc.line(M,r2,M+colW,r2); doc.line(x2,r2,x2+colW,r2);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  doc.text('Datum, Unterschrift Auszubildende/r', M, r1+3.6);
+  doc.text('Datum, Unterschrift Ausbildende/r oder Ausbilder/in', x2, r1+3.6);
+  doc.text('Datum, Unterschrift gesetzliche/r Vertreter/in', M, r2+3.6);
+  doc.text('ggf. weitere Sichtvermerke (z.B. Arbeitnehmervertreter)', x2, r2+3.6);
+}
+function makePDF(){
+  var miss = missingList(), info = weekInfo();
+  if(miss.length || !info || !(window.jspdf && window.jspdf.jsPDF)){
+    toast(window.jspdf ? t('missing')+' '+miss.length : 'PDF-Bibliothek nicht geladen'); return;
+  }
+  var doc = new window.jspdf.jsPDF({unit:'mm',format:'a4',compress:true});
+  buildPDF(doc, state, info);
+  var slug = state.name.trim().replace(/[^A-Za-z0-9ÄÖÜäöüß]+/g,'_').replace(/^_+|_+$/g,'');
+  doc.save('Berichtsheft_KW'+pad(info.week)+'_'+info.year+(slug?'_'+slug:'')+'.pdf');
+}
+
+/* =====================================================================
+   EREIGNISSE
+   ===================================================================== */
+var app = $('#app');
+app.addEventListener('input', function(e){ if(e.target.id && e.target.id.indexOf('gl-')===0){ updateLink(); return; } applyField(e.target); });
+app.addEventListener('change', function(e){ if(e.target.id && e.target.id.indexOf('gl-')===0){ updateLink(); return; } applyField(e.target); });
+app.addEventListener('paste', function(e){
+  var el = e.target;
+  if(!(el && (el.id==='school' || el.id==='instr'))) return;
+  var cd = e.clipboardData || window.clipboardData;
+  var txt = cd ? cd.getData('text') : '';
+  if(!txt) return;
+  e.preventDefault();
+  var clean = txt.replace(/\r/g,'').replace(/\t+/g,'  ').replace(/[ \u00A0]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+  el.setRangeText(clean, el.selectionStart, el.selectionEnd, 'end');
+  el.dispatchEvent(new Event('input',{bubbles:true}));
+});
+app.addEventListener('click', function(e){
+  var b = e.target.closest('[data-act]'); if(!b) return;
+  var act = b.dataset.act, i = +b.dataset.i;
+  if(act==='lang'){ state.lang = b.dataset.v; save(); render(); }
+  else if(act==='translate'){ translateDay(i); }
+  else if(act==='copyprompt'){
+    var note = state.days[i].note.trim();
+    copyText(PROMPT.replace('[TEXT]', note || '[TEXT]')).then(function(){ toast(t('copied')); });
+  }
+  else if(act==='quick'){ quickFill(i,b.dataset.k); }
+  else if(act==='phrases'){ openSheet(i); }
+  else if(act==='newweek'){ newWeek(); }
+  else if(act==='savetpl'){ saveTemplate(); }
+  else if(act==='loadtpl'){ loadTemplate(); }
+  else if(act==='copylink'){ copyText($('#gl-out').value).then(function(){ toast('Link kopiert'); }); }
+  else if(act==='pdf'){ makePDF(); }
+});
+$('#sheet').addEventListener('click', function(e){
+  var dlg = e.currentTarget;
+  if(e.target === dlg || e.target.closest('[data-sheet="close"]')){ if(dlg.close) dlg.close(); else dlg.removeAttribute('open'); return; }
+  var tb = e.target.closest('[data-ptr]');
+  if(tb){
+    var ph = phraseList(+tb.dataset.ci)[+tb.dataset.pi];
+    window.open('https://translate.google.com/?sl=de&tl='+state.lang+'&op=translate&text='+encodeURIComponent(ph),'_blank','noopener');
+    return;
+  }
+  var p = e.target.closest('.phrase'); if(!p) return;
+  var text = phraseList(+p.dataset.ci)[+p.dataset.pi];
+  insertPhrase(sheetDay, text);
+  p.classList.add('done');
+  var msg = $('#sheetMsg'); if(msg) msg.textContent = '✓ '+t('inserted')+': '+dayName(sheetDay);
+});
+
+load();
+applyParams();
+render();
+
+})();
+</script>
+</body>
+</html>
