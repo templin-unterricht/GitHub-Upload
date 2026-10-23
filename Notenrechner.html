@@ -5,209 +5,182 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>IHK-Notenrechner Einzelhandel</title>
 <meta name="description" content="Notenrechner für die IHK-Abschlussprüfung im Einzelhandel (Verkäufer/in und Kaufmann/-frau)">
-<meta name="theme-color" content="#1d4ed8">
+<meta name="theme-color" content="#0f1b3d">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Notenrechner">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231d4ed8'/%3E%3Ctext x='50' y='64' font-size='44' font-weight='700' text-anchor='middle' fill='white' font-family='Arial'%3EIHK%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" id="touchicon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231d4ed8'/%3E%3C/svg%3E">
-<link rel="manifest" id="manifest" href="">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IHK-Rechner">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f1b3d'/%3E%3Ctext x='32' y='42' font-size='26' font-family='Arial' font-weight='700' text-anchor='middle' fill='%23fff'%3EIHK%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" id="appleIcon" href="">
+<link rel="manifest" id="manifestLink" href="">
 <style>
 :root{
-  --bg:#eef1f6; --card:#ffffff; --ink:#142033; --muted:#5b6a80; --line:#d9e0ea;
-  --accent:#1d4ed8; --accent-soft:#e3ebff; --track:#d5dcea;
-  --orange:#f97316; --orange-soft:#fff0e2; --orange-ink:#9a3d00;
-  --red:#dc2626; --red-soft:#fde8e8; --red-ink:#8f1414;
-  --green:#15803d; --green-soft:#e1f5e8; --green-ink:#0f5a2a;
-  --blue-soft:#e6eefb; --amber:#b45309; --amber-soft:#fdf1d6;
-  --radius:16px;
+  --bg:#f1f4fb; --card:#ffffff; --ink:#14203a; --mute:#5b6985; --line:#e0e6f2;
+  --navy:#0f1b3d; --brand:#2c59e8; --brand-soft:#e6edff; --track:#dce3f1;
+  --ok:#0f9d58; --ok-soft:#e3f6ec; --bad:#d6293f; --bad-soft:#fde8eb;
+  --warn:#f26b0f; --warn-soft:#fff0e3; --info-soft:#e8f0ff;
+  --n1:#0f9d58; --n2:#5aae2f; --n3:#2c59e8; --n4:#5b6985; --n5:#d6293f; --n6:#99102a;
+  --shadow:0 1px 2px rgba(15,27,61,.06),0 6px 18px rgba(15,27,61,.06);
 }
 @media (prefers-color-scheme:dark){
   :root{
-    --bg:#0c1220; --card:#151e30; --ink:#e8edf6; --muted:#9aa8bf; --line:#27344c;
-    --accent:#6c93ff; --accent-soft:#1b2a52; --track:#2b3a56;
-    --orange:#fb923c; --orange-soft:#3a2312; --orange-ink:#ffc89a;
-    --red:#f87171; --red-soft:#3a1717; --red-ink:#ffb4b4;
-    --green:#4ade80; --green-soft:#12301f; --green-ink:#9ff0bd;
-    --blue-soft:#18233b; --amber:#fbbf24; --amber-soft:#3a2e0f;
+    --bg:#0a1020; --card:#131b30; --ink:#e8edf9; --mute:#9aa8c6; --line:#25304c;
+    --navy:#0a1020; --brand:#6f93ff; --brand-soft:#1c2a52; --track:#2a3656;
+    --ok:#3ccf85; --ok-soft:#0f2f22; --bad:#ff6b80; --bad-soft:#3a1620;
+    --warn:#ff9446; --warn-soft:#3a2312; --info-soft:#1a2748;
+    --n1:#3ccf85; --n2:#8ad163; --n3:#6f93ff; --n4:#9aa8c6; --n5:#ff6b80; --n6:#ff4d6a;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
   }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
-body{
-  margin:0;background:var(--bg);color:var(--ink);
-  font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   font-size:16px;line-height:1.45;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(24px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
-}
-.wrap{max-width:640px;margin:0 auto;padding:0 14px}
-header{padding:18px 0 10px}
-h1{font-size:1.45rem;line-height:1.2;margin:0 0 4px;letter-spacing:-.01em}
-header p{margin:0;color:var(--muted);font-size:.92rem}
-.tabs{
-  position:sticky;top:0;z-index:20;display:grid;grid-template-columns:1fr 1fr;gap:6px;
-  background:var(--bg);padding:8px 0 10px;
-}
-.tab{
-  border:2px solid var(--line);background:var(--card);color:var(--ink);
-  border-radius:14px;padding:10px 8px;font:inherit;font-weight:700;font-size:.95rem;cursor:pointer;line-height:1.25;
-}
-.tab small{display:block;font-weight:500;color:var(--muted);font-size:.78rem}
-.tab[aria-selected="true"]{border-color:var(--accent);background:var(--accent);color:#fff}
-.tab[aria-selected="true"] small{color:#dbe6ff}
-.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
-.panel[hidden]{display:none}
-.panel>h2{font-size:1.1rem;margin:6px 0 2px}
-.sub{margin:0 0 12px;color:var(--muted);font-size:.9rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
-.card[hidden]{display:none}
-.card h3{margin:0 0 10px;font-size:1rem}
-.area{padding:10px 0 12px;border-top:1px solid var(--line)}
-.area:first-of-type{border-top:0;padding-top:2px}
-.area-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.aname{font-weight:700}
-.ameta{color:var(--muted);font-size:.82rem}
-.aval{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.pts{font-size:1.7rem;font-weight:800;font-variant-numeric:tabular-nums;min-width:2.2ch;text-align:right;line-height:1}
-.chip{font-size:.74rem;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap}
-.chip[hidden]{display:none}
-.g1,.g2,.g3,.g4{background:var(--green-soft);color:var(--green-ink)}
-.g5{background:var(--amber-soft);color:var(--amber)}
-.g6{background:var(--red-soft);color:var(--red-ink)}
-.slrow{display:flex;align-items:center;gap:10px;margin-top:8px}
-.step{
-  width:40px;height:40px;flex-shrink:0;border-radius:50%;border:2px solid var(--line);
-  background:var(--card);color:var(--ink);font-size:1.3rem;font-weight:700;line-height:1;cursor:pointer;
-}
-.step:active{background:var(--accent-soft)}
-input[type=range]{
-  -webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;margin:0;
-  --pct:50%;touch-action:pan-y;
-}
-input[type=range]::-webkit-slider-runnable-track{
-  height:12px;border-radius:99px;
-  background:linear-gradient(to right,var(--accent) var(--pct),var(--track) var(--pct));
-}
-input[type=range]::-moz-range-track{height:12px;border-radius:99px;background:var(--track)}
-input[type=range]::-moz-range-progress{height:12px;border-radius:99px;background:var(--accent)}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:32px;height:32px;margin-top:-10px;border-radius:50%;
-  background:#fff;border:4px solid var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.3);
-}
-input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:4px solid var(--accent)}
-.note{border-radius:12px;padding:11px 13px;margin-bottom:12px;font-size:.93rem;border-left:6px solid}
-.note b{display:block;margin-bottom:2px}
-.note.red{background:var(--red-soft);color:var(--red-ink);border-color:var(--red)}
-.note.orange{background:var(--orange-soft);color:var(--orange-ink);border-color:var(--orange)}
-.note.blue{background:var(--blue-soft);color:var(--ink);border-color:var(--accent)}
-.note.green{background:var(--green-soft);color:var(--green-ink);border-color:var(--green)}
-.need{
-  background:var(--orange-soft);border:2px solid var(--orange);color:var(--orange-ink);
-  border-radius:12px;padding:12px 14px;margin-bottom:12px;font-weight:600;
-}
-.need .big{font-size:1.9rem;font-weight:800;color:var(--orange);display:inline-block;margin:0 6px;line-height:1.1}
-table.prog{width:100%;border-collapse:collapse;font-size:.95rem}
-table.prog th{text-align:left;font-size:.8rem;color:var(--muted);font-weight:600;padding:0 8px 6px}
-table.prog td{padding:9px 8px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
-table.prog td:last-child{text-align:right;font-weight:700}
-table.prog tr.pass td{background:var(--orange-soft);color:var(--orange-ink);border-top:2px solid var(--orange);border-bottom:2px solid var(--orange)}
-table.prog tr.pass td:last-child{font-size:1.05rem}
-table.prog td.no{color:var(--muted);font-weight:600}
-label{display:block;font-weight:600;font-size:.88rem;margin:10px 0 4px}
-input[type=number],select{
-  width:100%;font:inherit;font-size:1.1rem;padding:11px 12px;border:2px solid var(--line);
-  border-radius:12px;background:var(--card);color:var(--ink);
-}
-input[type=number]:focus,select:focus{border-color:var(--accent);outline:none}
-.formula{
-  background:var(--blue-soft);border-radius:10px;padding:9px 12px;font-weight:700;margin:6px 0 10px;
-  font-variant-numeric:tabular-nums;
-}
-.mepl{margin:6px 0 0;padding-left:18px}
-.mepl li{margin:4px 0}
-.hl{color:var(--orange);font-weight:800}
-button.ghost{
-  background:transparent;border:2px solid var(--line);color:var(--ink);border-radius:12px;
-  padding:9px 14px;font:inherit;font-weight:600;cursor:pointer;margin-top:10px;
-}
-button.wide{width:100%;margin-bottom:12px}
-details{font-size:.9rem;margin-top:8px}
-summary{cursor:pointer;font-weight:600;padding:4px 0}
-details ul{margin:6px 0;padding-left:18px}
-/* Kassenbon */
-.receipt{
-  background:var(--card);border:1px solid var(--line);border-radius:6px 6px 0 0;padding:16px 16px 20px;margin-bottom:22px;position:relative;
-  font-variant-numeric:tabular-nums;
-}
-.receipt::after{
-  content:"";position:absolute;left:-1px;right:-1px;bottom:-9px;height:9px;
-  background:linear-gradient(-45deg,transparent 6px,var(--card) 0) 0 0/14px 9px repeat-x,
-             linear-gradient(45deg,transparent 6px,var(--card) 0) 0 0/14px 9px repeat-x;
-}
-.receipt h3{margin:0 0 4px;font-size:1.05rem}
-.rline{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
-.rline small{color:var(--muted)}
-.rtotal{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;font-weight:800;font-size:1.2rem}
-.verdict{margin-top:12px;border-radius:12px;padding:12px 14px;font-weight:700}
-.verdict.ok{background:var(--green-soft);color:var(--green-ink)}
-.verdict.bad{background:var(--red-soft);color:var(--red-ink)}
-.verdict.mid{background:var(--orange-soft);color:var(--orange-ink)}
-.verdict ul{margin:6px 0 0;padding-left:18px;font-weight:500;font-size:.9rem}
-footer{margin-top:18px}
-footer .card p{margin:6px 0}
-.small{font-size:.82rem;color:var(--muted)}
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+header{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 0;}
+header h1{margin:0;font-size:1.25rem;letter-spacing:.2px}
+header p{margin:2px 0 12px;color:#aebbe0;font-size:.85rem}
+.tabs{display:flex;gap:6px;max-width:720px;margin:0 auto}
+.tab{flex:1;border:0;background:rgba(255,255,255,.1);color:#cfd8f3;font:inherit;font-weight:600;
+  padding:11px 8px 12px;border-radius:12px 12px 0 0;cursor:pointer;line-height:1.2}
+.tab small{display:block;font-weight:400;font-size:.72rem;opacity:.85;margin-top:2px}
+.tab[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.wrap{max-width:720px;margin:0 auto}
+main{max-width:720px;margin:0 auto;padding:14px 14px 10px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 4px;font-size:1.05rem}
+.card .sub{color:var(--mute);font-size:.85rem;margin:0 0 12px}
+.row{padding:12px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row-head{display:flex;align-items:flex-start;gap:10px;justify-content:space-between}
+.row-name{font-weight:600;font-size:.95rem}
+.row-meta{color:var(--mute);font-size:.78rem;margin-top:1px}
+.valbox{display:flex;align-items:center;gap:8px;flex:none}
+.num{width:66px;font:inherit;font-weight:700;font-size:1.1rem;text-align:center;color:var(--ink);
+  background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:6px 4px}
+.num:focus{outline:none;border-color:var(--brand)}
+.chip{display:inline-block;min-width:58px;text-align:center;color:#fff;font-weight:700;font-size:.8rem;
+  padding:5px 9px;border-radius:999px}
+.n1{background:var(--n1)}.n2{background:var(--n2)}.n3{background:var(--n3)}
+.n4{background:var(--n4)}.n5{background:var(--n5)}.n6{background:var(--n6)}
+@media (prefers-color-scheme:dark){.chip{color:#0a1020}}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:12px;border-radius:99px;margin:14px 0 4px;
+  background:linear-gradient(to right,var(--brand) var(--p,50%),var(--track) var(--p,50%));outline:none;touch-action:pan-y}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:32px;height:32px;border-radius:50%;
+  background:#fff;border:3px solid var(--brand);box-shadow:0 2px 8px rgba(15,27,61,.3)}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-shadow:0 2px 8px rgba(15,27,61,.3)}
+input[type=range]::-moz-range-track{background:transparent}
+input[type=range]:focus-visible{outline:3px solid var(--brand-soft);outline-offset:4px}
+.scale{display:flex;justify-content:space-between;color:var(--mute);font-size:.7rem}
+.alert{border-radius:14px;padding:12px 14px;margin:0 0 12px;font-size:.9rem;border:1px solid transparent}
+.alert strong{display:block;margin-bottom:2px}
+.alert.red{background:var(--bad-soft);border-color:var(--bad)}
+.alert.red strong{color:var(--bad)}
+.alert.orange{background:var(--warn-soft);border-color:var(--warn)}
+.alert.orange strong{color:var(--warn)}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:9px 14px;background:var(--brand);color:#fff;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand);border:2px solid var(--brand-soft);padding:7px 12px}
+.btn.small{padding:5px 10px;font-size:.8rem;margin-top:8px}
+@media (prefers-color-scheme:dark){.btn{color:#0a1020}.btn.ghost{color:var(--brand)}}
+.tbl{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.76rem;color:var(--mute);font-weight:600}
+td.c,th.c{text-align:center}
+tr.min td{background:var(--warn-soft);font-weight:700;border-bottom:2px solid var(--warn)}
+tr.min td:first-child{border-left:5px solid var(--warn)}
+.min-val{color:var(--warn);font-size:1.15rem}
+.no{color:var(--bad);font-weight:600}
+.fine{color:var(--mute);font-size:.78rem;margin:8px 0 0}
+.field{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.field:first-of-type{border-top:0}
+.field label{font-weight:600;font-size:.93rem}
+.field label span{display:block;font-weight:400;color:var(--mute);font-size:.78rem}
+.num.big{width:84px;font-size:1.25rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.sel{font:inherit;font-size:.82rem;font-weight:600;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 11px;cursor:pointer}
+.sel[aria-pressed="true"]{border-color:var(--warn);background:var(--warn-soft)}
+.result{border-radius:18px;padding:18px;margin:0 0 14px;color:#fff;box-shadow:var(--shadow)}
+.result.pass{background:linear-gradient(135deg,#0b7a43,#18a35c)}
+.result.fail{background:linear-gradient(135deg,#a3162d,#d6293f)}
+.result.pending{background:linear-gradient(135deg,#b84a05,#f26b0f)}
+.result h3{margin:0;font-size:1.05rem;opacity:.95}
+.result .big{font-size:2.2rem;font-weight:800;line-height:1.15;margin:6px 0 2px}
+.result .big small{font-size:.95rem;font-weight:600;opacity:.9}
+.result ul{margin:8px 0 0;padding-left:18px;font-size:.9rem}
+.result table{margin-top:12px;color:#fff;font-size:.85rem}
+.result th{color:rgba(255,255,255,.8)}
+.result td,.result th{border-color:rgba(255,255,255,.25)}
+.result tr.min td{background:rgba(0,0,0,.25);border-left:0;border-bottom:1px solid rgba(255,255,255,.4)}
+.result .min-val{color:#fff;font-size:1.1rem}
+.overlay{position:fixed;inset:0;background:rgba(5,10,25,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.overlay.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom,0px) + 20px)}
+.sheet h2{margin:0 0 8px;font-size:1.15rem}
+.formula{background:var(--brand-soft);border-radius:12px;padding:12px;text-align:center;font-size:1.1rem;font-weight:700;margin:10px 0}
+.sheet ul{padding-left:20px;margin:8px 0}
+.sheet li{margin:4px 0}
+details{background:var(--card);border-radius:16px;padding:4px 16px;margin:0 0 14px;box-shadow:var(--shadow)}
+summary{cursor:pointer;font-weight:700;padding:12px 0}
+details ol,details ul{padding-left:20px;margin:4px 0 12px}
+details h4{margin:12px 0 2px}
+footer{max-width:720px;margin:0 auto;padding:0 14px 28px;color:var(--mute);font-size:.78rem}
+[hidden]{display:none !important}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
+
+<header>
+  <div class="wrap">
     <h1>IHK-Notenrechner Einzelhandel</h1>
-    <p>Schiebe die Punkte deiner schriftlichen Prüfungen – die App zeigt dir, was mündlich nötig ist.</p>
-  </header>
-
-  <nav class="tabs" role="tablist" aria-label="Ausbildungsberuf">
-    <button class="tab" role="tab" id="tab-v" aria-selected="true" aria-controls="p-v">Verkäufer/in<small>2-jährige Ausbildung</small></button>
-    <button class="tab" role="tab" id="tab-k" aria-selected="false" aria-controls="p-k">Kaufmann/-frau<small>3-jährig (GAP)</small></button>
-  </nav>
-
-  <main id="main"></main>
-
-  <footer>
-    <div class="card">
-      <h3>App auf dem Startbildschirm installieren</h3>
-      <details>
-        <summary>iPhone (Safari)</summary>
-        <ul>
-          <li>Diese Seite in <b>Safari</b> öffnen.</li>
-          <li>Unten auf <b>Teilen</b> (Quadrat mit Pfeil) tippen.</li>
-          <li><b>„Zum Home-Bildschirm“</b> wählen und mit <b>Hinzufügen</b> bestätigen.</li>
-        </ul>
-      </details>
-      <details>
-        <summary>Android (Chrome)</summary>
-        <ul>
-          <li>Diese Seite in <b>Chrome</b> öffnen.</li>
-          <li>Oben rechts auf die <b>drei Punkte</b> tippen.</li>
-          <li><b>„Zum Startbildschirm hinzufügen“</b> (oder „App installieren“) wählen und bestätigen.</li>
-        </ul>
-      </details>
+    <p>Schieberegler bewegen – Prognose sofort sehen</p>
+    <div class="tabs" role="tablist" aria-label="Ausbildungsberuf">
+      <button class="tab" role="tab" id="tab-v" data-tab="v" aria-selected="true">Verkäufer/in<small>2 Jahre</small></button>
+      <button class="tab" role="tab" id="tab-k" data-tab="k" aria-selected="false">Kaufmann/-frau<small>3 Jahre (GAP)</small></button>
     </div>
-    <div class="card">
-      <h3>Hinweise zur Berechnung</h3>
-      <details>
-        <summary>So rechnet die App</summary>
-        <ul>
-          <li>Noten: 1 ab 92 P., 2 ab 81 P., 3 ab 67 P., 4 ab 50 P., 5 ab 30 P., darunter 6.</li>
-          <li>Die Gesamtpunktzahl ist der gewichtete Durchschnitt aller Bereiche, gerundet auf ganze Punkte.</li>
-          <li>Bestanden: Gesamtergebnis mindestens 50 Punkte, <b>kein Bereich mit Note 6</b> und <b>höchstens ein Bereich mit Note 5</b>.</li>
-          <li>Kaufleute: „Geschäftsprozesse im Einzelhandel“ und das Fachgespräch brauchen jeweils mindestens 50 Punkte.</li>
-          <li>Eine mündliche Ergänzungsprüfung (MEP) ist nur in einem schriftlichen Bereich möglich. Der Bereich wird neu berechnet mit (Schriftlich × 2 + MEP) ÷ 3.</li>
-        </ul>
-      </details>
-      <p class="small">Diese App ist eine Orientierungshilfe ohne Gewähr. Verbindlich ist allein die Entscheidung des Prüfungsausschusses deiner IHK.</p>
-    </div>
-  </footer>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<main style="padding-top:0">
+  <details id="install">
+    <summary>App auf dem Handy installieren</summary>
+    <h4>iPhone (Safari)</h4>
+    <ol>
+      <li>Diese Seite in <b>Safari</b> öffnen.</li>
+      <li>Auf das Teilen-Symbol (Quadrat mit Pfeil nach oben) tippen.</li>
+      <li><b>„Zum Home-Bildschirm“</b> wählen und auf <b>„Hinzufügen“</b> tippen.</li>
+    </ol>
+    <h4>Android (Chrome)</h4>
+    <ol>
+      <li>Diese Seite in <b>Chrome</b> öffnen.</li>
+      <li>Oben rechts auf die <b>drei Punkte</b> tippen.</li>
+      <li><b>„Zum Startbildschirm hinzufügen“</b> (oder „App installieren“) wählen und bestätigen.</li>
+    </ol>
+    <p class="fine">Danach startet der Rechner wie eine App im Vollbildmodus.</p>
+  </details>
+  <details id="rules">
+    <summary>So wird gerechnet (Bestehensregeln)</summary>
+    <ul>
+      <li>Gesamtergebnis = Summe der gewichteten Punkte, auf ganze Punkte gerundet.</li>
+      <li>Noten: 1 ab 92, 2 ab 81, 3 ab 67, 4 ab 50, 5 ab 30, 6 unter 30 Punkte.</li>
+      <li>Zum Bestehen: Gesamtergebnis mindestens 50 Punkte.</li>
+      <li>Höchstens ein Prüfungsbereich darf unter 50 Punkten (schlechter als Note 4) liegen.</li>
+      <li>Kein Prüfungsbereich darf am Ende unter 30 Punkten (Note 6) liegen.</li>
+      <li>Sperrfächer mit jeweils mindestens 50 Punkten: das <b>Fachgespräch</b> (Verkäufer/in und Kaufleute) und bei Kaufleuten zusätzlich <b>Geschäftsprozesse im Einzelhandel</b>.</li>
+      <li>Mündliche Ergänzungsprüfung (MEP): nur in <b>einem</b> schriftlichen Bereich, Formel (Schriftlich × 2 + MEP) ÷ 3.</li>
+    </ul>
+    <p class="fine">Der Rechner gibt eine Orientierung und ersetzt nicht die Prüfungsordnung deiner IHK. Maßgeblich ist immer das offizielle Prüfungsergebnis.</p>
+  </details>
+</main>
+<footer>Ohne Gewähr. Deine Eingaben bleiben nur auf diesem Gerät gespeichert.</footer>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="sheet" id="sheet"></div>
 </div>
 
 <script>
@@ -215,419 +188,407 @@ footer .card p{margin:6px 0}
 'use strict';
 
 /* ---------- Konfiguration ---------- */
-const CFG = {
-  v:{
-    title:'Verkäufer/in',
-    sub:'Drei schriftliche Bereiche und das Fachgespräch.',
-    areas:[
-      {n:'Verkauf und Werbemaßnahmen', t:'Schriftlich', w:25},
-      {n:'Warenwirtschaft und Kalkulation', t:'Schriftlich', w:15},
-      {n:'Wirtschafts- und Sozialkunde', t:'Schriftlich', w:10},
-      {n:'Fachgespräch im Warensortiment', t:'Mündlich', w:50, oral:true}
-    ]
+var EX = {
+  v: {
+    name:'Verkäufer/in',
+    written:[
+      {n:'Verkauf und Werbemaßnahmen', w:25, t:''},
+      {n:'Warenwirtschaft und Kalkulation', w:15, t:''},
+      {n:'Wirtschafts- und Sozialkunde', w:10, t:''}
+    ],
+    oral:{n:'Fachgespräch im Warensortiment', w:50},
+    sperrW:[]
   },
-  k:{
-    title:'Kaufmann/-frau im Einzelhandel',
-    sub:'Teil 1 und Teil 2 der Gestreckten Abschlussprüfung (GAP).',
-    areas:[
-      {n:'Verkauf und Werbemaßnahmen', t:'Teil 1', w:15},
-      {n:'Warenwirtschaft und Kalkulation', t:'Teil 1', w:10},
-      {n:'Wirtschafts- und Sozialkunde', t:'Teil 1', w:10},
-      {n:'Geschäftsprozesse im Einzelhandel', t:'Teil 2 · Sperrfach', w:25, sperr:true},
-      {n:'Fachgespräch in der Wahlqualifikation', t:'Teil 2 · Sperrfach · mündlich', w:40, oral:true, sperr:true}
-    ]
+  k: {
+    name:'Kaufmann/-frau im Einzelhandel',
+    written:[
+      {n:'Verkauf und Werbemaßnahmen', w:15, t:'Teil 1'},
+      {n:'Warenwirtschaft und Kalkulation', w:10, t:'Teil 1'},
+      {n:'Wirtschafts- und Sozialkunde', w:10, t:'Teil 1'},
+      {n:'Geschäftsprozesse im Einzelhandel', w:25, t:'Teil 2 · Sperrfach'}
+    ],
+    oral:{n:'Fachgespräch in der Wahlqualifikation', w:40},
+    sperrW:[3]
   }
 };
-const GRADES = [
-  {g:1,thr:92,txt:'Note 1 (sehr gut)'},
-  {g:2,thr:81,txt:'Note 2 (gut)'},
-  {g:3,thr:67,txt:'Note 3 (befriedigend)'},
-  {g:4,thr:50,txt:'Note 4 (bestanden)'}
-];
-const GNAME = ['','sehr gut','gut','befriedigend','ausreichend','mangelhaft','ungenügend'];
-const KEY = 'ihk-notenrechner-v2';
+var KEY='ihk-notenrechner-v2';
 
 /* ---------- Zustand ---------- */
-const $ = id => document.getElementById(id);
-function initState(cfg){ return {pts:cfg.areas.map(()=>50), oral:'', mepIdx:'', mep:''}; }
-let ST = null;
-try{ ST = JSON.parse(localStorage.getItem(KEY)); }catch(e){}
-if(!ST || !ST.v || !ST.k || ST.v.pts.length!==CFG.v.areas.length || ST.k.pts.length!==CFG.k.areas.length){
-  ST = {v:initState(CFG.v), k:initState(CFG.k), cur:'v'};
-}
-let cur = ST.cur === 'k' ? 'k' : 'v';
-function save(){ ST.cur = cur; try{ localStorage.setItem(KEY, JSON.stringify(ST)); }catch(e){} }
-
-/* ---------- Rechenlogik ---------- */
-const grade = p => p>=92?1 : p>=81?2 : p>=67?3 : p>=50?4 : p>=30?5 : 6;
-const mepPts = (p,m) => Math.round((2*p + m)/3);
-
-// eff: Punkte je Bereich (null = noch unbekannt)
-// Bestanden = Gesamt >= thr, keine 6, höchstens eine 5, Sperrfächer >= 50
-function evalEff(cfg, eff, thr){
-  let n5=0, n6=0, sum=0, known=true; const sperr=[];
-  eff.forEach((p,i)=>{
-    if(p===null){ known=false; return; }
-    const g = grade(p);
-    if(g===5) n5++;
-    if(g===6) n6++;
-    if(cfg.areas[i].sperr && p<50) sperr.push(i);
-    sum += p*cfg.areas[i].w;
-  });
-  const total = known ? Math.round(sum/100) : null;
-  const ok = n6===0 && n5<=1 && sperr.length===0 && (total===null || total>=thr);
-  return {n5,n6,sperr,total,ok};
-}
-function mepApplied(st){ return st.mepIdx!=='' && st.mep!==''; }
-function buildEff(cfg, st, withMep){
-  const eff = cfg.areas.map((a,i)=> a.oral ? (st.oral===''?null:+st.oral) : st.pts[i]);
-  if(withMep && mepApplied(st)){
-    const i = +st.mepIdx;
-    eff[i] = mepPts(st.pts[i], +st.mep);
-  }
-  return eff;
-}
-function writtenIdx(cfg){ const r=[]; cfg.areas.forEach((a,i)=>{ if(!a.oral) r.push(i); }); return r; }
-
-// Ist eine MEP nötig, und wie viele Punkte je Bereich?
-function mepInfo(cfg, st){
-  const base = buildEff(cfg, st, false);
-  if(evalEff(cfg, base, 50).ok) return {needed:false, cands:[]};
-  const cands = [];
-  writtenIdx(cfg).forEach(i=>{
-    if(st.pts[i] >= 50) return;
-    for(let m=0;m<=100;m++){
-      const e = base.slice(); e[i] = mepPts(st.pts[i], m);
-      if(evalEff(cfg, e, 50).ok){ cands.push({i, m, np:e[i]}); break; }
-    }
-  });
-  return {needed:true, cands};
-}
-function needOral(cfg, eff, thr){
-  const oi = cfg.areas.length-1;
-  for(let o=0;o<=100;o++){
-    const e = eff.slice(); e[oi]=o;
-    if(evalEff(cfg, e, thr).ok) return o;
-  }
+function def(n){var w=[];for(var i=0;i<n;i++)w.push(60);return {w:w,oral:null,mep:null,mepArea:null,assume:50,modalShown:false};}
+function load(){
+  try{
+    var s=JSON.parse(localStorage.getItem(KEY));
+    if(s&&s.v&&s.k&&s.v.w.length===EX.v.written.length&&s.k.w.length===EX.k.written.length)return s;
+  }catch(e){}
   return null;
 }
-// Mit bestmöglicher mündlicher Prüfung (100) und bestmöglicher MEP (100) erreichbar?
-function onlyWithMep(cfg, st, eff, thr){
-  if(mepApplied(st)) return false;
-  const oi = cfg.areas.length-1;
-  return writtenIdx(cfg).some(i=>{
-    if(st.pts[i]>=50) return false;
-    const e = eff.slice(); e[oi]=100; e[i]=mepPts(st.pts[i],100);
-    return evalEff(cfg, e, thr).ok;
-  });
+var state=load()||{tab:'v',v:def(EX.v.written.length),k:def(EX.k.written.length)};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+/* ---------- Rechenkern ---------- */
+function note(p){return p>=92?1:p>=81?2:p>=67?3:p>=50?4:p>=30?5:6;}
+function cl(v){v=Math.round(Number(v));if(isNaN(v))v=0;return Math.max(0,Math.min(100,v));}
+function mepScore(s,m){return Math.floor((2*(2*s+m)+3)/6);} /* gerundet: (s*2+m)/3 */
+function fmt(n){return (Math.round(n*10)/10).toFixed(1).replace('.',',');}
+
+function check(ex,wr,oral,mepIdx,m){
+  var sc=wr.slice();
+  if(mepIdx!==null&&mepIdx!==undefined&&m!==null&&m!==undefined&&wr[mepIdx]<50){sc[mepIdx]=mepScore(wr[mepIdx],m);}
+  var all=sc.concat([oral]);
+  var wts=ex.written.map(function(a){return a.w;}).concat([ex.oral.w]);
+  var S=0;all.forEach(function(p,i){S+=p*wts[i];});
+  var rounded=Math.floor((S+50)/100);
+  var fails=[];
+  if(all.some(function(p){return p<30;}))fails.push('Ein Prüfungsbereich liegt unter 30 Punkten (Note 6).');
+  if(all.filter(function(p){return p<50;}).length>1)fails.push('Mehr als ein Prüfungsbereich liegt unter 50 Punkten.');
+  if(oral<50)fails.push('Das Fachgespräch ist Sperrfach und braucht mindestens 50 Punkte.');
+  ex.sperrW.forEach(function(i){if(sc[i]<50)fails.push('„'+ex.written[i].n+'“ ist Sperrfach und braucht mindestens 50 Punkte.');});
+  if(rounded<50)fails.push('Das Gesamtergebnis liegt unter 50 Punkten.');
+  return {S:S,total:S/100,rounded:rounded,sc:sc,fails:fails,pass:fails.length===0};
 }
-function feasible(cfg, st){
-  const oi = cfg.areas.length-1;
-  const e = buildEff(cfg, st, true);
-  if(e[oi]===null) e[oi]=100;
-  if(evalEff(cfg, e, 50).ok) return true;
-  if(mepApplied(st)) return false;
-  return writtenIdx(cfg).some(i=>{
-    if(st.pts[i]>=50) return false;
-    const e2 = e.slice(); e2[i]=mepPts(st.pts[i],100);
-    return evalEff(cfg, e2, 50).ok;
-  });
+function cands(wr){var r=[];wr.forEach(function(p,i){if(p<50)r.push(i);});return r;}
+function possible(ex,wr){
+  if(check(ex,wr,100,null,null).pass)return true;
+  return cands(wr).some(function(i){return check(ex,wr,100,i,100).pass;});
 }
-
-/* ---------- Aufbau ---------- */
-function buildPanel(t){
-  const cfg = CFG[t];
-  const o = cfg.areas[cfg.areas.length-1];
-  let h = `<h2>${cfg.title}</h2><p class="sub">${cfg.sub}</p><div class="card"><h3>Schriftliche Prüfungsbereiche</h3>`;
-  cfg.areas.forEach((a,i)=>{
-    if(a.oral) return;
-    h += `<div class="area">
-      <div class="area-top">
-        <div><div class="aname">${a.n}</div><div class="ameta">${a.t} · Gewichtung ${a.w} %</div></div>
-        <div class="aval"><span class="pts" id="${t}-pv${i}">50</span><span class="chip" id="${t}-pc${i}"></span></div>
-      </div>
-      <div class="slrow">
-        <button class="step" data-t="${t}" data-i="${i}" data-d="-1" aria-label="Einen Punkt weniger">−</button>
-        <input type="range" min="0" max="100" step="1" value="50" id="${t}-sl${i}" data-t="${t}" data-i="${i}" aria-label="${a.n}, Punkte">
-        <button class="step" data-t="${t}" data-i="${i}" data-d="1" aria-label="Einen Punkt mehr">+</button>
-      </div>
-    </div>`;
-  });
-  h += `</div>
-  <div id="${t}-warn"></div>
-  <div class="card" id="${t}-prog" hidden></div>
-
-  <div class="card" id="${t}-mep" hidden>
-    <h3>Mündliche Ergänzungsprüfung (MEP)</h3>
-    <div id="${t}-mepinfo"></div>
-    <div id="${t}-mepin" hidden>
-      <label for="${t}-mepsel">MEP in diesem Bereich</label>
-      <select id="${t}-mepsel"></select>
-      <label for="${t}-mepval">Ergebnis der MEP (0–100 Punkte)</label>
-      <input type="number" inputmode="numeric" min="0" max="100" id="${t}-mepval" placeholder="Punkte nach der MEP eintragen">
-      <div id="${t}-mepres" style="margin-top:8px"></div>
-      <button class="ghost" id="${t}-mepreset">MEP-Eingabe löschen</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Ergebnis der mündlichen Prüfung eintragen</h3>
-    <div class="area-top">
-      <div><div class="aname">${o.n}</div><div class="ameta">${o.t} · Gewichtung ${o.w} %</div></div>
-      <div class="aval"><span class="chip" id="${t}-oc" hidden></span></div>
-    </div>
-    <label for="${t}-oral">Punkte (0–100)</label>
-    <input type="number" inputmode="numeric" min="0" max="100" id="${t}-oral" placeholder="Erst nach der Prüfung eintragen">
-    <div class="small" style="margin-top:6px">Leer lassen, solange die mündliche Prüfung noch aussteht.</div>
-  </div>
-
-  <div id="${t}-result"></div>
-  <button class="ghost wide" id="${t}-reset">Alle Eingaben zurücksetzen</button>`;
-  return `<section class="panel" id="p-${t}" role="tabpanel" aria-labelledby="tab-${t}" hidden>${h}</section>`;
+function minMep(ex,wr,idx,oral){
+  for(var m=0;m<=100;m++){if(check(ex,wr,oral,idx,m).pass)return m;}
+  return null;
 }
-$('main').innerHTML = buildPanel('v') + buildPanel('k');
-
-/* ---------- Rendern ---------- */
-function render(){
-  const t = cur, cfg = CFG[t], st = ST[t];
-  const wi = writtenIdx(cfg);
-  const oralNull = st.oral === '';
-
-  ['v','k'].forEach(x=>{
-    $('p-'+x).hidden = x!==t;
-    $('tab-'+x).setAttribute('aria-selected', x===t ? 'true':'false');
-  });
-
-  // Slider
-  wi.forEach(i=>{
-    const p = st.pts[i], g = grade(p);
-    $(`${t}-pv${i}`).textContent = p;
-    const chip = $(`${t}-pc${i}`);
-    chip.textContent = 'Note '+g; chip.className = 'chip g'+g;
-    const sl = $(`${t}-sl${i}`);
-    if(+sl.value !== p) sl.value = p;
-    sl.style.setProperty('--pct', p+'%');
-  });
-  const oc = $(`${t}-oc`);
-  if(oralNull){ oc.hidden = true; }
-  else { const g = grade(+st.oral); oc.hidden=false; oc.textContent='Note '+g; oc.className='chip g'+g; }
-
-  const effMep = buildEff(cfg, st, true);
-  const mi = mepInfo(cfg, st);
-
-  /* Warnungen */
-  let w = '';
-  wi.forEach(i=>{
-    if(st.pts[i] < 30){
-      w += `<div class="note red"><b>${cfg.areas[i].n}: unter 30 Punkten (Note 6)</b>Ohne bestandene mündliche Ergänzungsprüfung ist die Prüfung nicht bestanden.</div>`;
+function bestOral(ex,wr,target,m,only){
+  var cs=cands(wr);
+  var opts=[null].concat((only!==null&&cs.indexOf(only)>-1)?[only]:cs);
+  var best=null,bi=null;
+  opts.forEach(function(idx){
+    for(var o=0;o<=100;o++){
+      var r=check(ex,wr,o,idx,idx===null?null:m);
+      if(r.pass&&r.rounded>=target){if(best===null||o<best){best=o;bi=idx;}break;}
     }
   });
-  if(oralNull && !feasible(cfg, st)){
-    const r = evalEff(cfg, effMep, 50);
-    let why = 'Auch mit der bestmöglichen mündlichen Prüfung und einer MEP reicht es rechnerisch nicht mehr.';
-    if(r.n6>=2) why = 'Zwei Bereiche mit Note 6 lassen sich nicht mehr ausgleichen (nur ein Bereich kann per MEP verbessert werden).';
-    else if(r.n5+r.n6>=3) why = 'Drei Bereiche mit Note 5 oder schlechter lassen sich nicht mehr ausgleichen.';
-    w += `<div class="note red"><b>Bestehen nicht mehr möglich</b>${why}</div>`;
-  }
-  $(`${t}-warn`).innerHTML = w;
+  return {o:best,idx:bi};
+}
 
-  /* Prognose (nur solange mündlich offen) */
-  const prog = $(`${t}-prog`);
-  if(!oralNull){ prog.hidden = true; }
-  else {
-    prog.hidden = false;
-    let rows = '', pass = null, passMep = false;
-    GRADES.forEach(G=>{
-      const o = needOral(cfg, effMep, G.thr);
-      let cell, cls = '';
-      if(o===null){
-        if(onlyWithMep(cfg, st, effMep, G.thr)){ cell = 'nur mit MEP möglich'; if(G.g===4) passMep = true; }
-        else cell = 'Nicht mehr möglich';
-        cls = ' class="no"';
-      } else {
-        cell = o===0 ? '0 Punkte – schon sicher' : `mind. ${o} Punkte`;
-        if(G.g===4) pass = o;
+/* ---------- DOM-Aufbau ---------- */
+function $(id){return document.getElementById(id);}
+function sliderRow(key,i,a){
+  return '<div class="row"><div class="row-head"><div><div class="row-name">'+a.n+'</div>'+
+    '<div class="row-meta">Gewichtung '+a.w+' %'+(a.t?' · '+a.t:'')+'</div></div>'+
+    '<div class="valbox"><input class="num" id="'+key+'-n'+i+'" type="number" inputmode="numeric" min="0" max="100" aria-label="Punkte '+a.n+'">'+
+    '<span class="chip" id="'+key+'-c'+i+'"></span></div></div>'+
+    '<input type="range" id="'+key+'-s'+i+'" min="0" max="100" step="1" aria-label="Punkte '+a.n+'">'+
+    '<div class="scale"><span>0</span><span>30</span><span>50</span><span>67</span><span>81</span><span>92</span><span>100</span></div></div>';
+}
+function panelHTML(key){
+  var ex=EX[key];
+  return '<section id="p-'+key+'" role="tabpanel" aria-labelledby="tab-'+key+'" hidden>'+
+    '<div class="card"><h3>Schriftliche Prüfung</h3><p class="sub">Punkte (0–100) pro Prüfungsbereich einstellen.</p>'+
+      ex.written.map(function(a,i){return sliderRow(key,i,a);}).join('')+'</div>'+
+    '<div id="'+key+'-alerts"></div>'+
+    '<div class="card" id="'+key+'-prog"></div>'+
+    '<div class="card" id="'+key+'-entry"><h3>Nach der Prüfung eintragen</h3>'+
+      '<p class="sub">Trage hier die Ergebnisse ein, sobald du sie hast.</p>'+
+      '<div class="field"><label for="'+key+'-oral">'+ex.oral.n+'<span>Gewichtung '+ex.oral.w+' % · Sperrfach, mind. 50 Punkte</span></label>'+
+        '<input class="num big" id="'+key+'-oral" type="number" inputmode="numeric" min="0" max="100" placeholder="–"></div>'+
+      '<div id="'+key+'-mepblock" hidden>'+
+        '<div style="border-top:1px solid var(--line);padding-top:10px;margin-top:4px">'+
+        '<div style="font-weight:700">Mündliche Ergänzungsprüfung (MEP)</div>'+
+        '<div class="fine" style="margin:2px 0 6px">Bereich der MEP wählen:</div>'+
+        '<div class="chips" id="'+key+'-chips"></div>'+
+        '<div class="field"><label for="'+key+'-mep">MEP-Ergebnis<span>erst eintragen, wenn die MEP stattgefunden hat</span></label>'+
+          '<input class="num big" id="'+key+'-mep" type="number" inputmode="numeric" min="0" max="100" placeholder="–"></div>'+
+        '<div id="'+key+'-assumebox"><div class="row-name" style="font-size:.88rem">Angenommene MEP-Punkte (nur für die Prognose): <b id="'+key+'-assumeval"></b></div>'+
+          '<input type="range" id="'+key+'-assume" min="0" max="100" step="1" aria-label="Angenommene MEP-Punkte"></div>'+
+        '</div></div>'+
+      '<button class="btn ghost small" data-act="reset" data-key="'+key+'">Alles zurücksetzen</button></div>'+
+    '<div id="'+key+'-result"></div>'+
+  '</section>';
+}
+$('main').innerHTML=panelHTML('v')+panelHTML('k');
+
+/* ---------- Ausgabe ---------- */
+function alertHTML(cls,title,text,btn){
+  return '<div class="alert '+cls+'"><strong>'+title+'</strong>'+text+(btn||'')+'</div>';
+}
+function finalCard(ex,r,wr,idx,m,oral,pass){
+  var rows='';
+  ex.written.forEach(function(a,i){
+    var shown=(idx===i&&m!==null)?(wr[i]+' → '+r.sc[i]+' (MEP)'):String(wr[i]);
+    rows+='<tr><td>'+a.n+'</td><td class="c">'+shown+'</td><td class="c">'+a.w+' %</td><td class="c">'+fmt(r.sc[i]*a.w/100)+'</td></tr>';
+  });
+  rows+='<tr><td>'+ex.oral.n+'</td><td class="c">'+oral+'</td><td class="c">'+ex.oral.w+' %</td><td class="c">'+fmt(oral*ex.oral.w/100)+'</td></tr>';
+  var li='';
+  if(!pass){li='<ul>'+r.fails.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>';}
+  return '<div class="result '+(pass?'pass':'fail')+'"><h3>Gesamtergebnis</h3>'+
+    '<div class="big">'+r.rounded+' Punkte <small>(exakt '+fmt(r.total)+') · Note '+note(r.rounded)+'</small></div>'+
+    '<h3>'+(pass?'Bestanden':'Nicht bestanden')+'</h3>'+li+
+    '<div class="tbl"><table><thead><tr><th>Bereich</th><th class="c">Punkte</th><th class="c">Gewicht</th><th class="c">Anteil</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ---------- Update ---------- */
+function update(key){
+  var ex=EX[key],st=state[key],wr=st.w;
+  wr.forEach(function(p,i){
+    var r=$(key+'-s'+i),n=$(key+'-n'+i),c=$(key+'-c'+i);
+    r.value=p;r.style.setProperty('--p',p+'%');
+    if(document.activeElement!==n)n.value=p;
+    var g=note(p);c.textContent='Note '+g;c.className='chip n'+g;
+  });
+  var cs=cands(wr);
+  var sixes=wr.filter(function(p){return p<30;}).length;
+  var poss=possible(ex,wr);
+  var hard=poss&&!check(ex,wr,100,null,null).pass;
+  var oral=st.oral;
+  var effArea=(st.mepArea!==null&&cs.indexOf(st.mepArea)>-1)?st.mepArea:null;
+
+  /* Hinweise */
+  var al='';
+  var infoBtn='<br><button class="btn ghost small" data-act="mepinfo" data-key="'+key+'">MEP-Info anzeigen</button>';
+  if(!poss){
+    var why;
+    if(sixes>=2)why='Zwei Prüfungsbereiche liegen unter 30 Punkten (Note 6). Das lässt sich nicht mehr ausgleichen.';
+    else if(cs.length>=3)why='Drei oder mehr Bereiche liegen unter 50 Punkten (Note 5 oder schlechter). Eine MEP ist nur in einem Bereich möglich.';
+    else why='Auch mit 100 Punkten im Fachgespräch und in der MEP ist das Bestehen rechnerisch nicht mehr erreichbar.';
+    al+=alertHTML('red','Prüfung nicht mehr zu bestehen',why);
+  }else if(hard){
+    var txt;
+    if(sixes===1&&cs.length===1){
+      txt='„'+ex.written[cs[0]].n+'“ hat Note 6. Es muss eine mündliche Ergänzungsprüfung (MEP) angesetzt werden: Der Bereich muss mindestens auf Note 5 (30 Punkte) angehoben werden und insgesamt muss Note 4 (50 Punkte) erreicht werden.';
+    }else if(sixes===1&&cs.length===2){
+      txt='Eine Note 5 und eine Note 6: Der Bereich mit Note 6 muss durch die MEP mindestens auf Note 4 (50 Punkte) angehoben werden.';
+    }else if(sixes===0&&cs.length===2){
+      txt='Zwei Bereiche mit Note 5: Einer davon muss durch die MEP mindestens auf Note 4 (50 Punkte) angehoben werden.';
+    }else{
+      txt='Das Bestehen ist nur mit einer mündlichen Ergänzungsprüfung (MEP) möglich.';
+    }
+    if(ex.sperrW.some(function(i){return wr[i]<50;}))txt+=' „'+ex.written[ex.sperrW[0]].n+'“ ist Sperrfach und braucht mindestens 50 Punkte.';
+    al+=alertHTML('red','MEP ist notwendig',txt,infoBtn);
+  }else if(cs.length>0){
+    al+=alertHTML('orange','Ein Bereich unter 50 Punkten',
+      'Ein Bereich mit Note 5 ist noch erlaubt. Dann musst du aber Gesamtergebnis und Sperrfach über das Fachgespräch sichern. Eine MEP ist (noch) nicht zwingend.',infoBtn);
+  }
+  $(key+'-alerts').innerHTML=al;
+
+  /* MEP-Block */
+  var showMep=poss&&cs.length>0;
+  $(key+'-mepblock').hidden=!showMep;
+  $(key+'-assumebox').hidden=(oral!==null);
+  $(key+'-assume').value=st.assume;
+  $(key+'-assume').style.setProperty('--p',st.assume+'%');
+  $(key+'-assumeval').textContent=st.assume;
+
+  /* Prognose bzw. Ergebnis */
+  var prog=$(key+'-prog'),res=$(key+'-result');
+  var chosen=effArea;
+  if(oral===null){
+    prog.hidden=false;res.innerHTML='';
+    var m=(st.mep!==null)?st.mep:st.assume;
+    var rows='',anyMep=false;
+    [[1,92],[2,81],[3,67],[4,50]].forEach(function(t){
+      var b=bestOral(ex,wr,t[1],m,effArea);
+      var cell;
+      if(b.o===null){
+        var bm=(st.mep===null&&m<100)?bestOral(ex,wr,t[1],100,effArea):{o:null};
+        cell=(bm.o!==null)?'<span class="no">Nicht mit '+m+' MEP-Punkten</span><br><span class="row-meta">MEP-Regler weiter nach rechts</span>':'<span class="no">Nicht mehr möglich</span>';
+      }else{
+        cell=(t[0]===4?'<span class="min-val">'+b.o+'</span>':'<b>'+b.o+'</b>')+' Punkte'+(b.idx!==null?' *':'');
+        if(b.idx!==null)anyMep=true;
       }
-      rows += `<tr${G.g===4?' class="pass"':''}><td>${G.txt}<br><span class="small" style="color:inherit;opacity:.8">ab ${G.thr} Gesamtpunkten</span></td><td${G.g===4?'':cls}>${cell}</td></tr>`;
+      rows+='<tr'+(t[0]===4?' class="min"':'')+'><td><span class="chip n'+t[0]+'">Note '+t[0]+'</span></td><td>ab '+t[1]+' P.'+(t[0]===4?'<br>Bestehen':'')+'</td><td>'+cell+'</td></tr>';
     });
-    let need = '';
-    if(pass!==null){
-      need = `<div class="need">Zum Bestehen brauchst du mündlich mindestens<span class="big">${pass}</span>Punkte.</div>`;
-    } else if(passMep){
-      need = `<div class="need">Bestehen ist nur noch mit einer bestandenen mündlichen Ergänzungsprüfung möglich (siehe unten).</div>`;
+    var h='<h3>Prognose für das Fachgespräch</h3><p class="sub">'+ex.oral.n+': So viele Punkte brauchst du für das jeweilige Gesamtergebnis.</p>'+
+      '<div class="tbl"><table><thead><tr><th>Gesamtnote</th><th>Gesamtpunkte</th><th>Fachgespräch nötig</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<p class="fine">Orange = Mindestpunktzahl zum Bestehen. Das Fachgespräch ist Sperrfach (mind. 50 Punkte).</p>';
+    if(anyMep){
+      h+='<p class="fine">* Berechnet mit einer MEP'+(effArea!==null?' in „'+ex.written[effArea].n+'“':'')+' mit '+m+' Punkten'+(st.mep===null?' (Annahme, Regler unten)':'')+'.</p>';
     }
-    prog.innerHTML = `<h3>Prognose: Das brauchst du mündlich</h3>${need}
-      <table class="prog"><thead><tr><th>Gesamtergebnis</th><th style="text-align:right">Mündlich nötig</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
-
-  /* MEP-Karte */
-  const mepCard = $(`${t}-mep`);
-  const anyLow = wi.some(i=>st.pts[i] < 50);
-  const show = anyLow || st.mep !== '';
-  mepCard.hidden = !show;
-  if(show){
-    const formula = '<div class="formula">(Schriftlich × 2 + MEP) ÷ 3</div>';
-    let info = '';
-    if(mi.needed && mi.cands.length){
-      info = `<div class="note orange" style="margin-bottom:8px"><b>Bestehen ist gefährdet</b>Eine MEP ist in genau <u>einem</u> schriftlichen Bereich möglich.${oralNull?' Die Werte gelten für den Stand der schriftlichen Bereiche; die Gesamtpunktzahl hängt noch von der mündlichen Prüfung ab.':''}</div>${formula}<ul class="mepl">`;
-      mi.cands.forEach(c=>{
-        info += `<li><b>${cfg.areas[c.i].n}</b> (${st.pts[c.i]} P.): MEP mit mindestens <span class="hl">${c.m} Punkten</span> → Bereich dann ${c.np} P.</li>`;
+    if(showMep){
+      var cols=[50,60,70,80,90,100];
+      var mt='<div style="font-weight:700;margin-top:14px">Nötige MEP-Punkte je nach Fachgespräch</div><div class="tbl"><table><thead><tr><th>MEP in Bereich</th>'+
+        cols.map(function(c){return '<th class="c">'+c+'</th>';}).join('')+'</tr></thead><tbody>';
+      cs.forEach(function(i){
+        mt+='<tr><td>'+ex.written[i].n+' <span class="row-meta">('+wr[i]+' P.)</span></td>'+cols.map(function(c){
+          var mm=minMep(ex,wr,i,c);
+          return '<td class="c">'+(mm===null?'<span class="no">✗</span>':'<b>'+mm+'</b>')+'</td>';}).join('')+'</tr>';
       });
-      info += '</ul>';
-    } else if(mi.needed){
-      info = `<div class="note red" style="margin-bottom:8px"><b>Auch mit MEP nicht zu retten</b>Mit den aktuellen Werten reicht eine MEP rechnerisch nicht aus.</div>${formula}`;
-    } else {
-      info = `<div class="note blue" style="margin-bottom:8px"><b>Aktuell keine MEP nötig</b>Mit einem Bereich unter 50 Punkten ist das Bestehen nach den aktuellen Eingaben nicht gefährdet.</div>${formula}`;
+      mt+='</tbody></table></div><p class="fine">Spaltenkopf = Punkte im Fachgespräch. Zahl = Mindestpunkte in der MEP, damit du bestehst. ✗ = auch mit 100 MEP-Punkten nicht möglich.</p>';
+      h+=mt;
     }
-    info += `<details><summary>Welche Regeln gelten?</summary><ul>
-      <li>Eine 6 muss mindestens auf eine 5 gebracht werden (und das Gesamtergebnis mindestens 50 Punkte).</li>
-      <li>Bei einer 5 und einer 6 muss die 6 mindestens auf eine 4.</li>
-      <li>Bei zwei 5ern muss einer auf eine 4.</li>
-      <li>Zwei 6er, drei 5er oder schlechter: nicht bestanden.</li></ul></details>`;
-    $(`${t}-mepinfo`).innerHTML = info;
-
-    const inBox = $(`${t}-mepin`);
-    const showIn = (mi.needed && mi.cands.length>0) || st.mep!=='';
-    inBox.hidden = !showIn;
-    if(showIn){
-      if(mi.cands.length && !mi.cands.some(c=>c.i===+st.mepIdx)) st.mepIdx = String(mi.cands[0].i);
-      const sel = $(`${t}-mepsel`);
-      const key = mi.cands.map(c=>c.i+':'+c.m).join(',');
-      if(sel.dataset.key !== key){
-        sel.innerHTML = mi.cands.map(c=>`<option value="${c.i}">${cfg.areas[c.i].n} – mind. ${c.m} P.</option>`).join('');
-        sel.dataset.key = key;
+    prog.innerHTML=h;
+  }else{
+    prog.hidden=true;
+    var r0=check(ex,wr,oral,null,null);
+    if(r0.pass){
+      res.innerHTML=finalCard(ex,r0,wr,null,null,oral,true)+((cs.length>0)?'<p class="fine" style="margin:-4px 4px 12px">Eine MEP ist in diesem Fall nicht nötig.</p>':'');
+    }else{
+      var feas=[];
+      cs.forEach(function(i){var mm=minMep(ex,wr,i,oral);if(mm!==null)feas.push({i:i,m:mm});});
+      if(!feas.length){
+        res.innerHTML=finalCard(ex,r0,wr,null,null,oral,false);
+      }else{
+        feas.sort(function(a,b){return a.m-b.m;});
+        var use=feas[0];
+        feas.forEach(function(f){if(f.i===st.mepArea)use=f;});
+        chosen=use.i;
+        if(st.mep===null){
+          var rr='';
+          feas.forEach(function(f,k){
+            var rc=check(ex,wr,oral,f.i,f.m);
+            var isMin=(k===0);
+            rr+='<tr'+(isMin?' class="min"':'')+'><td>'+ex.written[f.i].n+'</td><td class="c">'+wr[f.i]+'</td><td class="c"><span class="'+(isMin?'min-val':'')+'">'+f.m+'</span></td><td class="c">'+rc.sc[f.i]+'</td></tr>';
+          });
+          res.innerHTML='<div class="result pending"><h3>Ohne MEP nicht bestanden</h3>'+
+            '<div class="big">MEP nötig</div>'+
+            '<div>Mit '+oral+' Punkten im Fachgespräch kannst du noch bestehen, wenn du in der mündlichen Ergänzungsprüfung genug Punkte erreichst. Trage das Ergebnis oben ein, sobald du es hast.</div>'+
+            '<div class="tbl"><table><thead><tr><th>MEP in Bereich</th><th class="c">Schriftlich</th><th class="c">MEP mind.</th><th class="c">Bereich danach</th></tr></thead><tbody>'+rr+'</tbody></table></div>'+
+            '<div style="font-size:.8rem;margin-top:8px;opacity:.9">Formel: (Schriftlich × 2 + MEP) ÷ 3. Es kann nur in einem Bereich eine MEP stattfinden.</div></div>';
+        }else{
+          var rf=check(ex,wr,oral,use.i,st.mep);
+          var card=finalCard(ex,rf,wr,use.i,st.mep,oral,rf.pass);
+          if(!rf.pass)card+='<p class="fine" style="margin:-4px 4px 12px">Mit '+oral+' Punkten im Fachgespräch brauchst du in der MEP in „'+ex.written[use.i].n+'“ mindestens '+use.m+' Punkte.</p>';
+          res.innerHTML=card;
+        }
       }
-      if(st.mepIdx!=='') sel.value = st.mepIdx;
-      let res = '';
-      if(st.mep!=='' && st.mepIdx!==''){
-        const i = +st.mepIdx, np = mepPts(st.pts[i], +st.mep), g = grade(np);
-        const cand = mi.cands.find(c=>c.i===i);
-        const enough = cand ? (+st.mep >= cand.m) : false;
-        res = `<div class="note ${enough?'green':'orange'}" style="margin-bottom:0"><b>${cfg.areas[i].n}: (${st.pts[i]} × 2 + ${st.mep}) ÷ 3 = ${np} Punkte (Note ${g})</b>${enough?'Das reicht für den nötigen Ausgleich.':'Das reicht noch nicht für den nötigen Ausgleich.'}</div>`;
-      }
-      $(`${t}-mepres`).innerHTML = res;
     }
   }
 
-  /* Ergebnis (Kassenbon) */
-  const resBox = $(`${t}-result`);
-  if(oralNull){ resBox.innerHTML = ''; }
-  else {
-    const r = evalEff(cfg, effMep, 50);
-    let lines = '';
-    cfg.areas.forEach((a,i)=>{
-      const p = effMep[i];
-      const viaMep = mepApplied(st) && +st.mepIdx===i;
-      lines += `<div class="rline"><span>${a.n}<br><small>${a.w} % · Note ${grade(p)}${viaMep?' · nach MEP (vorher '+st.pts[i]+' P.)':''}</small></span><span><b>${p} P.</b></span></div>`;
+  /* MEP-Bereichsauswahl */
+  var ch=$(key+'-chips');
+  if(showMep){
+    var chH='<button class="sel" data-act="chip" data-key="'+key+'" data-i="-1" aria-pressed="'+(effArea===null)+'">Automatisch (günstigster)</button>';
+    cs.forEach(function(i){
+      chH+='<button class="sel" data-act="chip" data-key="'+key+'" data-i="'+i+'" aria-pressed="'+(effArea===i)+'">'+ex.written[i].n+'</button>';
     });
-    let verdict;
-    if(r.ok){
-      const g = grade(r.total);
-      verdict = `<div class="verdict ok">Bestanden – Gesamtnote ${g} (${GNAME[g]})</div>`;
-    } else {
-      const rs = [];
-      if(r.n6>0) rs.push(`${r.n6===1?'Ein Bereich':r.n6+' Bereiche'} mit Note 6 (unter 30 Punkten)`);
-      if(r.n5>=2) rs.push(`${r.n5} Bereiche mit Note 5 – höchstens einer ist erlaubt`);
-      r.sperr.forEach(i=>rs.push(`Sperrfach „${cfg.areas[i].n}“ unter 50 Punkten`));
-      if(r.total!==null && r.total<50) rs.push(`Gesamtergebnis unter 50 Punkten (${r.total} P.)`);
-      const mepOpen = !mepApplied(st) && mi.cands.length>0;
-      if(mepOpen){
-        verdict = `<div class="verdict mid">Noch nicht bestanden – eine mündliche Ergänzungsprüfung kann helfen (siehe oben)<ul>${rs.map(x=>'<li>'+x+'</li>').join('')}</ul></div>`;
-      } else {
-        verdict = `<div class="verdict bad">Nicht bestanden<ul>${rs.map(x=>'<li>'+x+'</li>').join('')}</ul></div>`;
-      }
-    }
-    resBox.innerHTML = `<div class="receipt"><h3>Gesamtergebnis</h3>${lines}
-      <div class="rtotal"><span>Gesamtpunkte</span><span>${r.total} P.</span></div>${verdict}</div>`;
+    ch.innerHTML=chH;
   }
   save();
 }
 
-/* ---------- Ereignisse ---------- */
-document.addEventListener('input', e=>{
-  const el = e.target;
-  if(el.matches('input[type=range]')){
-    ST[el.dataset.t].pts[+el.dataset.i] = +el.value;
-    render();
-    return;
-  }
-  const m = /^([vk])-(oral|mepval)$/.exec(el.id||'');
-  if(m){
-    let v = el.value;
-    if(v !== ''){
-      const n = Math.max(0, Math.min(100, Math.round(+v)));
-      if(String(n) !== v){ el.value = n; }
-      v = String(n);
-    }
-    ST[m[1]][m[2]==='oral'?'oral':'mep'] = v;
-    render();
-  }
-});
-document.addEventListener('change', e=>{
-  const m = /^([vk])-mepsel$/.exec(e.target.id||'');
-  if(m){ ST[m[1]].mepIdx = e.target.value; render(); }
-});
-document.addEventListener('click', e=>{
-  const b = e.target.closest('button');
-  if(!b) return;
-  if(b.classList.contains('step')){
-    const t=b.dataset.t, i=+b.dataset.i, d=+b.dataset.d;
-    ST[t].pts[i] = Math.max(0, Math.min(100, ST[t].pts[i]+d));
-    render(); return;
-  }
-  if(b.classList.contains('tab')){
-    cur = b.id==='tab-k' ? 'k' : 'v'; render(); window.scrollTo(0,0); return;
-  }
-  let m = /^([vk])-reset$/.exec(b.id||'');
-  if(m){
-    if(confirm('Alle Eingaben in diesem Tab zurücksetzen?')){
-      ST[m[1]] = initState(CFG[m[1]]);
-      $(m[1]+'-oral').value=''; $(m[1]+'-mepval').value='';
-      render();
-    }
-    return;
-  }
-  m = /^([vk])-mepreset$/.exec(b.id||'');
-  if(m){ ST[m[1]].mep=''; $(m[1]+'-mepval').value=''; render(); }
-});
-
-/* Gespeicherte Werte in Eingabefelder übernehmen */
-['v','k'].forEach(t=>{
-  $(t+'-oral').value = ST[t].oral;
-  $(t+'-mepval').value = ST[t].mep;
-});
-render();
-
-/* ---------- PWA: Icon und Manifest eingebettet ---------- */
-function makeIcon(size){
-  const c = document.createElement('canvas'); c.width=c.height=size;
-  const x = c.getContext('2d');
-  x.fillStyle = '#1d4ed8'; x.fillRect(0,0,size,size);
-  x.fillStyle = '#ffffff';
-  x.font = `800 ${size*0.30}px Arial, sans-serif`; x.textAlign='center'; x.textBaseline='middle';
-  x.fillText('IHK', size/2, size*0.40);
-  x.fillStyle = '#f97316'; x.fillRect(size*0.2, size*0.58, size*0.6, size*0.05);
-  x.fillStyle = '#ffffff';
-  x.font = `700 ${size*0.15}px Arial, sans-serif`;
-  x.fillText('Notenrechner', size/2, size*0.76);
-  return c.toDataURL('image/png');
+/* ---------- MEP-Infofenster ---------- */
+function showModal(key){
+  var wr=state[key].w,cs=cands(wr);
+  var s=cs.length?wr[cs[0]]:42;
+  var m=70;
+  var ex1='('+s+' × 2 + '+m+') ÷ 3 = '+fmt((2*s+m)/3)+' → '+mepScore(s,m)+' Punkte';
+  $('sheet').innerHTML='<h2 id="modalTitle">Mündliche Ergänzungsprüfung (MEP)</h2>'+
+    '<p>Bei gefährdetem Bestehen kann in <b>einem</b> schriftlichen Prüfungsbereich eine MEP angesetzt werden. Das Ergebnis wird so berechnet:</p>'+
+    '<div class="formula">(Schriftlich × 2 + MEP) ÷ 3</div>'+
+    '<p class="fine">Beispiel mit deinen Werten: '+ex1+'</p>'+
+    '<ul>'+
+      '<li><b>Eine Note 6:</b> MEP nötig. Der Bereich muss mindestens auf Note 5 (30 Punkte) kommen, insgesamt braucht es Note 4 (50 Punkte).</li>'+
+      '<li><b>Note 5 und Note 6:</b> Die 6 muss durch die MEP mindestens auf Note 4 (50 Punkte) angehoben werden.</li>'+
+      '<li><b>Zwei Mal Note 5:</b> Einer der beiden Bereiche muss durch die MEP mindestens auf Note 4 (50 Punkte).</li>'+
+      '<li><b>Zwei Mal Note 6, drei Mal Note 5 oder schlechter:</b> auf jeden Fall nicht bestanden.</li>'+
+      '<li><b>Fachgespräch</b> (und bei Kaufleuten „Geschäftsprozesse“) sind Sperrfächer: mindestens 50 Punkte.</li>'+
+    '</ul>'+
+    '<p class="fine">Das Fachgespräch selbst kann nicht durch eine MEP ausgeglichen werden.</p>'+
+    '<button class="btn" id="closeModal" style="width:100%;margin-top:10px">Verstanden</button>';
+  $('overlay').classList.add('open');
+  $('closeModal').focus();
 }
-try{
-  const i192 = makeIcon(192), i512 = makeIcon(512), i180 = makeIcon(180);
-  $('touchicon').setAttribute('href', i180);
-  const base = location.href.split('#')[0].split('?')[0];
-  const manifest = {
-    name:'IHK-Notenrechner Einzelhandel', short_name:'Notenrechner', lang:'de',
-    start_url: base, scope: base.replace(/[^\/]*$/,''),
-    display:'standalone', orientation:'portrait',
-    background_color:'#1d4ed8', theme_color:'#1d4ed8',
-    icons:[
-      {src:i192, sizes:'192x192', type:'image/png', purpose:'any'},
-      {src:i512, sizes:'512x512', type:'image/png', purpose:'any'}
-    ]
-  };
-  $('manifest').setAttribute('href', 'data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(manifest)));
-}catch(e){}
+function hideModal(){$('overlay').classList.remove('open');}
+function maybeModal(key){
+  var st=state[key],cs=cands(st.w);
+  if(cs.length===0){st.modalShown=false;save();return;}
+  if(!st.modalShown&&possible(EX[key],st.w)){st.modalShown=true;showModal(key);save();}
+}
+$('overlay').addEventListener('click',function(e){if(e.target===this||e.target.id==='closeModal')hideModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')hideModal();});
+
+/* ---------- Events ---------- */
+function parseId(id){
+  var m=/^(v|k)-(s|n)(\d)$/.exec(id||'');
+  return m?{key:m[1],kind:m[2],i:+m[3]}:null;
+}
+document.addEventListener('input',function(e){
+  var t=e.target,p=parseId(t.id);
+  if(p){
+    if(t.value==='')return;
+    state[p.key].w[p.i]=cl(t.value);
+    update(p.key);return;
+  }
+  var m=/^(v|k)-(oral|mep|assume)$/.exec(t.id||'');
+  if(m){
+    var st=state[m[1]];
+    if(m[2]==='assume'){st.assume=cl(t.value);}
+    else{st[m[2]]=(t.value==='')?null:cl(t.value);}
+    update(m[1]);
+  }
+});
+document.addEventListener('change',function(e){
+  var t=e.target,p=parseId(t.id);
+  if(p){
+    if(t.value==='')t.value=state[p.key].w[p.i];
+    update(p.key);maybeModal(p.key);return;
+  }
+  var m=/^(v|k)-(oral|mep)$/.exec(t.id||'');
+  if(m){var v=state[m[1]][m[2]];t.value=(v===null)?'':v;}
+});
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act],[data-tab]');
+  if(!b)return;
+  if(b.dataset.tab){setTab(b.dataset.tab);return;}
+  var key=b.dataset.key,act=b.dataset.act;
+  if(act==='mepinfo'){showModal(key);}
+  else if(act==='chip'){var i=+b.dataset.i;state[key].mepArea=(i<0)?null:i;update(key);}
+  else if(act==='reset'){
+    if(confirm('Alle Eingaben für diesen Beruf zurücksetzen?')){
+      state[key]=def(EX[key].written.length);syncInputs(key);update(key);
+    }
+  }
+});
+function syncInputs(key){
+  var st=state[key];
+  $(key+'-oral').value=(st.oral===null)?'':st.oral;
+  $(key+'-mep').value=(st.mep===null)?'':st.mep;
+}
+function setTab(k){
+  state.tab=k;
+  ['v','k'].forEach(function(x){
+    $('tab-'+x).setAttribute('aria-selected',x===k?'true':'false');
+    $('p-'+x).hidden=(x!==k);
+  });
+  save();
+  window.scrollTo(0,0);
+}
+
+/* ---------- Start ---------- */
+['v','k'].forEach(function(k){syncInputs(k);update(k);});
+setTab(state.tab==='k'?'k':'v');
+
+/* ---------- PWA: Icons & Manifest zur Laufzeit erzeugen ---------- */
+(function(){
+  function icon(size){
+    var c=document.createElement('canvas');c.width=c.height=size;
+    var x=c.getContext('2d');
+    var g=x.createLinearGradient(0,0,size,size);g.addColorStop(0,'#16296a');g.addColorStop(1,'#0a1230');
+    x.fillStyle=g;x.fillRect(0,0,size,size);
+    x.fillStyle='#ffffff';x.textAlign='center';x.textBaseline='middle';
+    x.font='800 '+Math.round(size*.34)+'px Arial, Helvetica, sans-serif';
+    x.fillText('IHK',size/2,size*.43);
+    x.fillStyle='#f26b0f';
+    x.fillRect(size*.26,size*.62,size*.48,size*.07);
+    x.fillStyle='#aebbe0';
+    x.font='600 '+Math.round(size*.12)+'px Arial, Helvetica, sans-serif';
+    x.fillText('Notenrechner',size/2,size*.78);
+    return c.toDataURL('image/png');
+  }
+  try{
+    var i180=icon(180),i192=icon(192),i512=icon(512);
+    $('appleIcon').setAttribute('href',i180);
+    var base=location.href.split('#')[0].split('?')[0];
+    var manifest={
+      name:'IHK-Notenrechner Einzelhandel',short_name:'IHK-Rechner',
+      start_url:base,scope:base.replace(/[^\/]*$/,''),
+      display:'standalone',orientation:'portrait',
+      background_color:'#0f1b3d',theme_color:'#0f1b3d',lang:'de',
+      icons:[{src:i192,sizes:'192x192',type:'image/png',purpose:'any'},
+             {src:i512,sizes:'512x512',type:'image/png',purpose:'any'}]
+    };
+    var blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+    $('manifestLink').setAttribute('href',URL.createObjectURL(blob));
+  }catch(e){}
+})();
+
 })();
 </script>
 </body>
