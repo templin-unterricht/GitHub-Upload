@@ -78,6 +78,18 @@ footer .card{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
  .wt td.empty{display:none}.wt td[data-label]::before{content:attr(data-label);display:block;font-size:12px;color:var(--mut)}
  .mod{grid-template-columns:auto 1fr}.mod .full{grid-column:1/-1}
 }
+.mnr{display:inline-block;background:var(--pri);color:var(--priink);border-radius:6px;padding:0 6px;font-size:12px;font-weight:700;white-space:nowrap}
+.mnr.x{background:var(--free);color:var(--mut)}
+.tg{color:var(--mut);font-weight:600;font-size:12.5px}
+.les.lk{border-left-color:var(--b)}
+details.part{border:1px solid var(--line);border-radius:10px;padding:6px 10px;margin:6px 0;background:var(--card)}
+details.part>summary{cursor:pointer;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:3px 0}
+details.part .pbtn{margin-left:auto;display:inline-flex;gap:4px}
+.mrow{display:grid;grid-template-columns:auto 56px 1fr auto;gap:8px;align-items:center;padding:5px 0;border-top:1px solid var(--line)}
+.mrow input[type=text]{width:100%}
+.matbox{border-top:1px solid var(--line);padding:10px 0}
+.lrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:5px;align-items:center}
+@media(max-width:900px){.mrow{grid-template-columns:auto auto 1fr}.mrow>span:last-child{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -114,51 +126,31 @@ const KLASSEN=[{id:'V26/1',typ:'V'},{id:'V26/2',typ:'V'},{id:'V26/4',typ:'V'},{i
 const FAECHER={V:['Lernfelder','Englisch','Wiso','Wahlpflicht'],F:['Mathe']};
 const TAGE=['Mo','Di','Mi','Do','Fr'];
 const TAGE_LANG=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag'];
-/* Stoffpläne: Lernfelder und Zeitrichtwerte nach KMK-Rahmenlehrplan Verkäufer/in (Stand 16.09.2016); ds = Zeitrichtwert in Stunden ÷ 2 = Doppelstunden à 90 Min.
-   flag:true = Umfang geschätzt, bitte im Admin prüfen. Ein "!" vor einem Teilthema = Leistungsüberprüfung (Klausur/Präsentation). */
-const LF={
- 1:{name:'Das Einzelhandelsunternehmen repräsentieren',ds:40,inhalte:['Arbeits- und Lerntechniken','Grundlagen des Wirtschaftens: Bedürfnisse, Güter und Knappheit','Ökonomisches Prinzip (Minimal- und Maximalprinzip)','Einfacher Wirtschaftskreislauf','Stellung des Einzelhandels in der Absatzkette','Aufgaben und Funktionen des Einzelhandels','Gliederung des Einzelhandels: Sortiment, Betriebsformen und Standort','Betriebsorganisation und Arbeitsabläufe','Arbeitssicherheit und Umweltschutz','Nachhaltigkeit im Einzelhandelsunternehmen','Präsentationstechniken: Präsentation des Ausbildungsbetriebs (unbenotet)']},
- 2:{name:'Verkaufsgespräche kundenorientiert führen',ds:40,inhalte:['Der erste Verkauf – Überblick über das Lernfeld','Kundenerwartungen und Kontaktaufnahme','Bedarfsermittlung durch Fragetechniken','Warenvorlage und beratendes Verkaufen','Preis-Leistungs-Beziehung und Preisargumentation','Einwandbehandlung','Ergänzungsangebote, Kaufabschluss und Verabschiedung','Fremdsprachliche Fachausdrücke und typische Redewendungen','Vollständiges Verkaufsgespräch (Rollenspiel mit Kriterienkatalog)']},
- 3:{name:'Kunden im Servicebereich Kasse betreuen',ds:40,inhalte:['Rechts- und Geschäftsfähigkeit','Nichtigkeit und Anfechtbarkeit von Rechtsgeschäften','Kaufvertrag: Verpflichtungs- und Erfüllungsgeschäft, Vertragsfreiheit','Zahlungsarten und ihre Vor- und Nachteile','Kassiervorgang, Kundenkarten und Gutscheine','Sicherheitsmerkmale von Banknoten','Quittung, Rechnung und Umsatzsteuer','Kassenabrechnung und Kassenbericht (Dreisatz, Prozent, Durchschnitt)','Kassensystem und Warenwirtschaftssystem']},
- 4:{name:'Waren präsentieren',ds:20,inhalte:['Ladengestaltung','Visual Merchandising','Kundenlaufstudien','Warenträger','Regalzonen und Warenplatzierung','Warenkennzeichnung und Preisauszeichnung','Schaufenster','Exkursion in die Innenstadt: Warenpräsentation beurteilen','Spiel „Ladenmacher“: einen Laden gestalten','Wiederholung und Klausurvorbereitung']},
- 5:{name:'Werben und den Verkauf fördern',ds:20,inhalte:['Werbung: Grundlagen und Werbearten','Werbemittel, Werbeträger und Werbegrundsätze','Kooperative Formen der Werbung und Direktwerbung','Werbeplan und Werbeerfolgskontrolle (mit Rechenteil)','Verkaufsförderung und Öffentlichkeitsarbeit','UWG – unlauterer Wettbewerb','Verpackung (Verpackungsverordnung) und Warenzustellung','Teamarbeit und Prüfungstraining']},
- 6:{name:'Waren beschaffen',ds:30,inhalte:['Mengen-, Zeit- und Preisplanung','Bezugsquellen und Kooperationsformen im Einkauf','Anfrage, Angebot und Bestellung','Kaufvertrag und Lieferbedingungen','Bezugskalkulation','Angebotsvergleich','Warenwirtschaftssystem im Beschaffungsprozess','Wiederholung und Klausurvorbereitung']},
- 7:{name:'Waren annehmen, lagern und pflegen',ds:30,inhalte:['Warenannahme und Prüfung der Lieferung','Sachmangel und Mängelrüge','Lieferungsverzug','Mindest- und Meldebestand','Umschlagshäufigkeit und Lagerdauer','Inventur und Inventar','Lagerorganisation','Lager- und Transportvorschriften, Sicherheit im Lager','Warenpflege','Wiederholung und Prüfungstraining']},
- 8:{name:'Geschäftsprozesse erfassen und kontrollieren',ds:30,inhalte:['Geschäftsfälle und Belege','Inventur und Inventurdifferenz','Bilanz','Gewinn- und Verlustrechnung','Warenwirtschaftssystem und Statistiken','Wareneinsatz, Rohgewinn und Umsatzkennziffern','Prüfungstraining','Abschlussspiel und Übungstest','!Test (45 Min., nur Taschenrechner)']},
- 9:{name:'Preispolitische Maßnahmen vorbereiten und durchführen',ds:20,inhalte:['Preispolitik und Preisangabeverordnung','Einflüsse auf den Preis und Preisstrategien','Vorwärtskalkulation','Rückwärtskalkulation','Kalkulationsfaktor, Kalkulationszuschlag und -abschlag','Handelsspanne','Wiederholung und Prüfungstraining']},
- 10:{name:'Besondere Verkaufssituationen bewältigen',ds:30,inhalte:['Kundenverhalten und Konfliktlösungsverhalten','Verkaufen bei Hochbetrieb','Kunden in Begleitung','Verkaufen kurz vor Ladenschluss','Geschenk- und Besorgungskauf','Gewährleistung, Garantie, Produkthaftung und Kulanz','Reklamation und Umtausch','Ladendiebstahl','Verkaufsstörungen','Finanzierungskauf','Rollenspiele und Fachgespräch','!Übungsklausur und Klausur (90 Min., ohne Hilfsmittel)']}
-};
-const WISO1=[
- {nr:1,name:'Berufliche Bildung',ds:14,inhalte:['Duales System und Ausbildungsberuf','Ausbildungsvertrag und Berufsbildungsgesetz','Rechte und Pflichten der Auszubildenden und Ausbildenden','Jugendarbeitsschutzgesetz','Arbeitszeit, Pausen und Urlaub','Zuständige Stellen (Kammer, Berufsschule) und Prüfungen','Ausbildungsnachweis (Berichtsheft)','Beendigung des Ausbildungsverhältnisses']},
- {nr:2,name:'Inner- und außerbetriebliche Mitbestimmung',ds:10,inhalte:['Betriebsverfassungsgesetz und Betriebsrat','Jugend- und Auszubildendenvertretung','Mitbestimmungsrechte im Betrieb','Gewerkschaften und Arbeitgeberverbände','Tarifautonomie und Tarifvertrag','Mitbestimmung im Unternehmen']},
- {nr:3,name:'Politik: Grundgesetz und Wahlen',ds:4,flag:true,inhalte:['Grundgesetz und Grundrechte','Staatsaufbau und Gewaltenteilung','Wahlen und Wahlsystem','Wahlen aktuell (nach Terminlage)']}
-];
-const WISO2=[
- {nr:1,name:'Sozialversicherungen',ds:10,flag:true,inhalte:['Prinzipien des Sozialstaats','Krankenversicherung','Pflegeversicherung','Rentenversicherung','Arbeitslosenversicherung','Unfallversicherung','Beitragsberechnung und Arbeitgeberanteil']},
- {nr:2,name:'Einzelarbeitsvertrag',ds:8,flag:true,inhalte:['Arbeitsvertrag: Inhalte und Form','Pflichten aus dem Arbeitsvertrag','Arbeitszeit und Urlaub','Kündigung und Kündigungsschutz','Arbeitszeugnis','Entgeltabrechnung lesen']},
- {nr:3,name:'Arbeitsschutz',ds:7,flag:true,inhalte:['Arbeitsschutzgesetz und Gefährdungsbeurteilung','Arbeitssicherheit und Unfallverhütung','Gesundheitsschutz am Arbeitsplatz','Mutterschutz und Jugendarbeitsschutz','Aufsichtsbehörden und Berufsgenossenschaft']}
-];
-const ENG=[
- {nr:1,name:'LF 2 – The Sales Talk',ds:8,inhalte:['Welcome to our shop: Begrüßung, Kontaktaufnahme, Höflichkeit','In the shop – what do we sell? Warengruppen, Abteilungen, Wegbeschreibung','Numbers, prices and paying: Zahlen, Preise, Zahlungsarten','What are you looking for? Bedarfsermittlung mit offenen und geschlossenen Fragen','Presenting a product: Adjektive, fünf Sinne, feature – benefit','„It’s too expensive“: Einwandbehandlung und Abschluss','The complete sales talk: vollständiges Verkaufsgespräch und Klausurvorbereitung','!Klausur (60 Min.) – Leistungsüberprüfung 1']},
- {nr:2,name:'LF 5 – Advertising and Promotion',ds:7,inhalte:['Song „Price Tag“: Hörverstehen, Wortfeld money und value','What is advertising? Werbewortschatz, Werbemittel, Werbeträger','AIDA in English: Werbewirkungsmodell versprachlichen','The language of advertising: Slogans, Imperative, Superlative','Commercial: Watch and analyse – Sehverstehen und AIDA anwenden','Preparing your presentation: Präsentationssprache und Probelauf','!Produktpräsentation „Sell me this product“ – Leistungsüberprüfung 2']}
-];
-const MATHE=[
- {nr:1,name:'Grundrechenarten (Wiederholung)',ds:4,flag:true,inhalte:['Addieren und Subtrahieren','Multiplizieren und Dividieren','Rechnen mit Größen (Länge, Gewicht, Zeit)','Rechnen mit dem Taschenrechner']},
- {nr:2,name:'Brüche',ds:6,flag:true,inhalte:['Brüche verstehen und darstellen','Brüche erweitern und kürzen','Brüche addieren und subtrahieren','Brüche multiplizieren und dividieren','Brüche und Dezimalzahlen','Brüche in Lagersituationen']},
- {nr:3,name:'Grundlagen Dreisatz',ds:6,inhalte:['Proportionale Zuordnungen erkennen','Einfacher Dreisatz (gerade Zuordnung)','Dreisatz mit umgekehrter Zuordnung','Zusammengesetzter Dreisatz','Dreisatz in Lagersituationen (Mengen, Gewicht, Paletten)','Übungen und Lernstandskontrolle']},
- {nr:4,name:'Prozentrechnung im Lager',ds:8,inhalte:['Grundbegriffe: Grundwert, Prozentwert, Prozentsatz','Prozentwert berechnen','Grundwert berechnen','Prozentsatz berechnen','Vermehrter und verminderter Grundwert','Lagerschwund, Auslastung und Rabatte','Mehrwertsteuer berechnen','Wiederholung und Lernstandskontrolle']}
-];
-const WPF=[{nr:1,name:'Warenkunde Vertiefung',ds:10,inhalte:['Warengruppen und Sortimentsstruktur','Qualitätsmerkmale und Gütezeichen','Rohstoffe und Herstellung ausgewählter Waren','Produkteigenschaften und Verwendungsnutzen','Kennzeichnungspflichten und Etiketten','Nachhaltigkeitssiegel','Lagerung und Haltbarkeit von Waren','Warenpräsentation','Kundenberatung zu Warenmerkmalen','Präsentation der Ergebnisse']}];
+/* Modul-Katalog aus den „Übersicht“-Dokumenten (Lernfelder, WiSo, Wahlpflicht) sowie Englisch und Mathe.
+   Je Eintrag: i = Kennung, l = Modulnummer (M 7 / C 1 / Heft 3), n = Name, s = Doppelstunden (DS) laut Übersicht,
+   t = Thema je Doppelstunde ("!" davor = Leistungsüberprüfung), d = Inhalte (falls kein Thema je DS vorliegt),
+   g = Vorschläge für digitales Material, x = kein Modul (Klausur, Escape Room, Projekt …), k = Klausur, e = Umfang geschätzt.
+   In LF 2, 5 und 9 sind Bruchteile (z. B. 1,5 DS) auf ganze Doppelstunden gerundet. */
+const CAT_RAW={"LF1":{"tag":"LF 1","long":"Lernfeld 1","name":"Das Einzelhandelsunternehmen repräsentieren","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Der Wirtschaftskreislauf","s":2,"t":["Auftakt: Übersicht, Punktekonto, Kann-Liste; Wer gibt wem was? Haushalte und Unternehmen","Der einfache Wirtschaftskreislauf: Güterstrom, Geldstrom, Produktionsfaktoren"],"g":["Live-App","Selbsttest"]},{"i":"M2","l":"M 2","n":"Unternehmen in der Wirtschaft","s":2,"t":["Drei Wirtschaftssektoren; Handels-, Dienstleistungs- und Produktionsbetriebe","Die Handelskette und die Bedeutung des Einzelhandels"],"g":["Einstieg live","Selbsttest"]},{"i":"M3","l":"M 3","n":"Bedürfnisse, Bedarf und Güter","s":1,"t":["Bedürfnisse, Bedarf, Nachfrage; Güterarten"],"g":["Einstieg live","Selbsttest"]},{"i":"M4","l":"M 4","n":"Das ökonomische Prinzip","s":1,"t":["Das ökonomische Prinzip: Maximal- und Minimalprinzip"],"g":["Einstieg live","Selbsttest"]},{"i":"M5","l":"M 5","n":"Preisbildung auf dem Markt","s":2,"t":["Markt, Angebot und Nachfrage","Der Gleichgewichtspreis; Käufer- und Verkäufermarkt"],"g":["Online-Fassung","Selbsttest","Popcornbörse"]},{"i":"M6","l":"M 6","n":"Umweltschutz und Nachhaltigkeit","s":2,"t":["Umweltschutz und Nachhaltigkeit: Begriffe und drei Dimensionen","Nachhaltig handeln im Einzelhandel: Verpackung, Mehrweg, Batterien, Abfall"],"g":["Online-Fassung","Selbsttest"]},{"i":"M7","l":"M 7","n":"Die Aufgaben des Einzelhandels","s":2,"t":["Die Aufgaben des Einzelhandels","Die Outlet-Tour; Prüfungs-Check Block A"],"g":["Live-App Outlet-Tour","Online-Fassung","Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur 1 (Wirtschaft und Einzelhandel) mit Selbstkorrektur","s":1,"t":["Übungsklausur 1 (Wirtschaft und Einzelhandel) mit Selbstkorrektur"],"x":1},{"i":"X2","l":"","n":"Escape Room „Frischmarkt“, gezielte Wiederholung","s":1,"t":["Escape Room „Frischmarkt“, gezielte Wiederholung"],"x":1},{"i":"X3","l":"","n":"Klausur 1: Die Stellung des Einzelhandels","s":1,"t":["Klausur 1: Die Stellung des Einzelhandels"],"x":1,"k":1},{"i":"M8","l":"M 8","n":"Das Sortiment","s":4,"t":["Das Sortiment: Begriff und Sortimentspyramide","Breit und schmal, tief und flach","Kern-, Rand- und Saisonsortiment; Marke, Handelsmarke, No-Name","Sortimentsplanung; Prüfungs-Check Sortiment"],"g":["Live-App","Selbsttest"]},{"i":"M9","l":"M 9","n":"Standort und Betriebsformen","s":2,"t":["Der Standort","Betriebsformen im Einzelhandel"],"g":["Selbsttest"]},{"i":"M10","l":"M 10","n":"Verkaufsformen","s":1,"t":["Verkaufsformen"],"g":["Einstieg live","Selbsttest"]},{"i":"M11","l":"M 11","n":"Unternehmensziele","s":1,"t":["Unternehmensziele"],"g":["Einstieg live","Selbsttest"]},{"i":"M12","l":"M 12","n":"Organisation im Betrieb","s":2,"t":["Aufbauorganisation: Stelle, Instanz, Abteilung, Organigramm","Leitungs- und Ausführungsaufgaben; Ablauforganisation"],"g":["Selbsttest"]},{"i":"X4","l":"","n":"Übungsklausur 2 (Sortiment bis Organisation) mit Selbstkorrektur","s":1,"t":["Übungsklausur 2 (Sortiment bis Organisation) mit Selbstkorrektur"],"x":1},{"i":"X5","l":"","n":"Klausur 2: Sortiment bis Organisation","s":1,"t":["Klausur 2: Sortiment bis Organisation"],"x":1,"k":1},{"i":"M13","l":"M 13","n":"Präsentieren: Mein Ausbildungsbetrieb","s":3,"t":["Präsentieren: Ziel, Ablauf, Regeln, Feedback","Präsentation „Mein Ausbildungsbetrieb“ vorbereiten","Präsentationen mit Feedback; Kann-Liste abschließen"],"g":["Einstieg live","Selbsttest"]}],"ex":["Escape Room Frischmarkt LF1","Escape Room 2 – Die neue Filiale","Rettet Kaje 7","Wett-Quiz"],"file":"LF1"},"LF3":{"tag":"LF 3","long":"Lernfeld 3","name":"Kunden im Servicebereich Kasse betreuen","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Die Kasse und der Kassenbon","s":2,"t":["Auftakt: Kasse erleben; Kann-Liste, Punktekonto, Rechen-Minute. Kassensysteme, Scanner, GTIN, TSE","Der Kassenbon: Pflichtangaben lesen und erklären"],"g":["Einstieg live","Selbsttest"]},{"i":"M2","l":"M 2","n":"Kassieren Schritt für Schritt","s":2,"t":["Vor dem Kassieren: Vorbereitung und Kassieranweisung","Kassiervorgang bar, Wechselgeld, kundenorientiertes Verhalten (Rollenspiel)"],"g":["Einstieg live","Selbsttest"]},{"i":"M3","l":"M 3","n":"Bargeld und Falschgeld","s":1,"t":["Bargeld, Sicherheitsmerkmale, Falschgeld"],"g":["Einstieg live","Selbsttest"]},{"i":"M4","l":"M 4","n":"Karte, Handy, Gutschein","s":2,"t":["girocard und Kreditkarte: Ablauf in Schritten, Vor- und Nachteile","kontaktlos und Smartphone; Gutschein, Coupon, Kundenkarte, Datenschutz"],"g":["Einstieg live","Selbsttest"]},{"i":"M5","l":"M 5","n":"Besondere Situationen an der Kasse","s":1,"t":["Besondere Situationen in wörtlicher Rede; Ergonomie"],"g":["Einstieg live","Selbsttest"]},{"i":"M6","l":"M 6","n":"Kassenabrechnung","s":2,"t":["Tageslosung und Kassenbericht","Kassendifferenz und Kassenkontrolle; Prüfungs-Check Kassenblock"],"g":["Einstieg live","Selbsttest"]},{"i":"M7","l":"M 7","n":"Wer darf kaufen? Geschäftsfähigkeit","s":2,"t":["Rechts- und Geschäftsfähigkeit","Taschengeldparagraf: Fälle an der Kasse"],"g":["Einstieg live","Selbsttest"]},{"i":"M8","l":"M 8","n":"Rechtsgeschäfte, Nichtigkeit, Anfechtung","s":1,"t":["Rechtsgeschäfte, Nichtigkeit, Anfechtung"],"g":["Einstieg live","Selbsttest"]},{"i":"M9","l":"M 9","n":"Der Kaufvertrag","s":2,"t":["Antrag und Annahme – auch an der Kasse","Pflichten aus dem Kaufvertrag; Datumsaufgaben"],"g":["Einstieg live","Selbsttest"]},{"i":"M10","l":"M 10","n":"Besitz und Eigentum","s":1,"t":["Besitz und Eigentum, Eigentumsvorbehalt"],"g":["Einstieg live","Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur 1 (Kasse und Recht)","s":2,"t":["Übungsklausur 1 (Kasse und Recht)","Besprechung, Fehleranalyse, gezielte Wiederholung"],"x":1},{"i":"X2","l":"","n":"Klausur 1: Kasse und Recht","s":1,"t":["Klausur 1: Kasse und Recht"],"x":1,"k":1},{"i":"M11","l":"M 11","n":"Rechen-Start","s":1,"t":["Rechen-Start: Taschenrechner, Komma, Runden, Einheiten, Rechenfahrplan"],"g":["Einstieg live","Selbsttest"]},{"i":"M12","l":"M 12","n":"Dreisatz (gerades Verhältnis)","s":3,"t":["Dreisatz: auf 1 zurückrechnen","Dreisatz: Grundpreis, lose Ware, Gewichtsware","Dreisatz: Prämie, Fläche, Strom; Kosten geteilt durch Beteiligte"],"g":["Einstieg live","Selbsttest"]},{"i":"M13","l":"M 13","n":"Prozent I: Prozentwert","s":2,"t":["Prozent: Grundwert, Prozentsatz, Prozentwert – über 1 %","Prozentwert im Laden: Anteile, Rabattbetrag, Aufschlag"],"g":["Einstieg live","Selbsttest"]},{"i":"M14","l":"M 14","n":"Prozent II: Prozentsatz und Grundwert","s":3,"t":["Prozentsatz I: Um wie viel Prozent wurde der Preis gesenkt?","Prozentsatz II: Anteil am Umsatz, Grafiken, Rundungsvorgaben","Grundwert und verminderter Grundwert"],"g":["Einstieg live","Selbsttest"]},{"i":"M15","l":"M 15","n":"Rabatt, Skonto, Umsatzsteuer","s":3,"t":["Rabatt und Coupon","Skonto und Überweisungsbetrag","Umsatzsteuer herausrechnen und aufschlagen"],"g":["Einstieg live","Selbsttest"]},{"i":"M16","l":"M 16","n":"Durchschnitt","s":2,"t":["Einfacher Durchschnitt","Gewogener Durchschnitt"],"g":["Einstieg live","Selbsttest"]},{"i":"M17","l":"M 17","n":"Verteilungsrechnung","s":1,"t":["Verteilungsrechnung"],"g":["Einstieg live","Selbsttest"]},{"i":"M18","l":"M 18","n":"Rechnen an der Kasse – Prüfungsmix","s":1,"t":["Rechnen an der Kasse – Prüfungsmix"],"g":["Einstieg live","Selbsttest"]},{"i":"X3","l":"","n":"Übungsklausur 2 (Rechnen und Kassenabrechnung)","s":2,"t":["Übungsklausur 2 (Rechnen und Kassenabrechnung)","Besprechung, Fehleranalyse, Rechen-Stationen nach Fehlerbild"],"x":1},{"i":"X4","l":"","n":"Escape Room „Kassensturz“ und Prüfungsaufgaben im Tempo","s":1,"t":["Escape Room „Kassensturz“ und Prüfungsaufgaben im Tempo"],"x":1},{"i":"X5","l":"","n":"Klausur 2: Rechnen und Kassenabrechnung","s":1,"t":["Klausur 2: Rechnen und Kassenabrechnung"],"x":1,"k":1},{"i":"X6","l":"","n":"Rückgabe, Nachschreiben, Puffer","s":1,"t":["Rückgabe, Nachschreiben, Puffer"],"x":1}],"ex":["Blitzkasse – Kopfrechnen an der Kasse","Escape Room Kassensturz","Festival-Kasse Deichbeat"],"file":"LF3"},"LF4":{"tag":"LF 4","long":"Lernfeld 4","name":"Waren präsentieren","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Verkaufsraum und Visual Merchandising","s":2,"t":["Auftakt: Ladencheck – wie wirkt ein Laden auf uns? Kann-Liste und Punktekonto","Discount- oder Erlebnisstrategie, Visual Merchandising, Erlebniskauf"],"g":["Einstieg live","Selbsttest"]},{"i":"M2","l":"M 2","n":"Mit allen Sinnen","s":4,"t":["Licht: Grund-, Akzent- und Warenwandbeleuchtung","Farben und ihre Wirkung","Musik, Duft, Temperatur, Material, Ruhezonen","Anwendung: eine Warenwand mit allen Sinnen planen; Prüfungs-Check"],"g":["Einstieg live","Selbsttest"]},{"i":"M3","l":"M 3","n":"Schaufenster","s":3,"t":["Schaufenster: Ziele, 3-Sekunden-Regel, Gestaltungsgrundsätze, Typen","Schaufenstertypen erkennen und begründen","Exkursion Teil 1: Schaufenster in der Innenstadt bewerten"],"g":["Einstieg live","Selbsttest"]},{"i":"M4","l":"M 4","n":"Verkaufsformen","s":2,"t":["Vollbedienung, Vorwahl, Selbstbedienung","Umstellung auf Vorwahl; Kontaktaufnahme je Verkaufsform"],"g":["Einstieg live","Selbsttest"]},{"i":"M5","l":"M 5","n":"Raumaufteilung und Laufwege","s":4,"t":["Raumaufteilung: Waren-, Kunden- und übrige Fläche","Kriterien der Ladengestaltung: Gänge, Übersicht, Erreichbarkeit, ältere Kunden","Wegeführung: Loop, Zwangs- und Individualumlauf, Arenaprinzip","Exkursion Teil 2: Laufwege, Zonen und Regale in einem Supermarkt der Innenstadt"],"g":["Einstieg live","Selbsttest"]},{"i":"M6","l":"M 6","n":"Verkaufszonen","s":5,"t":["Kundenlaufstudien: rechts, gegen den Uhrzeigersinn, Auflaufflächen","Verkaufsstarke und verkaufsschwache Zonen im Grundriss","Welcher Artikel wohin? Impuls-, Such-, Magnet- und diebstahlgefährdete Artikel","Schwache Zonen aufwerten; Prüfungs-Check mit Originalaufgaben","Exkursion auswerten: Ladenskizze mit Zonen und Laufweg"],"g":["Einstieg live","Selbsttest"]},{"i":"M7","l":"M 7","n":"Warenträger und Platzierungsarten","s":3,"t":["Warenträger: Regal, Gondel, Vitrine, Tisch, Display, Stopper","Warengruppen-, Verbund-, Zweit- und Mehrfachplatzierung","Eine Aktionsfläche planen"],"g":["Einstieg live","Selbsttest"]},{"i":"M8","l":"M 8","n":"Regalzonen und Regalplatzierung","s":4,"t":["Regalzonen: Reck-, Sicht-, Greif- und Bückzone","Ein Regal nach Gewinn und Absatz bestücken","Band-, Block- und Kreuzblockplatzierung; das 1 × 1 der Regalpflege","Was Kunden fragen: Umfrage auswerten, Regal im Betrieb prüfen"],"g":["Einstieg live","Selbsttest"]},{"i":"M9","l":"M 9","n":"Sortiment im Verkaufsraum","s":2,"t":["Sortiment: breit und tief; Kern-, Rand- und Saisonsortiment","Eigenmarken: Vorteile und Platzierung"],"g":["Einstieg live","Selbsttest"]},{"i":"M10","l":"M 10","n":"Preisauszeichnung","s":3,"t":["Preisangabenverordnung: Gesamtpreis, Pflichtangaben, Regalauszeichnung","Grundpreis berechnen; Pfand","Falscher Preis an der Kasse: Rechtslage, Rollenspiel oder Schulungsvideo"],"g":["Einstieg live","Selbsttest"]},{"i":"M11","l":"M 11","n":"Warenkennzeichnung und GTIN","s":2,"t":["Pflichtangaben auf Lebensmitteln, MHD und Verbrauchsdatum; GTIN","Marken, Güte-, Umwelt-, Prüf- und Warnzeichen"],"g":["Einstieg live","Selbsttest"]},{"i":"X1","l":"","n":"Aktionsfläche „Fascination Point“: Planung in Gruppen","s":3,"t":["Aktionsfläche „Fascination Point“: Planung in Gruppen","Aktionsfläche: Modell oder Plakat bauen","Aktionsfläche: Präsentation und Feedback mit Kriterienbogen"],"x":1},{"i":"X2","l":"","n":"Übungsklausur (90 Min.) mit Besprechung in der Folgewoche","s":1,"t":["Übungsklausur (90 Min.) mit Besprechung in der Folgewoche"],"x":1},{"i":"X3","l":"","n":"Escape Room LF 4 und gezielte Übung nach Fehleranalyse","s":1,"t":["Escape Room LF 4 und gezielte Übung nach Fehleranalyse"],"x":1},{"i":"X4","l":"","n":"Klausur Lernfeld 4 (90 Min., 100 Punkte)","s":1,"t":["Klausur Lernfeld 4 (90 Min., 100 Punkte)"],"x":1,"k":1}],"ex":["Escape Room – Das Deko-Lager","Ladenmacher","Das Erdbeer-Imperium (Module 1–11)"],"file":"LF4"},"LF6":{"tag":"LF 6","long":"Lernfeld 6","name":"Waren beschaffen","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Bedarf und Menge planen","s":2,"t":["Bedarf und Menge – Einstieg und Vorgemacht","Bedarf und Menge – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M2","l":"M 2","n":"Zeit planen – der Meldebestand","s":2,"t":["Meldebestand – Einstieg und Vorgemacht","Meldebestand – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M3","l":"M 3","n":"Warenwirtschaftssystem I – was das System weiß","s":2,"t":["WWS I – Einstieg und Vorgemacht","WWS I – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M4","l":"M 4","n":"Bezugsquellen, Beschaffungsablauf und Kooperation","s":2,"t":["Bezugsquellen – Einstieg und Vorgemacht","Bezugsquellen – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M5","l":"M 5","n":"Anfrage und Angebot","s":2,"t":["Anfrage und Angebot – Einstieg und Vorgemacht","Anfrage und Angebot – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M6","l":"M 6","n":"Was im Angebot steht","s":2,"t":["Angebotsinhalt – Einstieg und Vorgemacht","Angebotsinhalt – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M7","l":"M 7","n":"Bezugskalkulation I – das Schema","s":2,"t":["Bezugskalkulation I – Einstieg und Vorgemacht","Bezugskalkulation I – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M8","l":"M 8","n":"Bezugskalkulation II – wie in der Prüfung","s":2,"t":["Bezugskalkulation II – Einstieg und Vorgemacht","Bezugskalkulation II – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M9","l":"M 9","n":"Quantitativer Angebotsvergleich","s":2,"t":["Angebotsvergleich – Einstieg und Vorgemacht","Angebotsvergleich – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M10","l":"M 10","n":"Qualitativer und ökologisch-sozialer Angebotsvergleich","s":2,"t":["Qualität und Nachhaltigkeit – Einstieg und Vorgemacht","Qualität und Nachhaltigkeit – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M11","l":"M 11","n":"Bestellung und Kaufvertrag","s":2,"t":["Kaufvertrag – Einstieg und Vorgemacht","Kaufvertrag – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M12","l":"M 12","n":"Kaufarten und Sonderfälle","s":2,"t":["Kaufarten – Einstieg und Vorgemacht","Kaufarten – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M13","l":"M 13","n":"Warenwirtschaftssystem II – Daten nutzen","s":2,"t":["WWS II – Einstieg und Vorgemacht","WWS II – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur mit Besprechung","s":1,"t":["Übungsklausur mit Besprechung"],"x":1},{"i":"M14","l":"M 14","n":"Gemischtes Training und Beschaffungs-Planspiel","s":2,"t":["Gemischtes Training","Planspiel „Einkaufsrunde Nordstadt“"],"g":["Selbsttest"]},{"i":"X2","l":"","n":"Klausur (90 Min.)","s":1,"t":["Klausur (90 Min.)"],"x":1,"k":1}],"ex":["Live-Einstieg","Das Phantom der Geeste","Beschaffungs-Rechentrainer","Kaufvertrags-Trainer"],"file":"LF6"},"LF7":{"tag":"LF 7","long":"Lernfeld 7","name":"Waren annehmen, lagern und pflegen","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Ware annehmen: die äußere Prüfung","s":2,"t":["Ware annehmen – Einstieg","Ware annehmen – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M2","l":"M 2","n":"Innere Prüfung, Rechnungsprüfung und Wareneingang im WWS","s":2,"t":["Wareneingang prüfen und erfassen – Einstieg","Wareneingang prüfen und erfassen – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M3","l":"M 3","n":"Mängelarten und Rügepflicht beim Handelskauf","s":2,"t":["Mängel und Rügefrist – Einstieg","Mängel und Rügefrist – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M4","l":"M 4","n":"Rechte des Käufers – Handelskauf und Verbrauchsgüterkauf","s":2,"t":["Rechte des Käufers – Einstieg","Rechte des Käufers – Training und Selbsttest"],"g":["Selbsttest"]},{"i":"M5","l":"M 5","n":"Lieferungsverzug","s":2,"t":["Lieferungsverzug – Einstieg","Lieferungsverzug – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M6","l":"M 6","n":"Aufgaben des Lagers und Lagergrundsätze","s":2,"t":["Lager und Lagergrundsätze – Einstieg","Lager und Lagergrundsätze – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M7","l":"M 7","n":"Warenpflege und Umweltschutz im Lager","s":2,"t":["Warenpflege – Einstieg","Warenpflege – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M8","l":"M 8","n":"Sicherheit im Lager","s":2,"t":["Sicherheit im Lager – Einstieg","Sicherheit im Lager – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M9","l":"M 9","n":"Lagerbestandsgrößen: Mindest-, Melde-, Höchstbestand","s":2,"t":["Bestandsgrößen – Einstieg","Bestandsgrößen – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M10","l":"M 10","n":"Durchschnittlicher Lagerbestand","s":2,"t":["Ø Lagerbestand – Einstieg","Ø Lagerbestand – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M11","l":"M 11","n":"Umschlagshäufigkeit und Lagerdauer","s":2,"t":["Umschlag und Lagerdauer – Einstieg","Umschlag und Lagerdauer – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M12","l":"M 12","n":"Kennzahlen deuten: Lagerkosten, Lagerzins, Risiken","s":2,"t":["Kennzahlen deuten – Einstieg","Kennzahlen deuten – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"M13","l":"M 13","n":"Inventur","s":2,"t":["Inventur – Einstieg","Inventur – Training und Selbsttest"],"g":["Einstieg live","Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur mit Besprechung","s":1,"t":["Übungsklausur mit Besprechung"],"x":1},{"i":"M14","l":"M 14","n":"Gemischtes Training und Escape Room „Nachtschicht im Zentrallager“","s":2,"t":["Gemischtes Training, Lagerkennzahlen-Trainer","Escape Room „Nachtschicht im Zentrallager“"],"g":["Escape Room Nachtschicht im Zentrallager","Lagerkennzahlen-Trainer","Einstieg live","Selbsttest"]},{"i":"X2","l":"","n":"Klausur (90 Min.)","s":1,"t":["Klausur (90 Min.)"],"x":1,"k":1}],"ex":["Das Vermächtnis der Weserforts (Module 1–14)"],"file":"LF7"},"LF8":{"tag":"LF 8","long":"Lernfeld 8","name":"Geschäftsprozesse erfassen und kontrollieren","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Die Inventurnacht · Inventur und Inventurverfahren","s":1,"t":["Die Inventurnacht: Einstieg Zähl-Blitz, Inventurverfahren, Soll und Ist, Selbsttest"],"g":["Selbsttest","Sockensortierer"]},{"i":"M2","l":"M 2","n":"312 Paar Socken sind weg · Inventurdifferenzen","s":2,"t":["312 Paar Socken sind weg: Einstieg Verdächtigen-Galerie, Inventurdifferenz in € und %","Ursachen, Erfassungsfehler, % vom Umsatz, Grafik, Maßnahmen, Selbsttest · STOPP 1"],"g":["Einstieg Verdächtigen-Galerie","Selbsttest"]},{"i":"M3","l":"M 3","n":"Was ist der Laden eigentlich wert? · Die Bilanz lesen","s":1,"t":["Was ist der Laden wert? Einstieg Ladenwert-Auktion, Bilanz, Eigenkapitalanteil, Selbsttest"],"g":["Einstieg Ladenwert-Auktion","Selbsttest"]},{"i":"M4","l":"M 4","n":"Hat sich das Jahr gelohnt? · GuV lesen und Kennzahlen","s":1,"t":["Hat sich das Jahr gelohnt? Einstieg Jahres-Kassenbon, GuV, Rohgewinn, Kennzahlen, Selbsttest · STOPP 2"],"g":["Einstieg Jahres-Kassenbon","Selbsttest"]},{"i":"X1","l":"","n":"Originalaufgaben-Zirkel (T1–T10), Zahlen-Trainer, Wiederholung Kasse LF 3","s":1,"t":["Originalaufgaben-Zirkel (T1–T10), Zahlen-Trainer, Wiederholung Kasse LF 3"],"x":1},{"i":"X2","l":"","n":"Abschlussspiel „Der Inventur-Krimi“ + Übungstest (45 Min.) mit Besprechung","s":1,"t":["Abschlussspiel „Der Inventur-Krimi“ + Übungstest (45 Min.) mit Besprechung"],"x":1},{"i":"X3","l":"","n":"Test (45 Min., Taschenrechner)","s":1,"t":["Test (45 Min., Taschenrechner)"],"x":1,"k":1}],"ex":["Abschlussspiel Der Inventur-Krimi","Zahlen-Trainer","Projekt Eiszeit"],"file":"LF8"},"LF10":{"tag":"LF 10","long":"Lernfeld 10","name":"Besondere Verkaufssituationen bewältigen","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Kinder und Jugendliche als Kunden – Jugendschutz an der Kasse","s":3,"t":["Jugendschutz – Einstieg","Jugendschutz – Training","Jugendschutz – Selbsttest"],"g":["Selbsttest"]},{"i":"M2","l":"M 2","n":"Kasse mit besonderen Situationen","s":3,"t":["Kasse besonders – Einstieg","Kasse besonders – Training","Kasse besonders – Selbsttest"],"g":["Selbsttest"]},{"i":"M3","l":"M 3","n":"Beschwerden annehmen und Konflikte lösen","s":3,"t":["Beschwerden – Einstieg","Beschwerden – Training","Beschwerden – Selbsttest"],"g":["Selbsttest"]},{"i":"M4","l":"M 4","n":"Umtausch, Kulanz oder Reklamation?","s":3,"t":["Umtausch oder Reklamation – Einstieg","Umtausch oder Reklamation – Training","Umtausch oder Reklamation – Selbsttest"],"g":["Selbsttest"]},{"i":"M5","l":"M 5","n":"Rechte des Kunden bei mangelhafter Ware","s":3,"t":["Rechte bei Mängeln – Einstieg","Rechte bei Mängeln – Training","Rechte bei Mängeln – Selbsttest"],"g":["Selbsttest"]},{"i":"M6","l":"M 6","n":"Mit Ladendiebstahl sicher umgehen","s":2,"t":["Ladendiebstahl – Einstieg","Ladendiebstahl – Selbsttest"],"g":["Selbsttest"]},{"i":"M7","l":"M 7","n":"Kundengruppen und Kundentypen","s":3,"t":["Kundengruppen – Einstieg","Kundengruppen – Training","Kundengruppen – Selbsttest"],"g":["Selbsttest"]},{"i":"M8","l":"M 8","n":"Hochbetrieb, Ladenschluss, Begleitung, Geschenk","s":3,"t":["Spezielle Situationen – Einstieg","Spezielle Situationen – Training","Spezielle Situationen – Selbsttest"],"g":["Selbsttest"]},{"i":"M9","l":"M 9","n":"Ratenkauf und Finanzkauf","s":1,"t":["Ratenkauf – Einstieg"],"g":["Selbsttest"]},{"i":"M10","l":"M 10","n":"Situationstraining und Fachgespräch-Generalprobe","s":4,"t":["Situationstraining – Einstieg","Situationstraining – Training","Situationstraining – Training","Situationstraining – Selbsttest"],"g":["Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur mit Besprechung","s":1,"t":["Übungsklausur mit Besprechung"],"x":1},{"i":"X2","l":"","n":"Klausur (90 Min.)","s":1,"t":["Klausur (90 Min.)"],"x":1,"k":1}],"ex":["Situations-Trainer","Kein Bon, kein Problem","Nebel über Bremerhaven (Module 1–10)"],"file":"LF10"},"LF2":{"tag":"LF 2","long":"Lernfeld 2","name":"Verkaufsgespräche kundenorientiert führen","fach":"Lernfelder","items":[{"i":"X1","l":"","n":"Auftakt: Übersicht, Punktekonto, Kann-Liste","s":1,"x":1},{"i":"M1","l":"M 1","n":"Kommunizieren","s":2,"d":"Sprache als Vertrauensauslöser; Förderer und Störer","g":["Comic","Live-App Störer-Bingo","Selbsttest"]},{"i":"M2","l":"M 2","n":"Körpersprache","s":2,"d":"Mimik, Gestik, Haltung, Blick; die vier Distanzzonen","g":["Einstieg live","Selbsttest"]},{"i":"M3","l":"M 3","n":"Verkaufsformen","s":1,"d":"Bedienung, Vorwahl, Selbstbedienung; Warenkenntnis","g":["Einstieg live","Selbsttest"]},{"i":"M4","l":"M 4","n":"Kontakt aufnehmen","s":2,"d":"Der erste Eindruck; begrüßen in den drei Verkaufsformen","g":["Einstieg live","Selbsttest"]},{"i":"X2","l":"","n":"Exkursion: Verkaufsgespräch-Safari (echte Kontaktaufnahmen beobachten und auswerten)","s":2,"x":1},{"i":"M5","l":"M 5","n":"Kaufmotive","s":2,"d":"Vertrauensauslöser; rationale und emotionale Motive","g":["Einstieg live","Selbsttest"]},{"i":"M6","l":"M 6","n":"Fragetechnik","s":3,"d":"Offene, geschlossene, Alternativ-, Kontroll- und Suggestivfragen","g":["Einstieg live","Selbsttest"]},{"i":"M7","l":"M 7","n":"Bedarfsermittlung","s":1,"d":"Wann frage ich direkt, wann beobachte ich?","g":["Einstieg live","Selbsttest"]},{"i":"X3","l":"","n":"Escape Room „Der Testkäufer“","s":1,"x":1},{"i":"X4","l":"","n":"Übungsklausur 1","s":1,"x":1},{"i":"X5","l":"","n":"Klausur 1","s":1,"x":1,"k":1},{"i":"M8","l":"M 8","n":"Warenvorlage","s":2,"d":"Regeln der Warenvorlage; mittlere Preislage; alle Sinne","g":["Einstieg live","Selbsttest"]},{"i":"M9","l":"M 9","n":"Verkaufsargumente","s":3,"d":"Vom Warenmerkmal zum Kundennutzen","g":["Einstieg live","Selbsttest"]},{"i":"M10","l":"M 10","n":"Preisnennung","s":2,"d":"Preisschock vermeiden; Sandwich und vier weitere Methoden","g":["Einstieg live","Selbsttest"]},{"i":"M11","l":"M 11","n":"Kundeneinwände","s":3,"d":"Einwand oder Vorwand; Methoden der Einwandbehandlung","g":["Einstieg live","Selbsttest"]},{"i":"M12","l":"M 12","n":"Beschwerden","s":1,"d":"Vier-Schritt-Methode; ruhig bleiben, zuhören, Lösung anbieten","g":["Einstieg live","Selbsttest"]},{"i":"M13","l":"M 13","n":"Zusatzangebote","s":2,"d":"Die drei Angebotsarten und der richtige Zeitpunkt","g":["Einstieg live","Selbsttest"]},{"i":"M14","l":"M 14","n":"Kaufabschluss","s":2,"d":"Kaufsignale erkennen, Abschlusstechniken, bekräftigen","g":["Einstieg live","Selbsttest"]},{"i":"M15","l":"M 15","n":"Service und Abschied","s":1,"d":"Waren-, kunden-, zahlungsbezogener Service; verabschieden","g":["Einstieg live","Selbsttest"]},{"i":"X6","l":"","n":"Rollenspiel „Das ganze Gespräch“ (alle Phasen am Stück)","s":1,"x":1},{"i":"X7","l":"","n":"Escape Room „Die Reklamation um 17:55 Uhr“","s":1,"x":1},{"i":"X8","l":"","n":"Übungsklausur 2","s":1,"x":1},{"i":"X9","l":"","n":"Klausur 2","s":1,"x":1,"k":1},{"i":"X10","l":"","n":"Rückgabe und Besprechung der Klausuren","s":1,"x":1}],"ex":["Escape Room 1 – Der Testkäufer","Escape Room 2 – Die Reklamation um 17:55 Uhr","Kaufhaus Kranich – Der letzte Samstag","Stufe für Stufe – Phasen des Verkaufsgesprächs"],"file":"LF2"},"LF5":{"tag":"LF 5","long":"Lernfeld 5","name":"Werben und den Verkauf fördern","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Werbung und Werbearten","s":2,"d":"Was Werbung ist und was sie soll; die neun Werbearten unterscheiden","g":["Selbsttest"]},{"i":"M2","l":"M 2","n":"Werbegrundsätze und Botschaft","s":2,"d":"Die vier Werbegrundsätze; Werbebotschaft, AIDA, Slogan","g":["Selbsttest"]},{"i":"M3","l":"M 3","n":"Werbemittel und Werbeträger","s":1,"d":"Werbemittel und Werbeträger unterscheiden; Sinne; Corporate Design","g":["Selbsttest"]},{"i":"M4","l":"M 4","n":"Der Werbeplan","s":2,"d":"Werbeetat, Streuzeit, Streukreis, Streugebiet; Werbeplan aufstellen","g":["Selbsttest"]},{"i":"M5","l":"M 5","n":"Werbeerfolgskontrolle","s":1,"d":"Werbeerfolg in Prozent und Werberendite; Grenzen der Messung","g":["Selbsttest"]},{"i":"M6","l":"M 6","n":"Verkaufsförderung und PR","s":2,"d":"Kunden-, Mitarbeiter- und Händlerpromotion; PR und Sponsoring","g":["Selbsttest"]},{"i":"M7","l":"M 7","n":"Kundenbindung heute","s":1,"d":"Kundenkarte, App, Newsletter, Coupons, Payback, Social Media","g":["Selbsttest"]},{"i":"M8","l":"M 8","n":"Das UWG","s":2,"d":"Irreführende Werbung, Mondpreise, 30-Tage-Regel, Lockangebote, Belästigung","g":["Escape Room","Selbsttest"]},{"i":"M9","l":"M 9","n":"Verpackung","s":2,"d":"Fünf Aufgaben und fünf Arten; Verpackungsgesetz, Grüner Punkt","g":["Selbsttest"]},{"i":"M10","l":"M 10","n":"Warenzustellung","s":1,"d":"Firmeneigene Zustellung, Tourenplanung; Frachtführer und Spediteur","g":["Selbsttest"]},{"i":"M11","l":"M 11","n":"Teamarbeit","s":2,"d":"Voraussetzungen, fünf Phasen, Teamsitzung leiten, Gesprächsregeln","g":["Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur im Format der Klausur, danach Besprechung","s":1,"x":1},{"i":"X2","l":"","n":"Klausur: Teil A–F über alle elf Module","s":1,"x":1,"k":1}],"ex":["Einstieg Werbe-Check","Countdown Hafenstraße","Werbe-Trainer"],"file":"LF5"},"LF9":{"tag":"LF 9","long":"Lernfeld 9","name":"Preispolitische Maßnahmen vorbereiten und durchführen","fach":"Lernfelder","items":[{"i":"M1","l":"M 1","n":"Das Prozent-Werkzeug","s":2,"d":"Prozent als Faktor, Prozentsatz, Prozentwert, Grundwert, runden wie die IHK","g":["Selbsttest"]},{"i":"M2","l":"M 2","n":"Vom Listenpreis zum Bezugspreis","s":3,"d":"Rabatt, Skonto, Bezugskosten, Preis je Stück, zwei Angebote vergleichen","g":["Selbsttest"]},{"i":"M3","l":"M 3","n":"Was ein Preis bezahlen muss","s":2,"d":"Handlungskosten, Gewinn, Umsatzsteuer; Bezugs- oder Handlungskosten; Handlungskostenzuschlag; Preisuntergrenze","g":["Selbsttest"]},{"i":"M4","l":"M 4","n":"Vorwärtskalkulation","s":3,"d":"vom Bezugspreis zum Bruttoverkaufspreis in einer Kette","g":["Selbsttest"]},{"i":"M5","l":"M 5","n":"Kalkulationsfaktor und Kalkulationszuschlag","s":2,"d":"Faktor und Zuschlag berechnen und anwenden, rückwärts mit Faktor","g":["Selbsttest"]},{"i":"M6","l":"M 6","n":"Preise senken und Aktionen rechnen","s":2,"d":"Preissenkung in %, zweite Senkung, alter Preis, Umsatz der Aktion, Einheitspreis, Umsatzsteuer herausrechnen","g":["Selbsttest"]},{"i":"M7","l":"M 7","n":"Preise festlegen und begründen","s":1,"d":"Kriterien der Preisbildung, Ziele von Sonderpreisen, Mitbewerber günstiger, Preispolitik im Überblick","g":["Selbsttest"]},{"i":"M8","l":"M 8","n":"Die Preisangabenverordnung","s":2,"d":"Endpreis, Grundpreis, Regal- und Schaufensterauszeichnung, falsches Preisschild","g":["Selbsttest"]},{"i":"M9","l":"M 9","n":"Prüfungstraining und Escape Room","s":1,"d":"alle Aufgabenmuster gemischt, Nachschlagen im offenen Buch","g":["Escape Room Der Preis-Tresor","Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur mit Besprechung","s":1,"x":1},{"i":"X2","l":"","n":"Klausur","s":1,"x":1,"k":1}],"ex":["Einstieg Was steckt im Preis","Kalkulations-Trainer","Lernkarten Modul 1–3","Sturm über dem Hafenstore"],"file":"LF9"},"WISO1":{"tag":"WiSo 1","long":"WiSo","name":"Wirtschafts- und Sozialkunde, 1. Ausbildungsjahr","fach":"Wiso","items":[{"i":"X1","l":"","n":"Lernlandkarte, Punktekonto, Kann-Liste","s":1,"t":["Lernlandkarte, Punktekonto, Kann-Liste"],"x":1},{"i":"M1","l":"M 1","n":"Das duale System","s":2,"t":["Das duale System","Das duale System"],"g":["Online-Fassung PT/ES","Selbsttest"]},{"i":"M2","l":"M 2","n":"Der Ausbildungsvertrag","s":1,"t":["Der Ausbildungsvertrag"],"g":["Einstieg live","Online-Fassung ES","Selbsttest"]},{"i":"M3","l":"M 3","n":"Rechte und Pflichten","s":2,"t":["Rechte und Pflichten","Rechte und Pflichten"],"g":["Live-App","Online-Fassung PT","Selbsttest"]},{"i":"M4","l":"M 4","n":"Probezeit, Ende, Kündigung","s":2,"t":["Probezeit, Ende, Kündigung","Probezeit, Ende, Kündigung · Einschub Operatoren (Teil A)"],"g":["Live-App","Online-Fassung PT","Selbsttest"]},{"i":"X2","l":"","n":"Probeklausur 1 und Besprechung","s":1,"t":["Probeklausur 1 und Besprechung"],"x":1},{"i":"X3","l":"","n":"Klausur 1 (M 1–4) · M 5 kompakt","s":1,"t":["Klausur 1 (M 1–4) · M 5 kompakt"],"x":1,"k":1},{"i":"M6","l":"M 6","n":"Jugendarbeitsschutz","s":2,"t":["Jugendarbeitsschutz · Operatoren-Training 1","Jugendarbeitsschutz · Probeklausur 2"],"g":["Einstieg live","Selbsttest"]},{"i":"X4","l":"","n":"Klausur 2 (M 5–6) · Einstieg M 7","s":1,"t":["Klausur 2 (M 5–6) · Einstieg M 7"],"x":1,"k":1},{"i":"M7","l":"M 7","n":"Sozialer Arbeitsschutz","s":1,"t":["Sozialer Arbeitsschutz kompakt"],"g":["Einstieg live","Selbsttest"]},{"i":"M8","l":"M 8","n":"Der Tarifvertrag","s":2,"t":["Der Tarifvertrag","Der Tarifvertrag"],"g":["Einstieg live","Selbsttest"]},{"i":"M9","l":"M 9","n":"Tarifverhandlung und Streik","s":2,"t":["Tarifverhandlung und Streik","Tarifverhandlung und Streik · Operatoren-Training 2"],"g":["Einstieg live","Selbsttest"]},{"i":"X5","l":"","n":"Probeklausur 3 und Besprechung","s":1,"t":["Probeklausur 3 und Besprechung"],"x":1},{"i":"X6","l":"","n":"Klausur 3 (M 7–9) · Der Betriebsrat","s":1,"t":["Klausur 3 (M 7–9) · Der Betriebsrat"],"x":1,"k":1},{"i":"M10","l":"M 10","n":"Der Betriebsrat","s":2,"t":["Der Betriebsrat","Der Betriebsrat"],"g":["Einstieg live","Selbsttest"]},{"i":"M11","l":"M 11","n":"JAV, Vereinbarung, Versammlung","s":1,"t":["JAV, Betriebsvereinbarung, Betriebsversammlung"],"g":["Einstieg live","Selbsttest"]},{"i":"M12","l":"M 12","n":"Rechte des Einzelnen","s":1,"t":["Rechte des Einzelnen, Vor- und Nachteile"],"g":["Einstieg live","Selbsttest"]},{"i":"C1","l":"C 1","n":"Grundrechte im Alltag","s":1,"t":["Grundrechte im Alltag"]},{"i":"C2","l":"C 2","n":"Die Bürgerschaftswahl","s":1,"t":["Die Bürgerschaftswahl"]},{"i":"C3","l":"C 3","n":"Wahl-Werkstatt","s":1,"t":["Wahl-Werkstatt"]},{"i":"X7","l":"","n":"Operatoren-Training 3 · Escape Room B","s":1,"t":["Operatoren-Training 3 · Escape Room B"],"x":1},{"i":"X8","l":"","n":"Probeklausur 4 und Besprechung","s":1,"t":["Probeklausur 4 und Besprechung"],"x":1},{"i":"X9","l":"","n":"Klausur 4 (M 10–12, C 1–3)","s":1,"t":["Klausur 4 (M 10–12, C 1–3)"],"x":1,"k":1},{"i":"C4","l":"C 4","n":"Würde am Arbeitsplatz","s":1,"t":["Würde am Arbeitsplatz"]},{"i":"X10","l":"","n":"Prüfungswerkstatt","s":1,"t":["Prüfungswerkstatt"],"x":1}],"ex":["Großer Selbsttest A","Großer Selbsttest B","Einschub Operatoren"],"file":"WiSo1"},"WISO2":{"tag":"WiSo 2","long":"WiSo","name":"Wirtschafts- und Sozialkunde, 2. Ausbildungsjahr","fach":"Wiso","items":[{"i":"X1","l":"","n":"Auftakt · M 1 Das System der Sozialversicherung","s":1,"t":["Auftakt · M 1 Das System der Sozialversicherung"],"x":1},{"i":"M2","l":"M 2","n":"Kranken- und Pflegeversicherung","s":2,"t":["Kranken- und Pflegeversicherung","Kranken- und Pflegeversicherung · Einstieg M 3"],"g":["Einstieg digital","Selbsttest"]},{"i":"M3","l":"M 3","n":"Rentenversicherung und Vorsorge","s":1,"t":["Rentenversicherung und Vorsorge"],"g":["Einstieg digital","Selbsttest"]},{"i":"M4","l":"M 4","n":"Arbeitslosenversicherung und Grundsicherung","s":1,"t":["Arbeitslosenversicherung und Grundsicherung"],"g":["Einstieg digital","Selbsttest"]},{"i":"M5","l":"M 5","n":"Unfallversicherung","s":1,"t":["Unfallversicherung"],"g":["Einstieg digital","Selbsttest"]},{"i":"M6","l":"M 6","n":"Beiträge berechnen","s":2,"t":["Beiträge berechnen","Beiträge berechnen · Escape Room 1"],"g":["Einstieg digital","Selbsttest"]},{"i":"X2","l":"","n":"Übungsklausur 1 und Besprechung","s":1,"t":["Übungsklausur 1 und Besprechung"],"x":1},{"i":"X3","l":"","n":"Klausur 1 (M 1–6) · Einstieg M 7","s":1,"t":["Klausur 1 (M 1–6) · Einstieg M 7"],"x":1,"k":1},{"i":"M7","l":"M 7","n":"Den Arbeitsvertrag abschließen","s":2,"t":["Den Arbeitsvertrag abschließen","Den Arbeitsvertrag abschließen"],"g":["Einstieg digital","Selbsttest"]},{"i":"M8","l":"M 8","n":"Rechte, Pflichten, Arbeitszeugnis","s":1,"t":["Rechte, Pflichten, Arbeitszeugnis"],"g":["Einstieg digital","Selbsttest"]},{"i":"M9","l":"M 9","n":"Ende des Arbeitsverhältnisses","s":1,"t":["Ende des Arbeitsverhältnisses"],"g":["Einstieg digital","Selbsttest"]},{"i":"X4","l":"","n":"Übungsklausur 2 und Besprechung","s":1,"t":["Übungsklausur 2 und Besprechung"],"x":1},{"i":"X5","l":"","n":"Klausur 2 (M 7–9) · Einstieg M 10","s":1,"t":["Klausur 2 (M 7–9) · Einstieg M 10"],"x":1,"k":1},{"i":"M10","l":"M 10","n":"Technischer Arbeitsschutz","s":3,"t":["Technischer Arbeitsschutz","Technischer Arbeitsschutz","Technischer Arbeitsschutz"],"g":["Einstieg digital","Selbsttest"]},{"i":"M11","l":"M 11","n":"Sozialer Arbeitsschutz – Wiederholung","s":1,"t":["Sozialer Arbeitsschutz – Wiederholung"],"g":["Einstieg digital","Selbsttest"]},{"i":"X6","l":"","n":"Entscheidungsspiel „Bremerhaven-Experiment“ (Wiederholung Block A)","s":1,"t":["Entscheidungsspiel „Bremerhaven-Experiment“ (Wiederholung Block A)"],"x":1},{"i":"X7","l":"","n":"Übungsklausur 3 und Besprechung","s":1,"t":["Übungsklausur 3 und Besprechung"],"x":1},{"i":"X8","l":"","n":"Klausur 3 (M 10–11 + Querschnitt)","s":1,"t":["Klausur 3 (M 10–11 + Querschnitt)"],"x":1,"k":1},{"i":"X9","l":"","n":"Escape Room 2 – Countdown zur Prüfung","s":1,"t":["Escape Room 2 – Countdown zur Prüfung"],"x":1},{"i":"X10","l":"","n":"Prüfungswerkstatt: WiSo-Prüfung in 60 Minuten","s":1,"t":["Prüfungswerkstatt: WiSo-Prüfung in 60 Minuten"],"x":1},{"i":"X11","l":"","n":"Nachschreiben · Ausfall · zweite Probeprüfung","s":4,"t":["Nachschreiben · Ausfall · zweite Probeprüfung","Puffer","Puffer","Letzte Fragen vor der Abschlussprüfung"],"x":1}],"ex":["Escape Room 1","Escape Room 2","Bremerhaven-Experiment"],"file":"WiSo2"},"WPF-M":{"tag":"WPF Methoden","long":"Wahlpflicht Methoden","name":"Besser lernen und arbeiten","fach":"Wahlpflicht","items":[{"i":"M1","l":"M 1","n":"Lernen lernen","s":1,"t":["Lernen lernen"],"g":["Lernkartei","Online-Fassung PT","Selbsttest"]},{"i":"M2","l":"M 2","n":"Texte knacken","s":2,"t":["Texte knacken","Texte knacken"],"g":["Selbsttest"]},{"i":"M3","l":"M 3","n":"Informationen ordnen","s":2,"t":["Informationen ordnen","Informationen ordnen (2): Mindmap"],"g":["Selbsttest"]},{"i":"M4","l":"M 4","n":"Informationen beschaffen und prüfen","s":1,"t":["Informationen beschaffen und prüfen"],"g":["Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur 1 und Besprechung","s":1,"t":["Übungsklausur 1 und Besprechung"],"x":1},{"i":"X2","l":"","n":"Klausur 1 · Einstieg Modul 5","s":1,"t":["Klausur 1 · Einstieg Modul 5"],"x":1,"k":1},{"i":"M5","l":"M 5","n":"Zeit und Ziele","s":2,"t":["Zeit und Ziele","Zeit und Ziele (2): SMART-Ziele"],"g":["Selbsttest"]},{"i":"M6","l":"M 6","n":"Kommunizieren und Feedback","s":2,"t":["Kommunizieren","Kommunizieren (2): Feedback"],"g":["Selbsttest"]},{"i":"M7","l":"M 7","n":"Im Team arbeiten","s":1,"t":["Im Team arbeiten: die Kugelbahn"],"g":["Selbsttest"]},{"i":"M8","l":"M 8","n":"Präsentieren","s":2,"t":["Präsentieren (1): planen und gestalten","Präsentieren (2): vortragen und bewerten"],"g":["Selbsttest"]},{"i":"X3","l":"","n":"Klausur 2 · Abschluss","s":1,"t":["Klausur 2 · Abschluss"],"x":1,"k":1}],"ex":["Zusatzmodul Operatoren"],"file":"WPF-Methoden"},"WPF-G":{"tag":"WPF Grafiken","long":"Wahlpflicht Grafiken","name":"Grafiken, Schaubilder und Diagramme lesen","fach":"Wahlpflicht","items":[{"i":"M1","l":"M 1","n":"Grafiken lesen","s":1,"t":["Grafiken lesen: der Grafik-Check und die Diagrammarten"],"g":["Einstieg live","Selbsttest"]},{"i":"M2","l":"M 2","n":"Anteile und Prozentwerte","s":1,"t":["Anteile und Prozentwerte aus Grafiken"],"g":["Einstieg live","Selbsttest"]},{"i":"M3","l":"M 3","n":"Veränderungen und Trends","s":1,"t":["Veränderungen und Trends"],"g":["Einstieg live","Selbsttest"]},{"i":"M4","l":"M 4","n":"Tabellen und Statistiken","s":1,"t":["Tabellen und Statistiken auswerten"],"g":["Einstieg live","Selbsttest"]},{"i":"M5","l":"M 5","n":"Aussagen prüfen und Grafiken beschreiben","s":1,"t":["Aussagen prüfen und Grafiken beschreiben"],"g":["Einstieg live","Selbsttest"]},{"i":"M6","l":"M 6","n":"Schaubilder der Wirtschaft","s":1,"t":["Schaubilder der Wirtschaft und Diagramme zeichnen"],"g":["Einstieg live","Selbsttest"]},{"i":"X1","l":"","n":"Übungsklausur und Besprechung","s":1,"t":["Übungsklausur und Besprechung"],"x":1},{"i":"X2","l":"","n":"Klausur, danach Rückblick","s":1,"t":["Klausur, danach Rückblick"],"x":1,"k":1}],"ex":["Die Zahlen-Zentrale (Module 1–6)"],"file":"WPF-Grafiken"},"WPF-R":{"tag":"WPF Rechenfit","long":"Wahlpflicht Rechenfit","name":"Rechenfit für die Prüfung","fach":"Wahlpflicht","items":[{"i":"M1","l":"Heft 1","n":"Dreisatz, Grundpreis, lose Ware, Wechselgeld","s":1,"t":["Heft 1: Dreisatz, Grundpreis, lose Ware, Wechselgeld"]},{"i":"M2","l":"Heft 2","n":"Prozentwert, Rabatt, Skonto, Bezugspreis","s":1,"t":["Heft 2: Prozentwert, Rabatt, Skonto, Bezugspreis"]},{"i":"M3","l":"Heft 3","n":"Prozentsatz: Preissenkung, Anteil, Veränderung","s":1,"t":["Heft 3: Prozentsatz: Preissenkung, Anteil, Veränderung"]},{"i":"M4","l":"Heft 4","n":"Grundwert, Preis vorher, Umsatzsteuer","s":1,"t":["Heft 4: Grundwert, Preis vorher, Umsatzsteuer"]},{"i":"M5","l":"Heft 5","n":"Durchschnitt, Kennzahlen, Ø-Lagerbestand","s":1,"t":["Heft 5: Durchschnitt, Kennzahlen, Ø-Lagerbestand"]},{"i":"M6","l":"Heft 6","n":"Kasse, Inventurdifferenz, Verteilung","s":1,"t":["Heft 6: Kasse, Inventurdifferenz, Verteilung"]},{"i":"M7","l":"Heft 7","n":"Generalprobe Zwischenprüfung: Herbst 2025 und Frühjahr 2026 in Original-Reihenfolge","s":1,"t":["Heft 7: Generalprobe Zwischenprüfung: Herbst 2025 und Frühjahr 2026 in Original-Reihenfolge"]},{"i":"M8","l":"Heft 8","n":"Generalprobe Abschlussprüfung und Rechentest","s":1,"t":["!Heft 8: Generalprobe Abschlussprüfung Sommer 2026, danach Rechentest (45 Min.)"]}],"ex":["Rechentest","Trainingshefte"],"file":"WPF-Rechenfit","word":"Heft"},"ENG":{"tag":"Englisch","long":"Englisch","name":"Englisch im Verkauf","fach":"Englisch","items":[{"i":"M1","l":"M 1","n":"LF 2 – The Sales Talk","s":8,"t":["Welcome to our shop: Begrüßung, Kontaktaufnahme, Höflichkeit","In the shop – what do we sell? Warengruppen, Abteilungen, Wegbeschreibung","Numbers, prices and paying: Zahlen, Preise, Zahlungsarten","What are you looking for? Bedarfsermittlung mit offenen und geschlossenen Fragen","Presenting a product: Adjektive, fünf Sinne, feature – benefit","„It’s too expensive“: Einwandbehandlung und Abschluss","The complete sales talk: vollständiges Verkaufsgespräch und Klausurvorbereitung","!Klausur (60 Min.) – Leistungsüberprüfung 1"]},{"i":"M2","l":"M 2","n":"LF 5 – Advertising and Promotion","s":7,"t":["Song „Price Tag“: Hörverstehen, Wortfeld money und value","What is advertising? Werbewortschatz, Werbemittel, Werbeträger","AIDA in English: Werbewirkungsmodell versprachlichen","The language of advertising: Slogans, Imperative, Superlative","Commercial: Watch and analyse – Sehverstehen und AIDA anwenden","Preparing your presentation: Präsentationssprache und Probelauf","!Produktpräsentation „Sell me this product“ – Leistungsüberprüfung 2"]}],"file":"Englisch"},"MATHE":{"tag":"Mathe","long":"Mathematik","name":"Mathematik im Lager (Fachlageristen)","fach":"Mathe","items":[{"i":"M1","l":"M 1","n":"Grundrechenarten (Wiederholung)","s":4,"t":["Addieren und Subtrahieren","Multiplizieren und Dividieren","Rechnen mit Größen (Länge, Gewicht, Zeit)","Rechnen mit dem Taschenrechner"],"e":1},{"i":"M2","l":"M 2","n":"Brüche","s":6,"t":["Brüche verstehen und darstellen","Brüche erweitern und kürzen","Brüche addieren und subtrahieren","Brüche multiplizieren und dividieren","Brüche und Dezimalzahlen","Brüche in Lagersituationen"],"e":1},{"i":"M3","l":"M 3","n":"Grundlagen Dreisatz","s":6,"t":["Proportionale Zuordnungen erkennen","Einfacher Dreisatz (gerade Zuordnung)","Dreisatz mit umgekehrter Zuordnung","Zusammengesetzter Dreisatz","Dreisatz in Lagersituationen (Mengen, Gewicht, Paletten)","Übungen und Lernstandskontrolle"]},{"i":"M4","l":"M 4","n":"Prozentrechnung im Lager","s":8,"t":["Grundbegriffe: Grundwert, Prozentwert, Prozentsatz","Prozentwert berechnen","Grundwert berechnen","Prozentsatz berechnen","Vermehrter und verminderter Grundwert","Lagerschwund, Auslastung und Rabatte","Mehrwertsteuer berechnen","Wiederholung und Lernstandskontrolle"]}],"file":"Mathe"}};
+const CAT={};
+Object.keys(CAT_RAW).forEach(pid=>{
+ const p=CAT_RAW[pid];p.id=pid;
+ p.items.forEach(it=>{it.id=it.i;it.name=it.n;it.ds=it.s;it.th=it.t||[];it.lab=it.l||'';it.dg=it.g||[];
+  it.long=!it.lab?'':/^Heft/.test(it.lab)?it.lab:'Modul '+it.lab.replace(/^M /,'');});
+ CAT[pid]=p;
+});
+const partsOfFach=fach=>Object.keys(CAT).map(k=>CAT[k]).filter(p=>p.fach===fach);
 /* V26 = 1. Ausbildungsjahr, V25 = 2. Ausbildungsjahr (Reihenfolge im 2. Jahr: LF 6, 7, 9, 10, 8) */
-function curriculumFor(klasse,fach){
+function defaultParts(klasse,fach){
  const jahr1=!/^V25/.test(klasse);
- if(fach==='Lernfelder')return (jahr1?[1,2,3,4,5]:[6,7,9,10,8]).map(n=>Object.assign({nr:n},LF[n]));
- if(fach==='Wiso')return jahr1?WISO1:WISO2;
- if(fach==='Englisch')return ENG;
- if(fach==='Mathe')return MATHE;
- return WPF;
+ if(fach==='Lernfelder')return jahr1?['LF1','LF2','LF3','LF4','LF5']:['LF6','LF7','LF9','LF10','LF8'];
+ if(fach==='Wiso')return [jahr1?'WISO1':'WISO2'];
+ if(fach==='Englisch')return ['ENG'];
+ if(fach==='Mathe')return ['MATHE'];
+ return ['WPF-M','WPF-R','WPF-G'];
 }
-const tagOf=(fach,nr,kurz)=>fach==='Lernfelder'?(kurz?'LF'+nr:'LF '+nr):(kurz?'Modul'+nr:'Modul '+nr);
+const PWORK={MATHE:'anhand von Rechenaufgaben aus dem Lageralltag',ENG:'anhand von Dialogen, Wortschatzarbeit und Rollenspielen','WPF-R':'anhand von Originalaufgaben aus Prüfungen','WPF-G':'anhand von Grafiken und Prüfungsaufgaben'};
+
 const AMP={gruen:'Im Plan',gelb:'Leicht im Verzug',rot:'Im Verzug'};
 const STAT={unterricht:'Unterricht',ferien:'Ferien',feiertag:'Feiertag',frei:'Schulfrei',fehlt:'Lehrkraft fehlt',klausur:'Klausur',puffer:'Puffer'};
 const ICON_COPY='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>';
@@ -182,7 +174,7 @@ function slug(s){return String(s).replace(/ä/g,'ae').replace(/ö/g,'oe').replac
 /* ================= ZUSTAND ================= */
 let state=null,C={chains:{},byDate:{},occById:{}},AB={};
 let STUDENT=false,LOAD_ERR=false;
-const ui={tab:'woche',week:'',filterKlasse:'',chainKey:'',adminSec:'raster',adminKlasse:'V26/1',modal:null};
+const ui={tab:'woche',week:'',filterKlasse:'',chainKey:'',adminSec:'raster',adminKlasse:'V26/1',matPart:'LF1',open:{},modal:null};
 
 const PERIODS=['1./2. Std · 07:55','3./4. Std · 09:50','5./6. Std · 11:35','7./8. Std · 13:20'];
 /* Stundenplan aus Untis (A = Woche ab 26.10.2026, B = Woche ab 02.11.2026); Schlüssel Woche|Tag(0=Mo)|Doppelstunde */
@@ -197,10 +189,31 @@ function presetSlots(){
  set('A',1,1,'V25/3','Englisch');set('A',3,1,'V25/1','Englisch');
  return S;
 }
-function defaultChain(klasse,fach){return {start:'',modules:curriculumFor(klasse,fach).map(m=>({id:'m'+m.nr,nr:m.nr,name:m.name,ds:m.ds,on:true,link:'',inhalte:m.inhalte.join('; '),check:!!m.flag}))};}
+function newPart(pid){const mods={};CAT[pid].items.forEach(it=>{mods[it.id]={on:true,ds:it.ds};});return {pid,on:true,mods,extra:[]};}
+/* Themenkette je Klasse und Fach: start = erster Unterrichtstag der Berechnung, startKey/startDs = Modul bzw. Doppelstunde, mit dem die Klasse dort beginnt
+   (alles davor gilt als erledigt), parts = Teile (Lernfelder bzw. Wahlpflicht-Teile) in Unterrichtsreihenfolge, jumps = Sprünge im laufenden Jahr */
+function defaultChain(klasse,fach){
+ const ch={start:'2026-10-26',startKey:'',startDs:1,parts:defaultParts(klasse,fach).map(newPart),jumps:[]};
+ if((klasse==='V26/1'||klasse==='V26/2')&&fach==='Lernfelder')ch.startKey='LF1.M7';
+ if(klasse==='V26/4'&&fach==='Wiso'){ch.startKey='WISO1.M1';ch.startDs=2;}
+ if(klasse==='V26/4'&&fach==='Wahlpflicht'){ch.startKey='WPF-M.M2';ch.startDs=2;}
+ return ch;
+}
 function defaultState(){
  const chains={};KLASSEN.forEach(k=>FAECHER[k.typ].forEach(f=>chains[k.id+'|'+f]=defaultChain(k.id,f)));
- return {version:3,settings:{refA:'2026-10-26',skipHolidayWeeks:false,planStart:'2026-08-17',stichtag:'',periods:PERIODS},slots:presetSlots(),chains,customDays:[],absences:[],exams:[],texts:{}};
+ return {version:4,settings:{refA:'2026-10-26',skipHolidayWeeks:false,planStart:'2026-08-17',stichtag:'',periods:PERIODS,klassenEnde:{'V25/1':'2027-05-28','V25/3':'2027-05-28'}},slots:presetSlots(),chains,mat:{},customDays:[],absences:[],exams:[],texts:{}};
+}
+function repairChain(c){
+ if(!c||typeof c!=='object')return;
+ c.start=c.start||'';c.startKey=c.startKey||'';c.startDs=Math.max(1,parseInt(c.startDs)||1);
+ c.jumps=(Array.isArray(c.jumps)?c.jumps:[]).filter(j=>j&&j.date&&j.key);
+ c.parts=(Array.isArray(c.parts)?c.parts:[]).filter(p=>p&&CAT[p.pid]);
+ c.parts.forEach(p=>{
+  p.on=p.on!==false;if(!p.mods||typeof p.mods!=='object')p.mods={};
+  CAT[p.pid].items.forEach(it=>{const m=p.mods[it.id];if(!m)p.mods[it.id]={on:true,ds:it.ds};else{m.on=m.on!==false;m.ds=Math.max(1,parseInt(m.ds)||it.ds);}});
+  if(!Array.isArray(p.extra))p.extra=[];
+  p.extra.forEach(e=>{e.id=e.id||uid();e.name=e.name||'Eigener Eintrag';e.ds=Math.max(1,parseInt(e.ds)||1);e.on=e.on!==false;});
+ });
 }
 function normalize(j){
  const b=defaultState();
@@ -208,13 +221,16 @@ function normalize(j){
  ['customDays','absences','exams'].forEach(k=>{if(!Array.isArray(o[k]))o[k]=[];});
  if(!o.slots||typeof o.slots!=='object')o.slots={};
  if(!o.texts||typeof o.texts!=='object')o.texts={};
+ if(!o.mat||typeof o.mat!=='object')o.mat={};
  if(!Array.isArray(o.settings.periods)||o.settings.periods.length<4)o.settings.periods=b.settings.periods;
+ if(!o.settings.klassenEnde||typeof o.settings.klassenEnde!=='object')o.settings.klassenEnde=b.settings.klassenEnde;
  const ver=j.version||1;
- o.chains=ver<3?b.chains:Object.assign({},b.chains,j.chains||{});
- if(ver<2)o.texts={};
- if(ver<3){o.slots=b.slots;o.settings.refA=b.settings.refA;o.settings.periods=b.settings.periods;}
- o.version=3;
- Object.values(o.chains).forEach(c=>{if(!Array.isArray(c.modules))c.modules=[];c.start=c.start||'';c.modules.forEach((m,i)=>{m.id=m.id||uid();m.nr=m.nr||i+1;m.ds=Math.max(1,parseInt(m.ds)||1);m.link=m.link||'';m.inhalte=m.inhalte||'';});});
+ if(ver<4){ /* neues Modell: Katalog + Themenkette; Stundenplan, Fehltage, Klausuren und freie Tage bleiben erhalten */
+  o.chains=b.chains;o.texts={};o.mat={};
+  if(ver<3){o.slots=b.slots;o.settings.refA=b.settings.refA;o.settings.periods=b.settings.periods;}
+ }else o.chains=Object.assign({},b.chains,j.chains||{});
+ o.version=4;
+ Object.keys(o.chains).forEach(k=>repairChain(o.chains[k]));
  return o;
 }
 function save(){if(STUDENT)return;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
@@ -245,6 +261,24 @@ function buildAB(){
 const abOf=s=>AB[mondayOf(s)]||'A';
 
 /* ================= STOFFKETTEN-BERECHNUNG (Rutsch-Effekt) ================= */
+/* alle Doppelstunden einer Kette in Unterrichtsreihenfolge (nur aktive Teile und Module) */
+function chainItems(ch){
+ const all=[];
+ ch.parts.forEach(pt=>{
+  if(!pt.on)return;const cat=CAT[pt.pid];if(!cat)return;
+  const list=cat.items.map(it=>({it,m:pt.mods[it.id]||{on:true,ds:it.ds}}));
+  (pt.extra||[]).forEach(e=>list.push({it:{id:e.id,lab:'',long:'',name:e.name,x:1,th:[],ds:e.ds,dg:[],extra:1},m:{on:e.on!==false,ds:e.ds}}));
+  list.forEach(x=>{if(!x.m.on)return;const n=Math.max(1,parseInt(x.m.ds)||1);for(let i=1;i<=n;i++)all.push({key:pt.pid+'.'+x.it.id,part:cat,item:x.it,dsNo:i,total:n});});
+ });
+ return all;
+}
+function itemList(ch){
+ const seen=new Map();
+ chainItems(ch).forEach(u=>{if(!seen.has(u.key))seen.set(u.key,{key:u.key,part:u.part,item:u.item,total:u.total});});
+ return [...seen.values()];
+}
+const posIn=(all,key,ds)=>{const n=all.filter(u=>u.key===key).length;return n?all.findIndex(u=>u.key===key&&u.dsNo===Math.min(Math.max(1,parseInt(ds)||1),n)):-1;};
+function startIndex(ch,all){if(!ch.startKey)return 0;const i=posIn(all,ch.startKey,ch.startDs);return i<0?0:i;}
 function compute(){
  buildAB();
  C={chains:{},byDate:{},occById:{}};
@@ -254,12 +288,13 @@ function compute(){
  keys.forEach(key=>{
   const ch=state.chains[key];if(!ch)return;
   const sp=key.split('|'),klasse=sp[0],fach=sp[1];
-  const units=[];
-  ch.modules.filter(m=>m.on).forEach(m=>{for(let i=1;i<=m.ds;i++)units.push({mod:m,dsNo:i,total:m.ds,fach});});
+  const all=chainItems(ch),si=startIndex(ch,all),units=all.slice(si);
   const mine=slots.filter(s=>s.klasse===klasse&&s.fach===fach);
   const from=ch.start&&ch.start>S.planStart?ch.start:S.planStart;
-  const occ=[];let u=0;
-  for(let d=from;d<=PLAN_END;d=addDays(d,1)){
+  const kend=(S.klassenEnde||{})[klasse]||'',stop=kend&&kend<PLAN_END?kend:PLAN_END;
+  const jumps=(ch.jumps||[]).slice().sort((a,b)=>a.date.localeCompare(b.date)||(a.p||0)-(b.p||0));
+  const occ=[];let u=si,ji=0;
+  for(let d=from;d<=stop;d=addDays(d,1)){
    const w=wd(d);if(w>4)continue;
    const todays=mine.filter(s=>s.w===abOf(d)&&s.d===w).sort((a,b)=>a.p-b.p);
    if(!todays.length)continue;
@@ -267,11 +302,12 @@ function compute(){
    const absent=state.absences.some(a=>d>=a.from&&d<=(a.to||a.from));
    const exam=state.exams.find(e=>e.date===d&&e.klasse===klasse&&e.fach===fach);
    todays.forEach(s=>{
+    while(ji<jumps.length&&(jumps[ji].date<d||(jumps[ji].date===d&&(jumps[ji].p||0)<=s.p))){const t=posIn(all,jumps[ji].key,jumps[ji].ds);if(t>=0)u=t;ji++;}
     const o={id:key+'@'+d+'@'+s.p,date:d,period:s.p,klasse,fach,key};
     if(info){o.status=info.type;o.label=info.name;}
     else if(absent)o.status='fehlt';
     else if(exam){o.status='klausur';o.exam=exam;}
-    else if(u<units.length){o.status='unterricht';o.unit=units[u++];}
+    else if(u<all.length){o.status='unterricht';o.unit=all[u++];}
     else o.status='puffer';
     occ.push(o);C.occById[o.id]=o;(C.byDate[d]=C.byDate[d]||[]).push(o);
    });
@@ -281,35 +317,45 @@ function compute(){
   const ist=past.filter(o=>o.status==='unterricht').length;
   const verzugDS=Math.max(0,soll-ist),verzugStd=verzugDS*2;
   const amp=verzugStd===0?'gruen':verzugStd<=4?'gelb':'rot';
-  const planned=occ.filter(o=>o.unit);
-  C.chains[key]={key,klasse,fach,units,occ,soll,ist,verzugDS,verzugStd,amp,
-   current:units[ist]||null,open:units.length-planned.length,
+  const planned=occ.filter(o=>o.unit),nextOcc=occ.find(o=>o.unit&&o.date>=today);
+  C.chains[key]={key,klasse,fach,units,all,occ,soll,ist,verzugDS,verzugStd,amp,skipped:si,kend,
+   current:nextOcc?nextOcc.unit:(all[u]||null),open:Math.max(0,all.length-u),
    end:planned.length?planned[planned.length-1].date:null};
  });
 }
 const chainsList=()=>Object.values(C.chains).sort((a,b)=>KLASSEN.findIndex(k=>k.id===a.klasse)-KLASSEN.findIndex(k=>k.id===b.klasse)||a.fach.localeCompare(b.fach));
 
 /* ================= TEXTE / MATERIAL ================= */
-function rawTeil(u){
- const l=(u.mod.inhalte||'').split(/;|\n/).map(x=>x.trim()).filter(Boolean);
- if(!l.length)return u.mod.name;
- return l[Math.min(l.length-1,Math.floor((u.dsNo-1)*l.length/u.total))];
+const unitTag=u=>u.item.lab?u.part.tag+' · '+u.item.lab:u.part.tag;
+const unitRef=u=>u.item.long?`${u.part.long}, ${u.item.long} „${u.item.name}“`:`${u.part.long}: ${u.item.name}`;
+function rawThema(u){
+ const it=u.item;
+ const src=it.th&&it.th.length?it.th:(it.d?it.d.split(';').map(x=>x.trim()).filter(Boolean):[]);
+ if(!src.length)return it.name;
+ return src[Math.min(src.length-1,Math.floor((u.dsNo-1)*src.length/u.total))];
 }
-const teilthema=u=>rawTeil(u).replace(/^!\s*/,'');
-const isLeistung=u=>/^!/.test(rawTeil(u));
-const textKey=o=>[o.klasse,o.fach,o.unit.mod.id,o.unit.dsNo].join('|');
+const thema=u=>rawThema(u).replace(/^!\s*/,'');
+const isLeistung=u=>/^!/.test(rawThema(u))||!!u.item.k;
+const textKey=o=>[o.klasse,o.fach,o.unit.key,o.unit.dsNo].join('|');
 function autoText(o){
- const u=o.unit,t=teilthema(u),m=u.mod.name,n=u.mod.nr,f=o.fach;
- const lf=f==='Lernfelder',kind=lf?'Lernfeld':'Modul',gen=lf?'des Lernfelds':'des Moduls',tag=tagOf(f,n);
- const work=f==='Mathe'?'anhand von Rechenaufgaben aus dem Lageralltag':f==='Englisch'?'anhand von Dialogen, Wortschatzarbeit und Rollenspielen':'anhand von Fallbeispielen aus der Praxis';
- const ab=` (Arbeitsblatt ${tag}, Teil ${u.dsNo})`;
- if(isLeistung(u))return `Leistungsüberprüfung im Fach ${f}: ${t} (${kind} „${m}“).`;
- if(u.dsNo===1)return `Einstieg in das ${kind} „${m}“: Aktivierung des Vorwissens und Klärung zentraler Fachbegriffe; Erarbeitung des Teilthemas „${t}“ ${work} unter Verwendung des Arbeitsblatts ${tag}, Teil 1.`;
- if(u.dsNo===u.total)return `Zusammenfassung und Sicherung ${gen} „${m}“: Wiederholung der zentralen Inhalte (Schwerpunkt „${t}“), Anwendung ${work} sowie Reflexion des eigenen Lernstands${ab}.`;
+ const u=o.unit,it=u.item,p=u.part,t=thema(u),f=o.fach;
+ if(!it.lab){ /* Eintrag ohne Modulnummer: Klausur, Escape Room, Projekt … */
+  if(isLeistung(u))return `Schriftliche Leistungsüberprüfung im Fach ${f} (${p.long}): ${t}.`;
+  if(/Übungsklausur|Probeklausur|Übungstest/i.test(it.name))return `${p.long}: ${t} – Übungsklausur zur gezielten Vorbereitung auf die Leistungsüberprüfung, mit Besprechung und Fehleranalyse.`;
+  if(/Escape/i.test(it.name))return `${p.long}: ${t} – spielerische Wiederholung und Festigung der bisherigen Inhalte im digitalen Escape Room.`;
+  return `${p.long}: ${t}.`;
+ }
+ const ref=unitRef(u),work=PWORK[p.id]||'anhand von Fallbeispielen aus der Praxis';
+ const ab=` (Arbeitsblatt ${p.long}, ${it.long})`;
+ if(isLeistung(u))return `Leistungsüberprüfung im Fach ${f}: ${t} (${ref}).`;
+ const thG=t!==it.name?`des Themas „${t}“`:'der zentralen Modulinhalte',schw=t!==it.name?` (Schwerpunkt „${t}“)`:'';
+ if(u.total===1)return `${ref}: Erarbeitung und Sicherung ${thG} ${work}${ab}.`;
+ if(u.dsNo===1)return `Einstieg in ${ref}: Aktivierung des Vorwissens und Klärung zentraler Fachbegriffe; Erarbeitung ${thG} ${work}${ab}.`;
+ if(u.dsNo===u.total)return `Zusammenfassung und Sicherung von ${ref}: Wiederholung der zentralen Inhalte${schw}, Anwendung ${work} sowie Reflexion des eigenen Lernstands${ab}.`;
  const v=u.dsNo%3;
- if(v===0)return `Detaillierte Erarbeitung des Themas „${t}“ ${work} in Partnerarbeit; Sicherung und Besprechung der Ergebnisse im Plenum${ab}.`;
- if(v===1)return `Vertiefung und Anwendung des Themas „${t}“ im ${kind} „${m}“ ${work}; Präsentation und Auswertung der Arbeitsergebnisse${ab}.`;
- return `Erarbeitung des Themas „${t}“ (${kind} „${m}“) anhand von Informationstexten, Beispielen und Übungsaufgaben; schriftliche Ergebnissicherung im Heft${ab}.`;
+ if(v===0)return `${ref}: Detaillierte Erarbeitung ${thG} ${work} in Partnerarbeit; Sicherung und Besprechung der Ergebnisse im Plenum${ab}.`;
+ if(v===1)return `${ref}: Vertiefung und Anwendung ${thG} ${work}; Präsentation und Auswertung der Arbeitsergebnisse${ab}.`;
+ return `${ref}: Erarbeitung ${thG} anhand von Informationstexten, Beispielen und Übungsaufgaben; schriftliche Ergebnissicherung im Heft${ab}.`;
 }
 function entryText(o){
  if(o.status==='klausur')return `Schriftliche Leistungsüberprüfung (Klausur) im Fach ${o.fach}.`;
@@ -317,11 +363,23 @@ function entryText(o){
  const c=state.texts[textKey(o)];
  return c?c:autoText(o);
 }
-function matLink(o){
- const l=(o.unit.mod.link||'').trim();
- if(/^https?:\/\//i.test(l))return l;
- return 'materials/'+slug(o.klasse)+'_'+slug(o.fach)+'_'+tagOf(o.fach,o.unit.mod.nr,true)+'.pdf';
+/* Material: pro Modul ein PDF-Arbeitsblatt (Weblink, z. B. Dropbox, sonst relativer Pfad) und beliebig viele digitale Links;
+   Schlüssel "LF1.M7" = Modul, "LF1" = ganzes Lernfeld bzw. ganzer Teil */
+const isUrl=s=>/^https?:\/\//i.test((s||'').trim());
+function matDefault(key){
+ if(key.indexOf('.')>0){const a=key.split('.'),p=CAT[a[0]],it=p&&p.items.find(x=>x.id===a[1]);return {pdf:'',links:(it?it.dg:[]).map(l=>({l,u:''}))};}
+ const p=CAT[key];return {pdf:'',links:((p&&p.ex)||[]).map(l=>({l,u:''}))};
 }
+const matOf=key=>state.mat[key]||matDefault(key);
+function matEnsure(key){if(!state.mat[key])state.mat[key]=matDefault(key);return state.mat[key];}
+const autoPdf=(p,it)=>`materials/${p.file}_${slug(it.lab||it.id)}.pdf`;
+function pdfLink(u){
+ const l=(matOf(u.key).pdf||'').trim();
+ if(l)return l;
+ return u.item.lab?autoPdf(u.part,u.item):'';
+}
+const matLink=o=>pdfLink(o.unit);
+const digLinks=u=>matOf(u.key).links.filter(x=>isUrl(x.u));
 const periodLabel=p=>state.settings.periods[p]||('DS '+(p+1));
 
 /* ================= AUSGABE ================= */
@@ -349,14 +407,26 @@ function renderTabs(){
  document.getElementById('tabs').innerHTML=tabs.map(t=>`<button data-act="tab" data-v="${t[0]}" class="${ui.tab===t[0]?'on':''}">${t[1]}</button>`).join('');
 }
 
+function unitHead(u){
+ return `${u.part.tag===u.part.fach?'':`<span class="tg">${esc(u.part.tag)}</span>`}${u.item.lab?` <span class="mnr">${esc(u.item.lab)}</span>`:''} ${esc(u.item.name)}`;
+}
+function unitSub(u){
+ const t=thema(u);
+ return (u.total>1?`Doppelstunde ${u.dsNo}/${u.total}`:'')+(t!==u.item.name?(u.total>1?' · ':'')+esc(t):'');
+}
+function matButtons(u){
+ const pl=pdfLink(u);
+ return (pl?`<a class="btn sm" href="${esc(pl)}" target="_blank" rel="noopener" title="Arbeitsblatt (PDF)">Material</a>`:'')+
+  digLinks(u).map(x=>`<a class="btn sm" href="${esc(x.u.trim())}" target="_blank" rel="noopener">${esc(x.l||'Link')}</a>`).join('');
+}
 function lessonCard(o){
  const ch=C.chains[o.key];
  const head=`<div class="les-h"><span>${esc(o.klasse)}</span><span class="fa">${esc(o.fach)}</span>${STUDENT?'':`<span class="dot amp-${ch.amp}" title="${AMP[ch.amp]} (${ch.verzugStd} Std Verzug)"></span>`}</div>`;
- let body='';
+ let body='',cls='';
  if(o.status==='unterricht'){
-  const u=o.unit;
-  body=`<div class="topic">${tagOf(u.fach,u.mod.nr)}: ${esc(u.mod.name)}</div><div class="sub">Doppelstunde ${u.dsNo}/${u.total} · ${esc(teilthema(u))}</div>
-  <div class="acts"><a class="btn sm" href="${esc(matLink(o))}" target="_blank" rel="noopener">Material</a>
+  const u=o.unit;if(isLeistung(u))cls=' lk';
+  body=`<div class="topic">${unitHead(u)}</div><div class="sub">${unitSub(u)}</div>
+  <div class="acts">${matButtons(u)}
   <button class="btn sm" data-act="copy" data-id="${esc(o.id)}" title="Klassenbuch-Eintrag kopieren">${ICON_COPY} Kopieren</button>
   <button class="btn sm ghost" data-act="entry" data-id="${esc(o.id)}">Eintrag</button>
   ${STUDENT?'':`<button class="btn sm ghost" data-act="exam" data-id="${esc(o.id)}">Klausur</button>`}</div>`;
@@ -369,7 +439,7 @@ function lessonCard(o){
  }else{
   body=`<div class="topic">Unterrichtsfrei</div><div class="sub">${esc(o.label||STAT[o.status])}</div>`;
  }
- return `<div class="les st-${o.status}">${head}${body}</div>`;
+ return `<div class="les st-${o.status}${cls}">${head}${body}</div>`;
 }
 
 function renderWoche(){
@@ -401,9 +471,9 @@ function renderStatus(){
  let h=`<div class="card"><h2>Lehrplan-Ampel</h2><p class="small">Soll = Doppelstunden, die bis zum Stichtag (${de(state.settings.stichtag||todayStr())}, ohne diesen Tag) planmäßig stattfinden würden – Ferien und schulfreie Tage sind im Plan berücksichtigt, einzelne Feiertage, eigene Fehltage und Klausuren dagegen nicht. Ist = tatsächlich unterrichtete Doppelstunden mit neuem Stoff. Verzug über 4 Unterrichtsstunden (2 Doppelstunden) = <b>ROT</b>.</p>
  <div class="scroll"><table class="tbl"><thead><tr><th>Status</th><th>Klasse</th><th>Fach</th><th>Aktuelles / nächstes Thema</th><th>Ist / Soll (DS)</th><th>Verzug</th><th>Voraussichtlich fertig</th></tr></thead><tbody>`;
  list.forEach(c=>{
-  const cur=c.current?`${tagOf(c.fach,c.current.mod.nr)}: ${esc(c.current.mod.name)} (DS ${c.current.dsNo}/${c.current.total})`:(c.units.length?'Stoffplan abgeschlossen':'Kein Modul aktiv');
+  const cur=c.current?`<b>${esc(unitTag(c.current))}</b>${c.current.item.lab?': '+esc(c.current.item.name):''} (DS ${c.current.dsNo}/${c.current.total})`:(c.units.length?'Stoffplan abgeschlossen':'Kein Modul aktiv');
   h+=`<tr><td><span class="badge ${c.amp}">${c.amp==='gruen'?'GRÜN':c.amp==='gelb'?'GELB':'ROT'}</span></td><td>${esc(c.klasse)}</td><td>${esc(c.fach)}</td><td>${cur}</td><td>${c.ist} / ${c.soll}</td><td>${c.verzugStd} Std</td>
-  <td>${c.end?de(c.end):'–'}${c.open>0?`<br><span class="small" style="color:var(--r)">${c.open} DS passen nicht mehr ins Schuljahr</span>`:''}</td></tr>`;
+  <td>${c.end?de(c.end):'–'}${c.open>0?`<br><span class="small" style="color:var(--r)">${c.open} DS passen nicht mehr bis ${c.kend?'zum Unterrichtsende ('+de(c.kend)+')':'ins Schuljahr'}</span>`:''}</td></tr>`;
  });
  return h+'</tbody></table></div></div>';
 }
@@ -421,8 +491,8 @@ function renderVerlauf(){
   const sl=STUDENT&&o.status==='fehlt'?'Entfällt':STAT[o.status];
   let inner='',acts='';
   if(o.unit){
-   inner=`<b>${tagOf(o.fach,o.unit.mod.nr)}: ${esc(o.unit.mod.name)}</b> · DS ${o.unit.dsNo}/${o.unit.total}<br>${esc(entryText(o))}`;
-   acts=`<button class="btn sm" data-act="copy" data-id="${esc(o.id)}">${ICON_COPY}</button><button class="btn sm ghost" data-act="entry" data-id="${esc(o.id)}">Eintrag</button><a class="btn sm ghost" href="${esc(matLink(o))}" target="_blank" rel="noopener">Material</a>`;
+   inner=`<b>${esc(unitTag(o.unit))}${o.unit.item.lab?': '+esc(o.unit.item.name):' – '+esc(o.unit.item.name)}</b>${o.unit.total>1?' · DS '+o.unit.dsNo+'/'+o.unit.total:''}<br>${esc(entryText(o))}`;
+   acts=`<button class="btn sm" data-act="copy" data-id="${esc(o.id)}">${ICON_COPY}</button><button class="btn sm ghost" data-act="entry" data-id="${esc(o.id)}">Eintrag</button>${matButtons(o.unit)}`;
   }else if(o.status==='klausur')inner='Klausur – kein neuer Stoff';
   else if(o.status==='puffer')inner='Stoffplan abgeschlossen – Puffer / Wiederholung';
   else inner=esc(o.label||(STUDENT?'Unterricht entfällt':'Stoff rutscht auf die nächste Stunde'));
@@ -438,8 +508,34 @@ function listRows(arr,fn,act){
  return `<table class="tbl"><tbody>${arr.map(x=>`<tr><td>${fn(x)}</td><td style="text-align:right"><button class="btn sm danger" data-act="${act}" data-id="${esc(x.id)}">Löschen</button></td></tr>`).join('')}</tbody></table>`;
 }
 const studentLink=k=>location.origin+location.pathname+'?mode=schueler&klasse='+encodeURIComponent(k);
+const itemLabel=x=>`${x.part.tag}${x.item.lab?' · '+x.item.lab:''}: ${x.item.name}`;
+function optGroups(ch,sel){
+ const groups=[];
+ itemList(ch).forEach(x=>{let g=groups.find(y=>y.part===x.part);if(!g)groups.push(g={part:x.part,items:[]});g.items.push(x);});
+ return groups.map(g=>`<optgroup label="${esc(g.part.tag+' – '+g.part.name)}">${g.items.map(x=>`<option value="${esc(x.key)}" ${x.key===sel?'selected':''}>${esc((x.item.lab?x.item.lab+': ':'')+x.item.name)} (${x.total} DS)</option>`).join('')}</optgroup>`).join('');
+}
+function linkRows(key){
+ const m=matOf(key);
+ return m.links.map((x,i)=>`<div class="lrow"><input type="text" style="width:190px" data-mat="${esc(key)}" data-i="${i}" data-f="l" value="${esc(x.l)}" placeholder="Bezeichnung"><input type="text" style="flex:1;min-width:220px" data-mat="${esc(key)}" data-i="${i}" data-f="u" value="${esc(x.u)}" placeholder="https://… (Link zum digitalen Material)"><button class="btn sm danger" data-act="matDel" data-key="${esc(key)}" data-i="${i}" title="Zeile entfernen">✕</button></div>`).join('')
+  +`<button class="btn sm" data-act="matAdd" data-key="${esc(key)}">+ Link</button>`;
+}
+function partBlock(key,ch,pt,i){
+ const cat=CAT[pt.pid],pp='chains.'+key+'.parts.'+i,ok=key+'#'+pt.pid;
+ const sum=cat.items.reduce((a,it)=>a+(pt.mods[it.id].on?pt.mods[it.id].ds:0),0)+pt.extra.reduce((a,e)=>a+(e.on?e.ds:0),0);
+ let h=`<details class="part" data-open="${esc(ok)}" ${ui.open[ok]?'open':''}><summary><input type="checkbox" ${bind(pp+'.on','data-t="b"')} ${pt.on?'checked':''} title="Diesen Teil unterrichten"> <b>${esc(cat.tag)}</b> · ${esc(cat.name)} <span class="pill">${sum} DS</span>
+  <span class="pbtn"><button class="btn sm ghost" data-act="partUp" data-key="${esc(key)}" data-i="${i}" ${i===0?'disabled':''} title="Nach vorn">▲</button><button class="btn sm ghost" data-act="partDown" data-key="${esc(key)}" data-i="${i}" ${i===ch.parts.length-1?'disabled':''} title="Nach hinten">▼</button><button class="btn sm danger" data-act="partDel" data-key="${esc(key)}" data-i="${i}" title="Teil entfernen">✕</button></span></summary>`;
+ cat.items.forEach(it=>{
+  const mp=pp+'.mods.'+it.id,m=pt.mods[it.id];
+  h+=`<div class="mrow"><input type="checkbox" ${bind(mp+'.on','data-t="b"')} ${m.on?'checked':''} title="Modul unterrichten"><span class="mnr ${it.lab?'':'x'}">${esc(it.lab||'·')}</span><span>${esc(it.name)}${it.e?' <span class="pill fehlt">Umfang geschätzt</span>':''}</span><span><input type="number" min="1" style="width:64px" ${bind(mp+'.ds','data-t="n"')} value="${m.ds}"> <span class="small">DS</span></span></div>`;
+ });
+ pt.extra.forEach((e,j)=>{
+  const mp=pp+'.extra.'+j;
+  h+=`<div class="mrow"><input type="checkbox" ${bind(mp+'.on','data-t="b"')} ${e.on?'checked':''}><span class="mnr x">+</span><input type="text" ${bind(mp+'.name')} value="${esc(e.name)}"><span><input type="number" min="1" style="width:64px" ${bind(mp+'.ds','data-t="n"')} value="${e.ds}"> <button class="btn sm danger" data-act="extraDel" data-key="${esc(key)}" data-i="${i}" data-j="${j}">✕</button></span></div>`;
+ });
+ return h+`<button class="btn sm" data-act="extraAdd" data-key="${esc(key)}" data-i="${i}" style="margin-top:6px">+ eigener Eintrag am Ende</button></details>`;
+}
 function renderAdmin(){
- const secs=[['raster','Stundenplan-Raster A/B'],['klassen','Klassen & Stoffpläne'],['fehl','Eigene Fehltage'],['klausur','Klausuren'],['frei','Freie Tage'],['einst','Einstellungen']];
+ const secs=[['raster','Stundenplan-Raster A/B'],['klassen','Klassen & Stoffpläne'],['material','Lernfelder & Material'],['fehl','Eigene Fehltage'],['klausur','Klausuren'],['frei','Freie Tage'],['einst','Einstellungen']];
  let h=`<div class="sub-nav">${secs.map(s=>`<button data-act="sec" data-v="${s[0]}" class="${ui.adminSec===s[0]?'on':''}">${s[1]}</button>`).join('')}</div>`;
  const S=state.settings;
  if(ui.adminSec==='raster'){
@@ -458,28 +554,47 @@ function renderAdmin(){
    h+='</tbody></table></div></div>';
   });
  }
- if(ui.adminSec==='klassen'){
-  const typ=typOf(ui.adminKlasse);
+  if(ui.adminSec==='klassen'){
+  const typ=typOf(ui.adminKlasse),kend=(S.klassenEnde||{})[ui.adminKlasse]||'';
   h+=`<div class="card"><div class="row"><div><label>Klasse</label>${klasseSelect('data-ui="adminKlasse"',ui.adminKlasse)}</div>
+  <div><label>Letzter Unterrichtstag der Klasse (leer = Schuljahresende)</label><input type="date" ${bind('settings.klassenEnde.'+ui.adminKlasse)} value="${esc(kend)}"></div>
   <div><label>Stoffplan übernehmen von</label>${klasseSelect('id="cpFrom"',ui.adminKlasse==='V26/1'?'V26/2':'V26/1')}</div><button data-act="copyChain">Übernehmen</button></div>
-  <p class="small">Lege fest, welche Module diese Klasse in welchem Fach bekommt (Haken), wie viele Doppelstunden (DS) sie dauern und welches Material gilt. Bereits abgeschlossene Module einfach abwählen oder den Beginn der Themenkette setzen. Teilthemen (mit Semikolon getrennt) werden auf die Doppelstunden verteilt und fließen in die Klassenbuch-Einträge ein. Ohne Weblink wird automatisch <code>materials/${esc(slug(ui.adminKlasse))}_Fach_ModulN.pdf</code> verwendet.</p></div>`;
-  FAECHER[typ].forEach(f=>{
+  ${/^V25/.test(ui.adminKlasse)?`<p class="small" style="margin:6px 0 0">Die Abschlussklassen (V25) beenden den Unterricht vor den Sommerferien – trage hier den voraussichtlich letzten Unterrichtstag ein (vorbelegt: ${de('2027-05-28')}). Danach erscheinen keine Stunden mehr im Plan.</p>`:''}
+  <p class="small">Pro Fach legst du die Reihenfolge der Teile fest (▲ ▼), lässt Teile oder einzelne Module weg (Haken) und stellst die Doppelstunden (DS) je Modul ein. Unter <b>„Beginn“</b> trägst du ein, mit welchem Modul die Klasse ab dem Startdatum anfängt (z. B. <i>LF 1 · M 7</i>) – alle folgenden Module rutschen automatisch nach. Wenn du später ein Modul überspringst oder zurückgehst, nutze einen <b>Sprung</b>. Links zu Arbeitsblättern und digitalem Material pflegst du unter <b>Lernfelder &amp; Material</b>.</p></div>`;
+  FAECHER[typ].forEach((f,fi)=>{
    const key=ui.adminKlasse+'|'+f,ch=state.chains[key],bp='chains.'+key;
-   h+=`<div class="card"><h2>${esc(f)}</h2><div class="row"><div><label>Beginn der Themenkette (leer = Planstart)</label><input type="date" ${bind(bp+'.start')} value="${esc(ch.start)}"></div></div>`;
-   ch.modules.forEach((m,i)=>{
-    const mp=bp+'.modules.'+i;
-    h+=`<div class="mod"><input type="checkbox" ${bind(mp+'.on','data-t="b"')} ${m.on?'checked':''} title="Modul unterrichten">
-    <input type="text" ${bind(mp+'.nr','data-t="n"')} value="${m.nr}" title="Modul-Nr." style="width:60px">
-    <input type="text" ${bind(mp+'.name')} value="${esc(m.name)}" placeholder="Modulname">
-    <input type="number" min="1" ${bind(mp+'.ds','data-t="n"')} value="${m.ds}" title="Doppelstunden">
-    <input type="text" ${bind(mp+'.link')} value="${esc(m.link)}" placeholder="Weblink (Dropbox/OneDrive) – sonst materials/…">
-    <button class="btn sm danger" data-act="delMod" data-key="${esc(key)}" data-i="${i}">✕</button>
-    <div class="full">${m.check?'<div class="small" style="color:var(--y);margin-bottom:3px">Umfang geschätzt – bitte Doppelstunden prüfen</div>':''}<textarea ${bind(mp+'.inhalte')} placeholder="Teilthemen, durch Semikolon getrennt (! vorn = Leistungsüberprüfung)">${esc(m.inhalte)}</textarea></div></div>`;
-   });
-   h+=`<button data-act="addMod" data-key="${esc(key)}" style="margin-top:8px">+ Modul hinzufügen</button></div>`;
+   const all=chainItems(ch),si=startIndex(ch,all),missing=ch.startKey&&posIn(all,ch.startKey,ch.startDs)<0;
+   const dsAll=all.length;
+   h+=`<div class="card"><h2>${esc(f)} <span class="pill">${dsAll-si} DS ab Beginn</span></h2>
+   <div class="row"><div><label>Beginn der Themenkette (erster Tag)</label><input type="date" ${bind(bp+'.start')} value="${esc(ch.start)}"></div>
+   <div style="flex:1;min-width:260px"><label>Beginn mit Modul</label><select data-role="startSel" data-key="${esc(key)}"><option value="">– am Anfang der Reihenfolge –</option>${optGroups(ch,ch.startKey)}</select></div>
+   <div><label>ab Doppelstunde</label><input type="number" min="1" style="width:80px" ${bind(bp+'.startDs','data-t="n" data-role="startDs"')} value="${ch.startDs}"></div></div>
+   ${missing?'<div class="warn">Das gewählte Startmodul ist abgewählt oder nicht vorhanden – es wird am Anfang begonnen.</div>':''}
+   ${si>0?`<p class="small" style="margin:0 0 8px">Als bereits erledigt gelten ${si} Doppelstunde${si===1?'':'n'} vor dem Startmodul.</p>`:''}`;
+   ch.parts.forEach((pt,i)=>{h+=partBlock(key,ch,pt,i);});
+   const free=partsOfFach(f).filter(p=>!ch.parts.some(x=>x.pid===p.id));
+   if(free.length)h+=`<div class="row" style="margin-top:8px"><select id="ap${fi}">${free.map(p=>`<option value="${esc(p.id)}">${esc(p.tag+' – '+p.name)}</option>`).join('')}</select><button data-act="partAdd" data-key="${esc(key)}" data-fi="${fi}">+ Teil hinzufügen</button></div>`;
+   h+=`<h3>Sprünge</h3><p class="small" style="margin-top:0">Ab einem Datum (und einer Doppelstunde des Tages) geht es mit einem anderen Modul weiter – z. B. wenn du ein Modul auslässt oder zurückspringst. Schneller: im Wochenplan bei „Eintrag“.</p>
+   ${ch.jumps.length?`<table class="tbl"><tbody>${ch.jumps.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(j=>{const x=itemList(ch).find(y=>y.key===j.key);return `<tr><td>ab ${de(j.date)}${j.p?' · '+esc(periodLabel(j.p)):''}</td><td>${x?esc(itemLabel(x)):esc(j.key)}${j.ds>1?' · DS '+j.ds:''}</td><td style="text-align:right"><button class="btn sm danger" data-act="jmpDelAdm" data-key="${esc(key)}" data-id="${esc(j.id)}">Löschen</button></td></tr>`;}).join('')}</tbody></table>`:'<p class="small">Keine Sprünge eingetragen.</p>'}
+   <div class="row"><div><label>Ab Datum</label><input type="date" id="jd${fi}"></div><div style="flex:1;min-width:240px"><label>weiter mit</label><select id="js${fi}">${optGroups(ch,'')}</select></div><div><label>DS</label><input type="number" min="1" value="1" id="jn${fi}" style="width:70px"></div><button class="btn pri" data-act="jmpAdd" data-key="${esc(key)}" data-fi="${fi}">Sprung hinzufügen</button></div></div>`;
   });
  }
- if(ui.adminSec==='fehl'){
+ if(ui.adminSec==='material'){
+  const sel=CAT[ui.matPart]?ui.matPart:'LF1',cat=CAT[sel];
+  const fachs=['Lernfelder','Wiso','Wahlpflicht','Englisch','Mathe'];
+  h+=`<div class="card"><div class="row"><div><label>Lernfeld / Bereich</label><select data-ui="matPart">${fachs.map(f=>`<optgroup label="${f}">${partsOfFach(f).map(p=>`<option value="${esc(p.id)}" ${p.id===sel?'selected':''}>${esc(p.tag+' – '+p.name)}</option>`).join('')}</optgroup>`).join('')}</select></div></div>
+  <p class="small">Zu jedem Modul kannst du das <b>Arbeitsblatt als PDF</b> verlinken (z. B. Dropbox: Datei → Teilen → Link erstellen, „Jeder mit dem Link“; den Link hier einfügen) und beliebig viele <b>digitale Materialien</b> (digitaler Einstieg, Escape Room, Live Adventure, Selbsttest …). Alles, was hier eingetragen ist, erscheint als Button in der Stunde – auch in der Schüleransicht. Bleibt das PDF-Feld leer, gilt der Pfad im Feld (<code>materials/…pdf</code> neben der index.html). Die Bezeichnungen sind Vorschläge aus deinen Ordnern und lassen sich ändern.</p></div>`;
+  h+=`<div class="card"><h2>${esc(cat.tag)} · ${esc(cat.name)} <span class="pill">${cat.items.reduce((a,x)=>a+x.ds,0)} DS</span></h2>
+  <h3>Digitales Material zum ganzen Lernfeld / Bereich (Escape Room, Live Adventure, Trainer …)</h3>${linkRows(sel)}`;
+  cat.items.forEach(it=>{
+   const key=sel+'.'+it.id,m=matOf(key);
+   h+=`<div class="matbox"><div class="mh"><span class="mnr ${it.lab?'':'x'}">${esc(it.lab||'·')}</span> <b>${esc(it.name)}</b> <span class="small">${it.ds} DS</span>${it.e?' <span class="pill fehlt">Umfang geschätzt</span>':''}</div>
+   <div class="row" style="margin:6px 0 4px"><div style="flex:1;min-width:240px"><label>Arbeitsblatt (PDF) – Weblink oder relativer Pfad</label><input type="text" style="width:100%" data-mat="${esc(key)}" data-f="pdf" value="${esc(m.pdf)}" placeholder="${esc(it.lab?autoPdf(cat,it):'https://…')}"></div></div>
+   ${linkRows(key)}</div>`;
+  });
+  h+='</div>';
+ }
+if(ui.adminSec==='fehl'){
   h+=`<div class="card"><h2>Eigene Fehltage (Lehrkraft)</h2><div class="warn">Datenschutz: Hier werden ausschließlich deine eigenen Fehltage erfasst – keine Schülerdaten. Trage keine Gründe wie Krankheit ein; die Notiz wird im Backup gespeichert, in der Schüleransicht aber nicht angezeigt.</div>
   <div class="row"><div><label>Von</label><input type="date" id="absFrom"></div><div><label>Bis (optional)</label><input type="date" id="absTo"></div><div><label>Neutrale Notiz (optional)</label><input type="text" id="absNote" placeholder="z. B. Fortbildung"></div><button class="btn pri" data-act="addAbs">Hinzufügen</button></div>
   ${listRows(state.absences.slice().sort((a,b)=>a.from.localeCompare(b.from)),a=>`${de(a.from)}${a.to&&a.to!==a.from?' – '+de(a.to):''} ${a.note?'· '+esc(a.note):''}`,'delAbs')}</div>`;
@@ -514,11 +629,23 @@ function renderModal(){
  if(!ui.modal){m.className='';m.innerHTML='';return;}
  const o=C.occById[ui.modal];if(!o){ui.modal=null;m.className='';return;}
  m.className='on';
- m.innerHTML=`<div class="box"><h2 style="margin-top:0">Klassenbuch- / Berichtsheft-Eintrag</h2><p class="small">${esc(o.klasse)} · ${esc(o.fach)} · ${TAGE[wd(o.date)]} ${de(o.date)} · ${esc(periodLabel(o.period))}</p>
+ let mat='',jmp='';
+ if(o.unit){
+  const u=o.unit,pl=pdfLink(u),pm=matOf(u.part.id).links.filter(x=>isUrl(x.u));
+  const btns=matButtons(u)+pm.map(x=>`<a class="btn sm ghost" href="${esc(x.u.trim())}" target="_blank" rel="noopener">${esc(x.l||'Link')} (${esc(u.part.tag)})</a>`).join('');
+  mat=`<p class="small" style="margin:4px 0"><b>${esc(unitTag(u))}</b>${u.item.lab?': '+esc(u.item.name):''} · Doppelstunde ${u.dsNo}/${u.total}</p>${btns?`<div class="acts" style="margin:0 0 8px">${btns}</div>`:''}`;
+  if(!STUDENT){
+   const ch=state.chains[o.key],cur=(ch.jumps||[]).find(j=>j.date===o.date&&(j.p||0)===o.period);
+   jmp=`<hr style="border:0;border-top:1px solid var(--line);margin:12px 0"><h3 style="margin:0 0 6px">Ab dieser Stunde mit anderem Modul weitermachen</h3>
+   <div class="row"><div style="flex:1;min-width:220px"><select id="jmpSel" style="width:100%">${optGroups(ch,u.key)}</select></div><div><input type="number" id="jmpDs" min="1" value="${u.dsNo}" style="width:70px" title="Doppelstunde"></div><button class="btn" data-act="jmpSet">Sprung setzen</button>${cur?'<button class="btn ghost danger" data-act="jmpDel">Sprung entfernen</button>':''}</div>
+   <p class="small" style="margin:4px 0 0">Die folgenden Stunden und Module rutschen entsprechend nach.</p>`;
+  }
+ }
+ m.innerHTML=`<div class="box"><h2 style="margin-top:0">Klassenbuch- / Berichtsheft-Eintrag</h2><p class="small">${esc(o.klasse)} · ${esc(o.fach)} · ${TAGE[wd(o.date)]} ${de(o.date)} · ${esc(periodLabel(o.period))}</p>${mat}
  <textarea id="entryTxt" style="min-height:130px" ${STUDENT?'readonly':''}>${esc(entryText(o))}</textarea>
  <div class="acts" style="margin-top:10px"><button class="btn pri" data-act="mCopy">${ICON_COPY} In Zwischenablage kopieren</button><button class="btn" data-act="mCopyDate">Mit Datum kopieren</button>
- ${STUDENT?'':'<button class="btn" data-act="mSave">Eigenen Text speichern</button><button class="btn ghost" data-act="mReset">Vorschlag wiederherstellen</button>'}
- <button class="btn ghost" data-act="mClose">Schließen</button></div></div>`;
+ ${STUDENT||!o.unit?'':'<button class="btn" data-act="mSave">Eigenen Text speichern</button><button class="btn ghost" data-act="mReset">Vorschlag wiederherstellen</button>'}
+ <button class="btn ghost" data-act="mClose">Schließen</button></div>${jmp}</div>`;
 }
 function renderFoot(){
  document.getElementById('foot').innerHTML=STUDENT?'':`<div class="card"><button class="btn pri" data-act="export">Planungsdaten exportieren</button><button class="btn pri" data-act="import">Planungsdaten importieren</button><button class="btn danger" data-act="reset">Alles zurücksetzen</button>
@@ -581,8 +708,17 @@ document.addEventListener('click',e=>{
   case 'delExam':state.exams=state.exams.filter(x=>x.id!==id);save();refresh();break;
   case 'addFree':{const d=val('frDate');if(!d){toast('Bitte Datum wählen',true);break;}state.customDays.push({id:uid(),date:d,name:val('frName').trim()||'Schulfrei'});save();refresh();break;}
   case 'delFree':state.customDays=state.customDays.filter(x=>x.id!==id);save();refresh();break;
-  case 'addMod':{const ch=state.chains[t.dataset.key];ch.modules.push({id:uid(),nr:Math.max(0,...ch.modules.map(m=>+m.nr||0))+1,name:'Neues Modul',ds:4,on:true,link:'',inhalte:''});save();refresh();break;}
-  case 'delMod':{if(confirm('Modul wirklich löschen?')){state.chains[t.dataset.key].modules.splice(+t.dataset.i,1);save();refresh();}break;}
+  case 'partUp':case 'partDown':{const ps=state.chains[t.dataset.key].parts,i=+t.dataset.i,j=a==='partUp'?i-1:i+1;if(j>=0&&j<ps.length){[ps[i],ps[j]]=[ps[j],ps[i]];save();refresh();}break;}
+  case 'partDel':{const ps=state.chains[t.dataset.key].parts,i=+t.dataset.i;if(confirm(`„${CAT[ps[i].pid].tag}“ aus dieser Reihenfolge entfernen? (Über „+ Teil hinzufügen“ jederzeit wieder möglich.)`)){ps.splice(i,1);save();refresh();}break;}
+  case 'partAdd':{const sel=document.getElementById('ap'+t.dataset.fi);if(sel&&sel.value){state.chains[t.dataset.key].parts.push(newPart(sel.value));save();refresh();}break;}
+  case 'extraAdd':{state.chains[t.dataset.key].parts[+t.dataset.i].extra.push({id:uid(),name:'Eigener Eintrag',ds:1,on:true});ui.open[t.dataset.key+'#'+state.chains[t.dataset.key].parts[+t.dataset.i].pid]=true;save();refresh();break;}
+  case 'extraDel':{state.chains[t.dataset.key].parts[+t.dataset.i].extra.splice(+t.dataset.j,1);save();refresh();break;}
+  case 'jmpAdd':{const fi=t.dataset.fi,d=val('jd'+fi),k=val('js'+fi);if(!d||!k){toast('Datum und Modul wählen',true);break;}state.chains[t.dataset.key].jumps.push({id:uid(),date:d,p:0,key:k,ds:Math.max(1,parseInt(val('jn'+fi))||1)});save();refresh();break;}
+  case 'jmpDelAdm':{const ch=state.chains[t.dataset.key];ch.jumps=ch.jumps.filter(j=>j.id!==id);save();refresh();break;}
+  case 'jmpSet':{const o=C.occById[ui.modal];if(!o||!o.unit)break;const ch=state.chains[o.key];ch.jumps=ch.jumps.filter(j=>!(j.date===o.date&&(j.p||0)===o.period));ch.jumps.push({id:uid(),date:o.date,p:o.period,key:val('jmpSel'),ds:Math.max(1,parseInt(val('jmpDs'))||1)});save();refresh();toast('Sprung gesetzt – die folgenden Module rutschen nach');break;}
+  case 'jmpDel':{const o=C.occById[ui.modal];if(!o)break;const ch=state.chains[o.key];ch.jumps=ch.jumps.filter(j=>!(j.date===o.date&&(j.p||0)===o.period));save();refresh();break;}
+  case 'matAdd':{matEnsure(t.dataset.key).links.push({l:'',u:''});save();renderAll();break;}
+  case 'matDel':{matEnsure(t.dataset.key).links.splice(+t.dataset.i,1);save();renderAll();break;}
   case 'copyChain':{const from=val('cpFrom'),to=ui.adminKlasse;if(from===to||typOf(from)!==typOf(to)){toast('Bitte eine andere Klasse desselben Typs wählen',true);break;}if(!confirm(`Stoffpläne von ${from} nach ${to} übernehmen? Bestehende Einstellungen von ${to} werden überschrieben.`))break;FAECHER[typOf(to)].forEach(f=>{state.chains[to+'|'+f]=JSON.parse(JSON.stringify(state.chains[from+'|'+f]));});save();refresh();toast('Übernommen');break;}
   case 'copyLink':copyText(studentLink(t.dataset.k));break;
   case 'export':{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const l=document.createElement('a');l.href=u;l.download='stundenplan_backup.json';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);toast('Backup heruntergeladen');break;}
@@ -590,15 +726,22 @@ document.addEventListener('click',e=>{
   case 'reset':if(confirm('Wirklich ALLE Planungsdaten löschen und neu beginnen?')){state=defaultState();save();refresh();toast('Zurückgesetzt');}break;
  }
 });
+document.addEventListener('toggle',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.open)ui.open[t.dataset.open]=t.open;},true);
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal'){ui.modal=null;renderModal();}});
 
 document.addEventListener('change',e=>{
  const t=e.target;
+ if(t.dataset.mat){ /* Material-Links (Modul- bzw. Lernfeld-Schlüssel) */
+  const m=matEnsure(t.dataset.mat);
+  if(t.dataset.f==='pdf')m.pdf=t.value.trim();else if(m.links[+t.dataset.i])m.links[+t.dataset.i][t.dataset.f]=t.value.trim();
+  save();return;
+ }
+ if(t.dataset.role==='startSel'){const ch=state.chains[t.dataset.key];ch.startKey=t.value;ch.startDs=1;save();refresh();return;}
  if(t.dataset.bind){ /* generische Datenbindung (Admin-Felder) */
   const p=t.dataset.bind.split('.');let o=state;for(let i=0;i<p.length-1;i++)o=o[p[i]];
   const last=p[p.length-1];
-  if(last==='ds'&&o.check)o.check=false;
   o[last]=t.dataset.t==='b'?t.checked:t.dataset.t==='n'?Math.max(1,parseInt(t.value)||1):t.value;
+  if(!o[last]&&t.dataset.t!=='b'&&t.dataset.t!=='n'&&p[0]==='settings'&&p[1]==='klassenEnde')delete o[last];
   save();compute();renderHeader();return;
  }
  const cell=t.closest('[data-slot]');
