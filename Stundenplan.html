@@ -189,6 +189,11 @@ function presetSlots(){
  set('A',1,1,'V25/3','Englisch');set('A',3,1,'V25/1','Englisch');
  return S;
 }
+const SEED_LINKS=[
+ ['LF1','Escape Room 2 – Die neue Filiale','https://www.dropbox.com/scl/fi/i9yxdiao18vkgl4bci4fd/LF1-Escape-Room-2-Die-neue-Filiale.html?rlkey=xssa09vsd8yjtl6g8mxbjhx1x&dl=0'],
+ ['LF2','Einstiegsspiel – Dein erster Verkauf','https://www.dropbox.com/scl/fi/namt9zqc0norteb60rqfk/LF2-Einstiegsspiel-Dein-erster-Verkauf.html?rlkey=d5yurgcf584mcxhyl3n6i3a2c&dl=0'],
+ ['LF9','Kalkulations-Trainer','https://www.dropbox.com/scl/fi/c9vbax4muuuo27mltamqg/LF9-Kalkulations-Trainer.html?rlkey=xywqqupjrjzjt21tvowh3hayl&dl=0']
+];
 function newPart(pid){const mods={};CAT[pid].items.forEach(it=>{mods[it.id]={on:true,ds:it.ds};});return {pid,on:true,mods,extra:[]};}
 /* Themenkette je Klasse und Fach: start = erster Unterrichtstag der Berechnung, startKey/startDs = Modul bzw. Doppelstunde, mit dem die Klasse dort beginnt
    (alles davor gilt als erledigt), parts = Teile (Lernfelder bzw. Wahlpflicht-Teile) in Unterrichtsreihenfolge, jumps = Sprünge im laufenden Jahr */
@@ -231,6 +236,15 @@ function normalize(j){
  }else o.chains=Object.assign({},b.chains,j.chains||{});
  o.version=4;
  Object.keys(o.chains).forEach(k=>repairChain(o.chains[k]));
+ if(!o.seed1){ /* bereits öffentlich geteilte Dropbox-Links einmalig eintragen */
+  o.seed1=true;
+  SEED_LINKS.forEach(x=>{
+   if(!o.mat[x[0]])o.mat[x[0]]=matDefault(x[0]);
+   const m=o.mat[x[0]];let r=m.links.find(l=>l.l===x[1]);
+   if(!r){r={l:x[1],u:''};m.links.push(r);}
+   if(!r.u)r.u=x[2];
+  });
+ }
  return o;
 }
 function save(){if(STUDENT)return;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
